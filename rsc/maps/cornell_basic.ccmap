@@ -1,0 +1,49 @@
+CONT "Engineering Quad"=
+val:6
+cap:duffield_phillips
+{
+	duffield_phillips
+	rhodes
+	upson
+}
+
+CONT "Arts Quad"=
+val:8
+cap:goldwin
+{
+	goldwin
+	mcgraw_uris
+}
+
+//Taylor, Taylor, & Hughes Halls
+taylor {
+	duffield_phillips
+	mcgraw_uris
+	olin
+}
+
+//Duffield & Phillips Halls
+duffield_phillips { 
+	hoy
+	upson
+	sage
+	taylor
+}
+
+// Hoy Field
+hoy {
+	duffield_phillips
+	upson
+}
+
+//McGraw Tower & Uris Library
+mcgraw_uris {
+	taylor
+	olin
+}
+
+//McGraw Tower & Uris Library
+mcgraw_uris {
+taylor
+olin
+}
