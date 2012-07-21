@@ -1,0 +1,38 @@
+body {
+	background: #000;
+	color: #fff;
+	padding: 0;
+	margin: 0;
+	font-weight: bold;
+	overflow: hidden;
+}
+
+span {
+	color: #ffaa55;
+}
+#info {
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+	color: #ffffff;
+	padding: 5px;
+	font-family: Monospace;
+	font-size: 13px;
+	text-align: center;
+	z-index: 1000;
+}
+#canvas2D {
+	background-color: transparent;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 2;
+}
+
+#canvas3D {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 1;
+}
+

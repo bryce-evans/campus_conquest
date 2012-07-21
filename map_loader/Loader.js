@@ -1,23 +1,83 @@
+var loader = new THREE.JSONLoader();
+var dir = "../rsc/obj/";
+var global_data = undefined;
+
+var buildings = new Array();
+function getObj(id) {
+	console.log("getting mesh");
+	return buildings[id];
+}
+
+function parseState() {
+
+	/*
+	 "state_id": "1",
+	 "t_id": "dickson",
+	 "u_id": "1",
+	 "num_troops": "174",
+	 "game_id": "1"
+	 */
+
+	$.ajax({
+		url : "../ajax/get_state.php?game_id=1",
+		dataType : 'json',
+		success : function(jsonobj) {
+
+			jQuery.each(jsonobj, function(ignore, building) {
+
+				var b = getObj(building.t_id);
+				if (b) {
+					b.setTeam(building.u_id);
+					b.troops = building.num_troops;
+
+				} else {
+					console.log("ERROR PARSING " + building.t_id);
+				}
+
+			});
+		},
+		error : function(a, b, e) {
+			console.log("ERROR CODE IS " + e + ", " + b + ", " + a);
+		}
+	});
+
+}
+
 loadBoard = function() {
-	var loader = new THREE.JSONLoader();
+
 	var material;
 	var rhodes, upson, hoy, sage;
 
-	var dir = "rsc/obj/";
-	var unfinished_models = ["duffield_phillips", "taylor", "statler", "rhodes", "goldwin", "olin", "hoy", "upson"];
-	var models = ["sage", "mcgraw_uris","uris"];
+	if (global_data == undefined) {
+		global_data = $.ajax({
+			url : "../map_loader/MapReader.php",
+			async : false
+		}).responseText;
 
-	loader.load(dir + "aaa_ground/ground.js", function(geometry) {
+		console.log("Loading Axaj");
+	} else {
+		console.log("Got global data without ajax");
+	}
 
-		var material = new THREE.MeshFaceMaterial();
-		var mesh = new THREE.Mesh(geometry, material);
+	///////////////////////////////////////////////////
 
-		mesh.scale.set(scale, scale, scale);
-		mesh.position.y = 0;
+	/**
+	 * given an object
+	 * returns string array of connected buildings
+	 * Precondition: obj must have field called name
+	 */
+	function getConnected(obj) {
+		var name = obj["name"];
+		return json["Cornell"]["Territories"][name];
+	}
 
-		scene.add(mesh);
-
-	});
+	/**
+	 * returns the object in the scene with str as a name
+	 * returns undefined if str not in scene
+	 */
+	function getBuilding(str) {
+		return json["Cornell"]["Territories"][str];
+	}
 
 	load = function(model) {
 
@@ -26,48 +86,84 @@ loadBoard = function() {
 			geometry.computeMorphNormals();
 
 			material = new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture(dir + model + "/" + model + ".png"),
-				color : 0xffffff,
+				color : colors[0],
 				shading : THREE.FlatShading
 			});
 
 			var mesh = new THREE.Mesh(geometry, material);
+			mesh.connected = json["Cornell"]["Territories"][model];
+
+			mesh.setTeam = function(newTeam) {
+				var newmat = mesh.material;
+				var newColor = colors[newTeam];
+				newmat["color"] = new THREE.Color(newColor);
+				mesh.material = newmat;
+				mesh.team = newTeam;
+			}
 
 			mesh.scale.set(scale, scale, scale);
-
+			mesh.team = 0;
+			mesh.troops = 0;
 			mesh.position.y = 0;
+
+			////////
+
+			var sumx = 0;
+			var sumy = 0;
+			var sumz = 0;
+			var counter = 0;
+			var verts = mesh.geometry.vertices;
+			var center = new Array(3);
+			for (index in verts) {
+				sumx += verts[index].x;
+				sumy += verts[index].y;
+				sumz += verts[index].z;
+				counter++;
+
+			}
+
+			mesh.center = new Array(scale * sumx / counter, scale * sumy / counter, scale * sumz / counter);
+
+			///////////
+			mesh.id = model;
+			buildings[model] = mesh;
 			board.push(mesh);
 			scene.add(mesh);
-
 		});
 	}
-	loadBasic = function(model) {
+	loadGround = function() {
+		loader.load(dir + "aaa_ground/ground.js", function(geometry) {
 
-		loader.load(dir + model + "/" + model + ".js", function(geometry) {
-
-			geometry.computeMorphNormals();
-
-			material = new THREE.MeshLambertMaterial({
-				color : 0xff00ff,
-				shading : THREE.FlatShading
-			});
-
+			var material = new THREE.MeshFaceMaterial();
 			var mesh = new THREE.Mesh(geometry, material);
 
 			mesh.scale.set(scale, scale, scale);
-
 			mesh.position.y = 0;
-			board.push(mesh);
+
 			scene.add(mesh);
+
 		});
 	}
-	for (index in unfinished_models) {
-		var model = unfinished_models[index];
-		loadBasic(model);
+	///////////////////////////////////////////
+
+	/**
+	 * creates a string array of buildings
+	 */
+	var json = eval('(' + global_data + ')');
+	var terr = json["Cornell"]["Territories"];
+	var buildingList = new Array();
+	var i = 0;
+
+	jQuery.each(terr, function(key, val) {
+		buildingList[i++] = key;
+	});
+
+	/////////
+
+	loadGround();
+
+	for (index in buildingList) {
+		load(buildingList[index]);
 	}
 
-	for (index in models) {
-		var model = models[index];
-		load(model);
-	}
 }

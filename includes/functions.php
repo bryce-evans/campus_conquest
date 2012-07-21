@@ -27,10 +27,15 @@
 	 * Given table content $t and header(header name in plain text => header name in DB)
 	 * returns table with appropriate headers and table cells
 	 */
-	function table_with_header($t, $header){
+	function table_with_header($t, $header, $empty = 0){
 		$c = "";
 		foreach($header as $headerName => $headerDBName){
 			$c .= td($headerName);
+		}
+		
+		while ($empty > 0){
+			$c .= td("");
+			$empty--;
 		}
 		
 		$headers = tr($c);
@@ -247,6 +252,24 @@
 		
     	return $c;
     }
+	
+	function db_query_into_array($query, $processing_function){
+		global $mysqli;
+    	db_connect();
+		
+		$c = "";
+    	$r = $mysqli->query($query);
+		
+		$arr = Array();
+		
+    	while ($a = $r->fetch_assoc()){
+    		$arr[] = call_user_func($processing_function, $a);
+    	}
+    	
+		db_close();
+		
+    	return $arr;
+	}
 	
 	function db_query_nr($query){
 		global $mysqli;
