@@ -22,38 +22,21 @@
 				<span>&copy; 2012 Campus Conquest</span>
 			</div>
 
-			<canvas id="canvas2D" width="1200" height="728"></canvas>
+			<canvas id="canvas2D" width="1300" height="728"></canvas>
 			<canvas id="canvas3D" width="500" height="500"></canvas>
+			<canvas id="popup" width="600" height="300"></canvas>
 
 			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+			
 			<script src="../js/lib/Three.js"></script>
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>
+			
 			<script src="../js/AttackPhase.js"></script>
-
-			<!-- <script src="../js/MouseControls.js"></script> -->
+			<script src="../js/AttackPanel.js"></script>
 			<script src="../js/overlayText.js"></script>
 			<script src="../map_loader/Loader.js"></script>
 
-			<?php $map; ?>
-
-			<script type="text/javascript">
-				window.onload = maxWindow;
-
-				function maxWindow() {
-					window.moveTo(0, 0);
-
-					if (document.all) {
-						top.window.resizeTo(screen.availWidth, screen.availHeight);
-					} else if (document.layers || document.getElementById) {
-						if (top.window.outerHeight < screen.availHeight || top.window.outerWidth < screen.availWidth) {
-							top.window.outerHeight = screen.availHeight;
-							top.window.outerWidth = screen.availWidth;
-						}
-					}
-				}
-
-			</script>
 			<script type="text/javascript">
 				if (!Detector.webgl)
 					Detector.addGetWebGLMessage();
@@ -67,6 +50,17 @@
 				var buildings = new Array();
 				function getObj(id) {
 					return buildings[id];
+				}
+
+				var arrows = new Array();
+				function getArr(start, end) {
+					for (arr in arrows) {
+						if (arr.start().id == start && arr.end().id == end) {
+							return arr;
+						}
+					}
+
+					return null;
 				}
 
 				//initialize to center to prevent unwanted pan
@@ -195,21 +189,12 @@
 					SCREEN_WIDTH = window.innerWidth;
 					SCREEN_HEIGHT = window.innerHeight;
 
-					// if(SCREEN_WIDTH > WIDTH_INIT) {
-					// renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT/ aspect);
-					// }
-
-					// if(SCREEN_HEIGHT > HEIGHT_INIT) {
-					// renderer3D.setSize(SCREEN_WIDTH * aspect, SCREEN_WIDTH);
-					// }
-
 					renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-					//***Changes aspect ratio on resize -- causes distortion
-					// renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-					//camera.aspect = 0.5 * SCREEN_WIDTH / SCREEN_HEIGHT;
 					camera.updateProjectionMatrix();
+
+					$("canvas2D").width = SCREEN_WIDTH + 'px';
+					$("canvas2D").height = SCREEN_HEIGHT + 'px';
 
 				}
 
@@ -237,6 +222,8 @@
 					renderer3D.render(scene, camera);
 
 				}
+
+				
 
 			</script>
 

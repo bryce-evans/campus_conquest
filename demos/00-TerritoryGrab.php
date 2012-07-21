@@ -10,31 +10,7 @@
 			<meta charset="utf-8">
 
 			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
-			<style>
-				body {
-					background: #000;
-					color: #fff;
-					padding: 0;
-					margin: 0;
-					font-weight: bold;
-					overflow: hidden;
-				}
-
-				span {
-					color: #ffaa55;
-				}
-				#info {
-					position: absolute;
-					bottom: 0px;
-					width: 100%;
-					color: #ffffff;
-					padding: 5px;
-					font-family: Monospace;
-					font-size: 13px;
-					text-align: center;
-					z-index: 1000;
-				}
+			<LINK REL=StyleSheet HREF="../css/gamelayout.css" TYPE="text/css">
 
 			</style>
 
@@ -46,11 +22,15 @@
 				<span>&copy; 2012 Campus Conquest</span>
 			</div>
 
+			<canvas id="canvas2D" width="1300" height="728"></canvas>
+			<canvas id="canvas3D" width="500" height="500"></canvas>
+
 			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 			<script src="../js/lib/Three.js"></script>
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>
 			<script src="../js/TerritoryGrab.js"></script>
+			<script src="../js/overlayText.js"></script>
 			<script src="../map_loader/Loader.js"></script>
 
 			<script type="text/javascript">
@@ -74,7 +54,7 @@
 				var curHoverObj;
 
 				var container, stats;
-				var camera, scene, renderer;
+				var camera, scene, renderer3D;
 				var board = new Array();
 
 				var scale = 15;
@@ -136,19 +116,26 @@
 
 					loadBoard();
 
-					renderer = new THREE.WebGLRenderer({
-						antialias : true
+					canvas2D = document.getElementById('canvas2D');
+					renderer2D = new THREE.CanvasRenderer({
+						canvas : canvas2D
 					});
 
-					renderer.sortObjects = false;
-					renderer.autoClear = false;
+					canvas3D = document.getElementById('canvas3D');
+					renderer3D = new THREE.WebGLRenderer({
+						antialias : true,
+						canvas : canvas3D
+					});
 
-					renderer.gammaInput = true;
-					renderer.gammaOutput = true;
+					renderer3D.sortObjects = false;
+					renderer3D.autoClear = false;
 
-					renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+					renderer3D.gammaInput = true;
+					renderer3D.gammaOutput = true;
 
-					container.appendChild(renderer.domElement);
+					renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+					container.appendChild(renderer3D.domElement);
 
 					//***STATS- TO BE REMOVED
 					stats = new Stats();
@@ -186,20 +173,8 @@
 					SCREEN_WIDTH = window.innerWidth;
 					SCREEN_HEIGHT = window.innerHeight;
 
-					// if(SCREEN_WIDTH > WIDTH_INIT) {
-					// renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT/ aspect);
-					// }
+					renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-					// if(SCREEN_HEIGHT > HEIGHT_INIT) {
-					// renderer.setSize(SCREEN_WIDTH * aspect, SCREEN_WIDTH);
-					// }
-
-					renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT / aspect);
-
-					//***Changes aspect ratio on resize -- causes distortion
-					// renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-					//camera.aspect = 0.5 * SCREEN_WIDTH / SCREEN_HEIGHT;
 					camera.updateProjectionMatrix();
 
 				}
@@ -211,6 +186,7 @@
 					requestAnimationFrame(animate);
 
 					render();
+					overlayText();
 
 					stats.update();
 
@@ -222,9 +198,9 @@
 
 					camera.lookAt(camera.target);
 
-					renderer.clear();
+					renderer3D.clear();
 
-					renderer.render(scene, camera);
+					renderer3D.render(scene, camera);
 
 				}
 
