@@ -6,9 +6,11 @@ var map = jsonobj.Cornell;
 
 map.Territories = new Object;
 
-const cur_build_color = 0x55dd80;
+const cur_build_color = 0xffc038;
+//0x55dd80;
 const connected_color = 0x544aaaa;
-const included_color = 0x44aa66;
+const included_color = 0x544aaaa;
+//0x44aa66;
 const excluded_color = 0xcc6666;
 
 function zoom(event) {
@@ -49,7 +51,7 @@ function onMouseDown(event) {
 
 			cur_build = hitobj;
 
-			cur_build.material = new THREE.MeshBasicMaterial({
+			cur_build.material = new THREE.MeshLambertMaterial({
 				color : cur_build_color
 			});
 
@@ -62,7 +64,7 @@ function onMouseDown(event) {
 			} else {
 
 				for (connected in map.Territories[cur_build.id]) {
-					objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+					objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshLambertMaterial({
 						color : connected_color
 					});
 
@@ -74,13 +76,13 @@ function onMouseDown(event) {
 			//deselect current building
 			if (hitobj == cur_build) {
 
-				cur_build.material = new THREE.MeshBasicMaterial({
+				cur_build.material = new THREE.MeshLambertMaterial({
 					color : included_color
 				});
 
 				for (connected in map.Territories[cur_build.id]) {
 					console.log(map.Territories[cur_build.id][connected]);
-					objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+					objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshLambertMaterial({
 						color : included_color
 					});
 				}
@@ -90,7 +92,7 @@ function onMouseDown(event) {
 				//add connected to current building
 			} else if (!contains(hitobj.id, map.Territories[cur_build.id])) {
 
-				hitobj.material = new THREE.MeshBasicMaterial({
+				hitobj.material = new THREE.MeshLambertMaterial({
 					color : connected_color
 				});
 
@@ -122,7 +124,7 @@ function onMouseDown(event) {
 				//removes from connected if connected already (deselect)
 			} else {
 
-				hitobj.material = new THREE.MeshBasicMaterial({
+				hitobj.material = new THREE.MeshLambertMaterial({
 					color : included_color
 				});
 
@@ -164,6 +166,19 @@ function onMouseMove(event) {
 	//or the old object isnt the same as the current
 	if (cur_obj && (!old_obj || (cur_obj !== old_obj))) {
 
+		if (old_obj) {
+			if (old_obj.included == true) {
+				if (old_obj == cur_build) {
+					old_obj.material["color"] = new THREE.Color(cur_build_color);
+				} else {
+					old_obj.material["color"] = new THREE.Color(included_color);
+				}
+			} else {
+				old_obj.material["color"] = new THREE.Color(excluded_color);
+			}
+
+		}
+
 		//set new obj to highlight
 		mat = cur_obj.material;
 
@@ -179,7 +194,11 @@ function onMouseMove(event) {
 	else if (!cur_obj) {
 		if (old_obj) {
 			if (old_obj.included == true) {
-				old_obj.material["color"] = new THREE.Color(included_color);
+				if (old_obj == cur_build) {
+					old_obj.material["color"] = new THREE.Color(cur_build_color);
+				} else {
+					old_obj.material["color"] = new THREE.Color(included_color);
+				}
 			} else {
 				old_obj.material["color"] = new THREE.Color(excluded_color);
 			}
@@ -256,13 +275,13 @@ function keyControls(e) {
 	//enter key
 	if (e == 13 && cur_build) {
 
-		cur_build.material = new THREE.MeshBasicMaterial({
+		cur_build.material = new THREE.MeshLambertMaterial({
 			color : included_color
 		});
 
 		for (connected in map.Territories[cur_build.id]) {
 			console.log(map.Territories[cur_build.id][connected]);
-			objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+			objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshLambertMaterial({
 				color : included_color
 			});
 		}

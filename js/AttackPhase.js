@@ -3,7 +3,7 @@ const myTeam = 5;
 var cur_build;
 var map = new Object;
 
-const cur_build_color = 0x00ff33;
+const cur_build_color = 0x8888ff;
 const connected_color = 0x0088cc;
 
 /*
@@ -59,7 +59,7 @@ arrow = function(id1, id2, strength) {
 
 		x = mesh.position.x;
 		z = mesh.position.z;
-		
+
 		thisArr.mesh = mesh;
 		thisArr.midpt = new Array(x - mag * Math.cos(theta) / 2, .015 * mag * scale + 5, z + mag * Math.sin(theta) / 2);
 
@@ -82,12 +82,11 @@ arrow = function(id1, id2, strength) {
 	function endPt() {
 		return p2;
 	}
-	
-	function setStrength(s){
+
+	function setStrength(s) {
 		this.strength = s;
 		//mesh.scale.z = .03 * strength * scale + .5;
 	}
-
 
 }
 function zoom(event) {
@@ -128,13 +127,13 @@ function onMouseDown(event) {
 
 			cur_build = hitobj;
 
-			cur_build.material = new THREE.MeshBasicMaterial({
+			cur_build.material = new THREE.MeshLambertMaterial({
 				color : cur_build_color
 			});
 
 			// loop through connected
 			// for (connected in map.territories[cur_build.id]) {
-			// instance(map.territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+			// instance(map.territories[cur_build.id][connected]).material = new THREE.MeshLambertMaterial({
 			// color : connected_color
 			// });
 			//
@@ -145,28 +144,24 @@ function onMouseDown(event) {
 			//deselect current building
 			if (hitobj == cur_build) {
 
-				cur_build.material = new THREE.MeshBasicMaterial({
-					color : 0xffffff
+				cur_build.material = new THREE.MeshMaterial({
+					color : colors[myTeam]
 				});
-
-				// for (connected in map.territories[cur_build.id]) {
-				// console.log(map.territories[cur_build.id][connected]);
-				// getObj(map.territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
-				// color : 0xffffff
-				// });
-				// }
 
 				cur_build = null;
 
 				//change selection
 			} else if (hitobj.team == cur_build.team) {
+				cur_build.material["color"] = new THREE.Color(colors[old_obj.team]);
 				cur_build = hitobj;
 
 				//add attack command
-			} else if (cur_build.troops > 1) {
-
+			} else if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
+				
+				cur_build.material["color"] = new THREE.Color(colors[cur_build.team]);
+				
 				new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
-
+				
 				var panel = new attackPanel(cur_build, hitobj);
 
 				cur_build.troops = 1;
@@ -206,7 +201,12 @@ function onMouseMove(event) {
 
 		//set old obj mat back
 		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+
+			if (old_obj == cur_build) {
+				old_obj.material["color"] = new THREE.Color(cur_build_color);
+			} else {
+				old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			}
 		}
 
 		//set new obj to highlight
@@ -223,7 +223,11 @@ function onMouseMove(event) {
 	//undoes highlight if no obj hovered over
 	else if (!cur_obj) {
 		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			if (old_obj == cur_build) {
+				old_obj.material["color"] = new THREE.Color(cur_build_color);
+			} else {
+				old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			}
 			old_obj = null;
 		}
 	}
@@ -295,13 +299,13 @@ function keyControls(e) {
 	//enter key
 	if (e == 13 && cur_build) {
 
-		cur_build.material = new THREE.MeshBasicMaterial({
+		cur_build.material = new THREE.MeshLambertMaterial({
 			color : 0xffffff
 		});
 
 		for (connected in map.territories[cur_build.id]) {
 
-			getObj(map.territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+			getObj(map.territories[cur_build.id][connected]).material = new THREE.MeshLambertMaterial({
 				color : 0xffffff
 			});
 		}

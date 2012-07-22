@@ -12,7 +12,8 @@ attackPanel = function(start, end) {
 	//(cur_force, full_force, reinforce, enemy) {
 
 	const origin = start;
-	const arrow = getArr(start.id,end.id);
+	const destination = end;
+	const arrow = getArr(start.id, end.id);
 
 	const titleYou = start.id;
 	const titleThem = end.id;
@@ -97,12 +98,12 @@ attackPanel = function(start, end) {
 			c.fillRect(startPt[0], startPt[1], rectWidth, -reinforcements * multiplier);
 
 			//main rect
-			c.fillStyle = "#0aa";
+			c.fillStyle = "#" + zeroPad(colors[origin.team].toString(16));
+
 			c.fillRect(startPt[0], startPt[1] - reinforcements, rectWidth, -(h * multiplier));
 
 			//border
-			c.strokeStyle = "#6aa";
-			c.lineWidth = "1";
+			c.strokeStyle = "#888";
 			c.strokeRect(startPt[0], startPt[1], rectWidth, -(max_force * multiplier));
 
 		}
@@ -115,10 +116,10 @@ attackPanel = function(start, end) {
 				h = newh;
 				cur_force = h;
 				origin.troops = max_force - cur_force;
+
 				arrow.strength = cur_force;
 				arrow.mesh.scale.z = .03 * cur_force * scale + .5;
-	
-				
+
 			}
 		}
 
@@ -145,10 +146,10 @@ attackPanel = function(start, end) {
 		c.fillText(titleThem, startPt[0] + rectWidth / 2 + rectSpace, 80);
 
 		//purple rect
-		c.fillStyle = "#330066";
+		c.fillStyle = "#" + zeroPad(colors[destination.team].toString(16));
 		c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
-		c.strokeStyle = "#6600aa";
-		c.lineWidth = "1";
+
+		c.strokeStyle = "#888";
 		c.strokeRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 
 		//fill line
@@ -211,4 +212,8 @@ attackPanel = function(start, end) {
 	$(document).mouseup(onMouseUp);
 	$(document).mousemove(onMouseMove);
 
+}
+function zeroPad(num) {
+	var zero = 6 - num.toString().length + 1;
+	return Array(+(zero > 0 && zero)).join("0") + num;
 }
