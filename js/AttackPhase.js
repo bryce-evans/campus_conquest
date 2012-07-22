@@ -1,3 +1,5 @@
+const myTeam = 5;
+
 var cur_build;
 var map = new Object;
 
@@ -57,6 +59,8 @@ arrow = function(id1, id2, strength) {
 
 		x = mesh.position.x;
 		z = mesh.position.z;
+		
+		thisArr.mesh = mesh;
 		thisArr.midpt = new Array(x - mag * Math.cos(theta) / 2, .015 * mag * scale + 5, z + mag * Math.sin(theta) / 2);
 
 		scene.add(mesh);
@@ -78,6 +82,12 @@ arrow = function(id1, id2, strength) {
 	function endPt() {
 		return p2;
 	}
+	
+	function setStrength(s){
+		this.strength = s;
+		//mesh.scale.z = .03 * strength * scale + .5;
+	}
+
 
 }
 function zoom(event) {
@@ -114,7 +124,7 @@ function onMouseDown(event) {
 		//console.log(hitobj);
 
 		//select building
-		if (!cur_build) {
+		if (!cur_build && hitobj.team == myTeam) {
 
 			cur_build = hitobj;
 
@@ -148,14 +158,20 @@ function onMouseDown(event) {
 
 				cur_build = null;
 
-				//add arrow
+				//change selection
+			} else if (hitobj.team == cur_build.team) {
+				cur_build = hitobj;
+
+				//add attack command
 			} else if (cur_build.troops > 1) {
 
 				new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
-				
+
 				var panel = new attackPanel(cur_build, hitobj);
-				
+
 				cur_build.troops = 1;
+
+				cur_build = null;
 
 			}
 		}

@@ -22,9 +22,9 @@
 				<span>&copy; 2012 Campus Conquest</span>
 			</div>
 
-			<canvas id="canvas2D" width="1300" height="728"></canvas>
-			<canvas id="canvas3D" width="500" height="500"></canvas>
-			<canvas id="popup" width="600" height="300"></canvas>
+			<canvas id="canvas2D" width="1300" height="728" ></canvas>
+			<canvas id="canvas3D"></canvas>
+			<canvas id="popup" width="600" height="400" ></canvas>
 
 			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 			
@@ -54,9 +54,9 @@
 
 				var arrows = new Array();
 				function getArr(start, end) {
-					for (arr in arrows) {
-						if (arr.start().id == start && arr.end().id == end) {
-							return arr;
+					for (i in arrows) {
+						if (arrows[i].start == start && arrows[i].end == end) {
+							return arrows[i];
 						}
 					}
 

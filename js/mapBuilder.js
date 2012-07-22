@@ -11,23 +11,22 @@ const connected_color = 0x544aaaa;
 const included_color = 0x44aa66;
 const excluded_color = 0xcc6666;
 
-
 function zoom(event) {
-    const sensitivity = 0.6;
-    const ceiling = 800;
-    const floor = 50;
+	const sensitivity = 0.6;
+	const ceiling = 800;
+	const floor = 50;
 
-    var delta = 0;
-    delta = event.wheelDelta * sensitivity;
-    var newPos = camera.position.y - delta;
-    if(delta && newPos < ceiling && newPos > floor) {
-        camera.position.y = newPos;
-    }
+	var delta = 0;
+	delta = event.wheelDelta * sensitivity;
+	var newPos = camera.position.y - delta;
+	if (delta && newPos < ceiling && newPos > floor) {
+		camera.position.y = newPos;
+	}
 
-    //prevent default scrolling on page
-    if(event.preventDefault)
-        event.preventDefault();
-    event.returnValue = false;
+	//prevent default scrolling on page
+	if (event.preventDefault)
+		event.preventDefault();
+	event.returnValue = false;
 }
 
 /**
@@ -37,104 +36,106 @@ function zoom(event) {
 var weight = .8;
 function onMouseDown(event) {
 
-    event.preventDefault();
+	event.preventDefault();
 
-    var hitobj = getHitObject();
+	var hitobj = getHitObject();
 
-    if(hitobj) {
+	if (hitobj) {
 
-        console.log(hitobj);
+		console.log(hitobj);
 
-        //select building
-        if(!cur_build) {
+		//select building
+		if (!cur_build) {
 
-            cur_build = hitobj;
+			cur_build = hitobj;
 
-            cur_build.material = new THREE.MeshBasicMaterial({
-                color : cur_build_color
-            });
+			cur_build.material = new THREE.MeshBasicMaterial({
+				color : cur_build_color
+			});
 
-            if(!contains(cur_build.id, map.Territories)) {
+			if (!contains(cur_build.id, map.Territories)) {
 
 				// map.Territories := {}
-                map.Territories[cur_build.id] = []
+				map.Territories[cur_build.id] = []
+				cur_build.included = true;
 
-            } else {
+			} else {
 
-                for(connected in map.Territories[cur_build.id]) {
-                    objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
-                        color : connected_color
-                    });
+				for (connected in map.Territories[cur_build.id]) {
+					objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+						color : connected_color
+					});
 
-                }
-            }
+				}
+			}
 
-        } else {
+		} else {
 
-            //deselect current building
-            if(hitobj == cur_build) {
+			//deselect current building
+			if (hitobj == cur_build) {
 
-                cur_build.material = new THREE.MeshBasicMaterial({
-                    color : included_color
-                });
+				cur_build.material = new THREE.MeshBasicMaterial({
+					color : included_color
+				});
 
-                for(connected in map.Territories[cur_build.id]) {
-                    console.log(map.Territories[cur_build.id][connected]);
-                    objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
-                        color : included_color
-                    });
-                }
+				for (connected in map.Territories[cur_build.id]) {
+					console.log(map.Territories[cur_build.id][connected]);
+					objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+						color : included_color
+					});
+				}
 
-                cur_build = null;
+				cur_build = null;
 
-                //add connected to current building
-            } else if(!contains(hitobj.id, map.Territories[cur_build.id])) {
+				//add connected to current building
+			} else if (!contains(hitobj.id, map.Territories[cur_build.id])) {
 
-                hitobj.material = new THREE.MeshBasicMaterial({
-                    color : connected_color
-                });
+				hitobj.material = new THREE.MeshBasicMaterial({
+					color : connected_color
+				});
 
-                map.Territories[cur_build.id].push(hitobj.id);
+				map.Territories[cur_build.id].push(hitobj.id);
+				hitobj.included = true;
 
-                // create non-directed graph
+				// create non-directed graph
 
-                //add connected to main list
-                if(!contains(hitobj.id, map.Territories)) {
-                    map.Territories[hitobj.id] = [];
-                }
+				//add connected to main list
+				if (!contains(hitobj.id, map.Territories)) {
+					map.Territories[hitobj.id] = [];
+				}
 
-                //append the cur_building to list of connected of this building
-                map.Territories[hitobj.id].push(cur_build.id);
+				//append the cur_building to list of connected of this building
+				map.Territories[hitobj.id].push(cur_build.id);
 
-                //add line
+				//add line
 
-                var geo = new THREE.Geometry();
-                geo.vertices.push(new THREE.Vector3(hitobj.center[0], 2 * hitobj.center[1] + 5, hitobj.center[2]));
-                geo.vertices.push(new THREE.Vector3(cur_build.center[0], 2 * cur_build.center[1] + 5, cur_build.center[2]));
+				var geo = new THREE.Geometry();
+				geo.vertices.push(new THREE.Vector3(hitobj.center[0], 2 * hitobj.center[1] + 5, hitobj.center[2]));
+				geo.vertices.push(new THREE.Vector3(cur_build.center[0], 2 * cur_build.center[1] + 5, cur_build.center[2]));
 
-                var mat = new THREE.LineBasicMaterial({
-                    color : 0x00ff33,
-                });
+				var mat = new THREE.LineBasicMaterial({
+					color : 0x00ff33,
+				});
 
-                var line = new THREE.Line(geo, mat);
-                scene.add(line);
-                //removes from connected if connected already (deselect)
-            } else {
+				var line = new THREE.Line(geo, mat);
+				scene.add(line);
+				//removes from connected if connected already (deselect)
+			} else {
 
-                hitobj.material = new THREE.MeshBasicMaterial({
-                    color : included_color
-                });
+				hitobj.material = new THREE.MeshBasicMaterial({
+					color : included_color
+				});
 
-                map.Territories[cur_build.id].pop(hitobj.id);
+				map.Territories[cur_build.id].pop(hitobj.id);
 
-                // maintain non-directed graph
-                map.Territories[hitobj.id].pop(cur_build.id);
+				// maintain non-directed graph
+				map.Territories[hitobj.id].pop(cur_build.id);
 
-            }
+			}
 
-        }
+		}
 
-    }
+	}
 
 }
 
@@ -147,134 +148,198 @@ var mat;
 
 function onMouseMove(event) {
 
-    const highlight = new THREE.Color(0xffff00);
+	const highlight = new THREE.Color(0xffff00);
 
-    //refresh mouse location for use in other functions
-    mouseX = event.x;
-    mouseY = event.y;
+	//refresh mouse location for use in other functions
+	mouseX = event.x;
+	mouseY = event.y;
 
-    // //*****highlights hovered
-    // cur_obj = getHitObject();
-    //
-    // //if mouse is over a new object than last frame
-    // //make sure you:
-    // // have a current object
-    // // either don't have an old one (was over nothing previously)
-    // //or the old object isnt the same as the current
-    // if(cur_obj && (!old_obj || (cur_obj !== old_obj))) {
-    //
-    // //set old obj mat back
-    // if(old_obj) {
-    // old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
-    // }
-    //
-    // //set new obj to highlight
-    // mat = cur_obj.material;
-    //
-    // //***SOLID HIGHLIGHT
-    // //cur_obj.object.material["color"] = highlight;
-    //
-    // curmat = blend(cur_obj.material["color"], highlight);
-    //
-    // old_obj = cur_obj;
-    // }
-    //
-    // //undoes highlight if no obj hovered over
-    // else if(!cur_obj) {
-    // if(old_obj) {
-    // old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
-    // old_obj = null;
-    // }
-    // }
+	//*****highlights hovered
+	cur_obj = getHitObject();
+
+	//if mouse is over a new object than last frame
+	//make sure you:
+	// have a current object
+	// either don't have an old one (was over nothing previously)
+	//or the old object isnt the same as the current
+	if (cur_obj && (!old_obj || (cur_obj !== old_obj))) {
+
+		//set new obj to highlight
+		mat = cur_obj.material;
+
+		//***SOLID HIGHLIGHT
+		//cur_obj.object.material["color"] = highlight;
+
+		curmat = blend(cur_obj.material["color"], highlight);
+
+		old_obj = cur_obj;
+	}
+
+	//undoes highlight if no obj hovered over
+	else if (!cur_obj) {
+		if (old_obj) {
+			if (old_obj.included == true) {
+				old_obj.material["color"] = new THREE.Color(included_color);
+			} else {
+				old_obj.material["color"] = new THREE.Color(excluded_color);
+			}
+
+			old_obj = null;
+		}
+
+	}
 
 }
 
 function panAuto(x, y) {
 
-    // if(x > (1 - border) * window.innerWidth) {
-    // camera.position.x += sensitivity;
-    // camera.target.x += sensitivity;
-    //
-    // } else if(x < border * window.innerWidth) {
-    // camera.position.x -= sensitivity;
-    // camera.target.x -= sensitivity;
-    //
-    // }
-    //
-    // if(y > (1 - border) * window.innerHeight) {
-    // camera.position.z += sensitivity;
-    // camera.target.z += sensitivity;
-    //
-    // } else if(y < border * window.innerHeight) {
-    // camera.position.z -= sensitivity;
-    // camera.target.z -= sensitivity;
-    //
-    // }
+	if (x > (1 - border) * window.innerWidth) {
+		camera.position.x += sensitivity;
+		camera.target.x += sensitivity;
+
+	} else if (x < border * window.innerWidth) {
+		camera.position.x -= sensitivity;
+		camera.target.x -= sensitivity;
+
+	}
+
+	if (y > (1 - border) * window.innerHeight) {
+		camera.position.z += sensitivity;
+		camera.target.z += sensitivity;
+
+	} else if (y < border * window.innerHeight) {
+		camera.position.z -= sensitivity;
+		camera.target.z -= sensitivity;
+
+	}
 
 }
 
 function getHitObject() {
-    try {
-        var vector = new THREE.Vector3((mouseX / window.innerWidth ) * 2 - 1, -(mouseY / window.innerHeight ) * 2 + 1, 0.5);
-        projector.unprojectVector(vector, camera);
+	try {
+		var vector = new THREE.Vector3((mouseX / window.innerWidth ) * 2 - 1, -(mouseY / window.innerHeight ) * 2 + 1, 0.5);
+		projector.unprojectVector(vector, camera);
 
-        var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+		var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
 
-        return ray.intersectObjects(board)[0].object;
-    } catch(err) {
-        return null;
-    }
+		return ray.intersectObjects(board)[0].object;
+	} catch(err) {
+		return null;
+	}
 }
 
 function blend(mat1, mat2) {
-    mat1.r = (mat1.r + mat2.r) / 2;
-    mat1.g = (mat1.g + mat2.g) / 2;
-    mat1.b = (mat1.b + mat2.b) / 2;
-    return mat1;
+	mat1.r = (mat1.r + mat2.r) / 2;
+	mat1.g = (mat1.g + mat2.g) / 2;
+	mat1.b = (mat1.b + mat2.b) / 2;
+	return mat1;
 }
 
 function contains(obj, array) {
 
-    var ret = false;
-    jQuery.each(array, function(key, value) {
+	var ret = false;
+	jQuery.each(array, function(key, value) {
 
-        if((String(key)).localeCompare(obj) == 0)
-            ret = true;
-    });
+		if ((String(key)).localeCompare(obj) == 0)// || (String(value)).localeCompare(obj) == 0)
+			ret = true;
+	});
 
-    return ret;
+	return ret;
 
 }
 
 //
 function keyControls(e) {
-    e = window.event || e;
-    e = e.charCode || e.keyCode;
+	e = window.event || e;
+	e = e.charCode || e.keyCode;
 
-    //enter key
-    if(e == 13 && cur_build) {
+	//enter key
+	if (e == 13 && cur_build) {
 
-        cur_build.material = new THREE.MeshBasicMaterial({
-            color : included_color
-        });
+		cur_build.material = new THREE.MeshBasicMaterial({
+			color : included_color
+		});
 
-        for(connected in map.Territories[cur_build.id]) {
-            console.log(map.Territories[cur_build.id][connected]);
-            objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
-                color : included_color
-            });
-        }
+		for (connected in map.Territories[cur_build.id]) {
+			console.log(map.Territories[cur_build.id][connected]);
+			objLookup(map.Territories[cur_build.id][connected]).material = new THREE.MeshBasicMaterial({
+				color : included_color
+			});
+		}
 
-        cur_build = null;
+		cur_build = null;
 
-        //s key
-    } else if(e == 115) {
+		//s key
+	} else if (e == 115) {
 
-        var JSONstr = JSON.stringify(jsonobj);
-        alert("EXPORTING");
+		var JSONstr = JSON.stringify(jsonobj);
+		alert("Exported to Console \n [Ctrl + Shift + I]");
 
-        alert(JSONstr);
+		console.log(JSONstr);
 
-    }
+	}
 
 }
+
+/*
+
+ var shaderMaterial = new THREE.ShaderMaterial( {
+
+ uniforms: 		uniforms,
+ attributes:     attributes,
+ vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+ fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+ blending: 		THREE.AdditiveBlending,
+ depthTest:		false,
+ transparent:	true
+
+ });
+
+ shaderMaterial.linewidth = 1;
+
+ geometry = new THREE.TextGeometry( text, {
+
+ size: size,
+ height: height,
+ curveSegments: curveSegments,
+
+ font: font,
+ weight: weight,
+ style: style,
+
+ bevelThickness: bevelThickness,
+ bevelSize: bevelSize,
+ bevelEnabled: bevelEnabled,
+ bevelSegments: bevelSegments,
+
+ bend: bend,
+
+ steps: steps
+
+ });
+
+ geometry.dynamic = true;
+
+ THREE.GeometryUtils.center( geometry );
+
+ object = new THREE.Line( geometry, shaderMaterial, THREE.LineStrip );
+
+ var vertices = object.geometry.vertices;
+
+ var displacement = attributes.displacement.value;
+ var color = attributes.customColor.value;
+
+ for( var v = 0; v < vertices.length; v ++ ) {
+
+ displacement[ v ] = new THREE.Vector3( 0, 0, 0 );
+
+ color[ v ] = new THREE.Color( 0xffffff );
+ color[ v ].setHSV( v / vertices.length, 0.9, 0.9 );
+
+ }
+
+ object.rotation.x = 0.2;
+
+ scene.add( object );
+
+ */

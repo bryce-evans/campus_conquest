@@ -55,8 +55,6 @@
 			<script src="../js/mapBuilder.js"></script>
 			<script src="../map_loader/mapBuilderLoader.js"></script>
 
-			<?php $map; ?>
-
 			<script type="text/javascript">
 				if (!Detector.webgl)
 					Detector.addGetWebGLMessage();

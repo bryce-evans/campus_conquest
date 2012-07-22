@@ -54,7 +54,6 @@ loadBoard = function() {
 			async : false
 		}).responseText;
 
-		console.log("Loading Axaj");
 	} else {
 		console.log("Got global data without ajax");
 	}

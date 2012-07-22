@@ -11,6 +11,9 @@
 attackPanel = function(start, end) {
 	//(cur_force, full_force, reinforce, enemy) {
 
+	const origin = start;
+	const arrow = getArr(start.id,end.id);
+
 	const titleYou = start.id;
 	const titleThem = end.id;
 	const reinforce = 0;
@@ -19,6 +22,13 @@ attackPanel = function(start, end) {
 	var cur_force = max_force;
 	var reinforcements = reinforce;
 	var enemy_force = end.troops;
+
+	var multiplier = 1;
+	var max = Math.max(max_force, enemy_force);
+
+	if (max > 200) {
+		multiplier *= 200 / max;
+	}
 
 	var WIDTH = $("#canvas").width();
 	var HEIGHT = $("#canvas").height();
@@ -33,7 +43,7 @@ attackPanel = function(start, end) {
 
 	const min_force = 0;
 	const rectWidth = 60;
-	const rectSpace = 2 * rectWidth;
+	const rectSpace = 4 * rectWidth;
 
 	const startPt = [100, 300];
 
@@ -63,6 +73,7 @@ attackPanel = function(start, end) {
 	}
 
 	function onMouseMove(e) {
+
 		var delY = mousey - e.offsetY;
 
 		if (mousedown) {
@@ -78,25 +89,21 @@ attackPanel = function(start, end) {
 	function scalableRect(force) {
 		var f = force;
 		var h = force;
-		
-		while(h > 200){
-			h /= 2;
-		}
 
 		this.draw = function() {
 
 			//reinforcements
 			c.fillStyle = "#4a4";
-			c.fillRect(startPt[0], startPt[1], rectWidth, -reinforcements);
+			c.fillRect(startPt[0], startPt[1], rectWidth, -reinforcements * multiplier);
 
 			//main rect
 			c.fillStyle = "#0aa";
-			c.fillRect(startPt[0], startPt[1] - reinforcements, rectWidth, -(h));
+			c.fillRect(startPt[0], startPt[1] - reinforcements, rectWidth, -(h * multiplier));
 
 			//border
 			c.strokeStyle = "#6aa";
 			c.lineWidth = "1";
-			c.strokeRect(startPt[0], startPt[1], rectWidth, -(max_force));
+			c.strokeRect(startPt[0], startPt[1], rectWidth, -(max_force * multiplier));
 
 		}
 
@@ -104,8 +111,14 @@ attackPanel = function(start, end) {
 			var newh = h + del;
 			//h = newh;
 
-			if (newh < (full_force + 1) && newh > (min_force - 1)) {
+			if (newh < (max_force) && newh > (min_force)) {
 				h = newh;
+				cur_force = h;
+				origin.troops = max_force - cur_force;
+				arrow.strength = cur_force;
+				arrow.mesh.scale.z = .03 * cur_force * scale + .5;
+	
+				
 			}
 		}
 
@@ -133,22 +146,22 @@ attackPanel = function(start, end) {
 
 		//purple rect
 		c.fillStyle = "#330066";
-		c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force);
+		c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 		c.strokeStyle = "#6600aa";
 		c.lineWidth = "1";
-		c.strokeRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force);
+		c.strokeRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 
 		//fill line
 		c.strokeStyle = "#ff0000";
 		c.beginPath();
-		c.moveTo(startPt[0], startPt[1] - enemy_force);
-		c.lineTo(startPt[0] + rectWidth, startPt[1] - enemy_force);
+		c.moveTo(startPt[0], startPt[1] - enemy_force * multiplier);
+		c.lineTo(startPt[0] + rectWidth, startPt[1] - enemy_force * multiplier);
 		c.lineWidth = 1;
 		c.stroke();
 
 		//orange deficit warning
 		c.fillStyle = "#331100";
-		c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force);
+		c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
 
 		rect.draw();
 
@@ -170,7 +183,17 @@ attackPanel = function(start, end) {
 
 		//var headerHeight = $("#popup").css('height');
 
-		c.clearRect(0, 0, WIDTH + 300, HEIGHT + 300);
+		// Store the current transformation matrix
+		c.save();
+
+		// Use the identity matrix while clearing the canvas
+		c.setTransform(1, 0, 0, 1, 0, 0);
+		c.clearRect(0, 0, 500, 500);
+
+		// Restore the transform
+		c.restore();
+
+		//c.clearRect(0, 0, WIDTH + 300, HEIGHT + 300);
 	}
 
 	function getCurrentForce() {
