@@ -53,6 +53,7 @@
 				}
 
 				var arrows = new Array();
+				var arrowMeshes = new Array();
 				function getArr(start, end) {
 					for (i in arrows) {
 						if (arrows[i].start == start && arrows[i].end == end) {

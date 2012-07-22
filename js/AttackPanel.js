@@ -11,6 +11,10 @@
 attackPanel = function(start, end) {
 	//(cur_force, full_force, reinforce, enemy) {
 
+	//this.pane = p;
+	this.active = true;
+	var thisPane = this;
+
 	const origin = start;
 	const destination = end;
 	const arrow = getArr(start.id, end.id);
@@ -51,6 +55,10 @@ attackPanel = function(start, end) {
 	function init() {
 		c = $('#popup')[0].getContext("2d");
 
+		clear();
+
+		console.log(c.canvas.width);
+
 		rect = new scalableRect(cur_force);
 		rect.draw();
 
@@ -77,7 +85,7 @@ attackPanel = function(start, end) {
 
 		var delY = mousey - e.offsetY;
 
-		if (mousedown) {
+		if (mousedown && thisPane.active) {
 
 			rect.scale(delY);
 
@@ -137,47 +145,51 @@ attackPanel = function(start, end) {
 
 		clear();
 
-		//Titles
-		c.font = "26px Times New Roman";
-		c.fillStyle = "#ff8800";
-		c.textAlign = 'center';
+		if (thisPane.active) {
 
-		c.fillText(titleYou, startPt[0] + rectWidth / 2, 80);
-		c.fillText(titleThem, startPt[0] + rectWidth / 2 + rectSpace, 80);
+			//console.log(origin.id + " -> " + destination.id);
 
-		//purple rect
-		c.fillStyle = "#" + zeroPad(colors[destination.team].toString(16));
-		c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
+			//Titles
+			c.font = "26px Times New Roman";
+			c.fillStyle = "#ff8800";
+			c.textAlign = 'center';
 
-		c.strokeStyle = "#888";
-		c.strokeRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
+			c.fillText(titleYou, startPt[0] + rectWidth / 2, 80);
+			c.fillText(titleThem, startPt[0] + rectWidth / 2 + rectSpace, 80);
 
-		//fill line
-		c.strokeStyle = "#ff0000";
-		c.beginPath();
-		c.moveTo(startPt[0], startPt[1] - enemy_force * multiplier);
-		c.lineTo(startPt[0] + rectWidth, startPt[1] - enemy_force * multiplier);
-		c.lineWidth = 1;
-		c.stroke();
+			//purple rect
+			c.fillStyle = "#" + zeroPad(colors[destination.team].toString(16));
+			c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 
-		//orange deficit warning
-		c.fillStyle = "#331100";
-		c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
+			c.strokeStyle = "#888";
+			c.strokeRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 
-		rect.draw();
+			//fill line
+			c.strokeStyle = "#ff0000";
+			c.beginPath();
+			c.moveTo(startPt[0], startPt[1] - enemy_force * multiplier);
+			c.lineTo(startPt[0] + rectWidth, startPt[1] - enemy_force * multiplier);
+			c.lineWidth = 1;
+			c.stroke();
 
-		//your force
-		c.font = "14px helvetica";
-		c.fillStyle = "#0088ff";
-		c.textAlign = 'center';
-		c.fillText(rect.geth() + reinforcements, startPt[0] + rectWidth / 2, startPt[1] + 20);
+			//orange deficit warning
+			c.fillStyle = "#331100";
+			c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
 
-		//enemy force
-		c.font = "14px helvetica";
-		c.fillStyle = "#0088ff";
-		c.textAlign = 'center';
-		c.fillText(enemy_force, startPt[0] + rectSpace + rectWidth / 2, 320);
+			rect.draw();
 
+			//your force
+			c.font = "14px helvetica";
+			c.fillStyle = "#0088ff";
+			c.textAlign = 'center';
+			c.fillText(rect.geth() + reinforcements, startPt[0] + rectWidth / 2, startPt[1] + 20);
+
+			//enemy force
+			c.font = "14px helvetica";
+			c.fillStyle = "#0088ff";
+			c.textAlign = 'center';
+			c.fillText(enemy_force, startPt[0] + rectSpace + rectWidth / 2, 320);
+		}
 	}
 
 	function clear() {
@@ -189,7 +201,7 @@ attackPanel = function(start, end) {
 
 		// Use the identity matrix while clearing the canvas
 		c.setTransform(1, 0, 0, 1, 0, 0);
-		c.clearRect(0, 0, 500, 500);
+		c.clearRect(0, 0, c.canvas.width, c.canvas.height);
 
 		// Restore the transform
 		c.restore();

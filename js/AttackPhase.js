@@ -3,6 +3,8 @@ const myTeam = 5;
 var cur_build;
 var map = new Object;
 
+var curPane;
+
 const cur_build_color = 0x8888ff;
 const connected_color = 0x0088cc;
 
@@ -22,6 +24,7 @@ arrow = function(id1, id2, strength) {
 	var start = id1;
 	var end = id2;
 
+	this.pane = null;
 	this.start = start;
 	this.end = end;
 	this.strength = strength;
@@ -62,6 +65,8 @@ arrow = function(id1, id2, strength) {
 
 		thisArr.mesh = mesh;
 		thisArr.midpt = new Array(x - mag * Math.cos(theta) / 2, .015 * mag * scale + 5, z + mag * Math.sin(theta) / 2);
+
+		arrowMeshes.push(mesh);
 
 		scene.add(mesh);
 
@@ -120,7 +125,10 @@ function onMouseDown(event) {
 
 	if (hitobj) {
 
-		//console.log(hitobj);
+		//right click
+		if (event.button == 2) {
+			curPane.active = false;
+		}
 
 		//select building
 		if (!cur_build && hitobj.team == myTeam) {
@@ -144,9 +152,7 @@ function onMouseDown(event) {
 			//deselect current building
 			if (hitobj == cur_build) {
 
-				cur_build.material = new THREE.MeshMaterial({
-					color : colors[myTeam]
-				});
+				cur_build.material["color"] = new THREE.Color(colors[hitobj.team]);
 
 				cur_build = null;
 
@@ -157,21 +163,31 @@ function onMouseDown(event) {
 
 				//add attack command
 			} else if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
-				
+
 				cur_build.material["color"] = new THREE.Color(colors[cur_build.team]);
-				
-				new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
-				
-				var panel = new attackPanel(cur_build, hitobj);
+
+				//new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
+				var new_arr = new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
+				curPane = new attackPanel(cur_build, hitobj);
+				new_arr.pane = curPane;
 
 				cur_build.troops = 1;
-
 				cur_build = null;
 
 			}
 		}
-	}
+	} else {
+		var cur_arr = getHitArrow();
 
+		if (cur_arr) {
+			if (curPane) {
+				curPane.active = false;
+			}
+			curPane = cur_arr.pane;
+			cur_arr.material["color"] = new THREE.Color(0x00ff00);
+		}
+
+	}
 }
 
 const sensitivity = 6;
@@ -230,6 +246,13 @@ function onMouseMove(event) {
 			}
 			old_obj = null;
 		}
+
+		var cur_arr = getHitArrow();
+
+		if (cur_arr) {
+			cur_arr.material["color"] = new THREE.Color(0x00ff00);
+		}
+
 	}
 
 }
@@ -267,7 +290,27 @@ function getHitObject() {
 
 		var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
 
+		// if (ray.intersectObjects(arrows)[0].object) {
+		// return ray.intersectObjects(arrows)[0].object;
+		// } else {
+
 		return ray.intersectObjects(board)[0].object;
+		// }
+	} catch(err) {
+		return null;
+	}
+}
+
+function getHitArrow() {
+	try {
+		var vector = new THREE.Vector3((mouseX / window.innerWidth ) * 2 - 1, -(mouseY / window.innerHeight ) * 2 + 1, 0.5);
+		projector.unprojectVector(vector, camera);
+
+		var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+
+		console.log(arrowMeshes);
+		return ray.intersectObjects(arrowMeshes)[0].object;
+		// }
 	} catch(err) {
 		return null;
 	}
@@ -297,20 +340,8 @@ function keyControls(e) {
 	e = e.charCode || e.keyCode;
 
 	//enter key
-	if (e == 13 && cur_build) {
-
-		cur_build.material = new THREE.MeshLambertMaterial({
-			color : 0xffffff
-		});
-
-		for (connected in map.territories[cur_build.id]) {
-
-			getObj(map.territories[cur_build.id][connected]).material = new THREE.MeshLambertMaterial({
-				color : 0xffffff
-			});
-		}
-
-		cur_build = null;
+	if (e == 13) {
+		curPane.active = false;
 	}
 
 }
