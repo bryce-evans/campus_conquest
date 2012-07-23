@@ -65,12 +65,18 @@ attackPanel = function(start, end) {
 		return setInterval(draw, 10);
 	}
 
+	function turnover(){
+		$("#popup").css({"display" : "none"});
+	}
+
 	function onKeyUp(e) {
 
 		if (e.keyCode == 38)
 			rect.scale(1);
 		else if (e.keyCode == 40)
 			rect.scale(-1);
+		else if (e.keyCode == 13)
+			turnover();
 	}
 
 	function onMouseDown(e) {

@@ -170,6 +170,8 @@ function onMouseDown(event) {
 				var new_arr = new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
 				curPane = new attackPanel(cur_build, hitobj);
 				new_arr.pane = curPane;
+				
+				$("#popup").css({"display" : "block"});
 
 				cur_build.troops = 1;
 				cur_build = null;

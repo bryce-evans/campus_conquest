@@ -24,7 +24,7 @@
 
 			<canvas id="canvas2D" width="1300" height="728" ></canvas>
 			<canvas id="canvas3D"></canvas>
-			<canvas id="popup" width="600" height="400" ></canvas>
+			<canvas id="popup" width="600" height="400"></canvas>
 
 			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 			
