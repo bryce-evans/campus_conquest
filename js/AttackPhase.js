@@ -125,8 +125,8 @@ function onMouseDown(event) {
 
 	if (hitobj) {
 
-		//right click
-		if (event.button == 2) {
+		//TODO- right click
+		if (curPane) {
 			curPane.active = false;
 		}
 

@@ -10,35 +10,8 @@
 			<meta charset="utf-8">
 
 			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<LINK REL=StyleSheet HREF="../css/gamelayout.css" TYPE="text/css">
 
-			<style>
-				body {
-					cursor: url("../rsc/images/icons/crosshairs_red.png") -12px -12px, crosshair;
-					background: #000;
-					color: #fff;
-					padding: 0;
-					margin: 0;
-					font-weight: bold;
-					overflow: hidden;
-				}
-
-				span {
-					color: #ffaa55;
-				}
-
-				#info {
-					position: absolute;
-					bottom: 0px;
-					width: 100%;
-					color: #ffffff;
-					padding: 5px;
-					font-family: Monospace;
-					font-size: 13px;
-					text-align: center;
-					z-index: 1000;
-				}
-
-			</style>
 
 		</head>
 

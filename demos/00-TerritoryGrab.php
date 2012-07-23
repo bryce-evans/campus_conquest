@@ -12,7 +12,7 @@
 			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 			<LINK REL=StyleSheet HREF="../css/gamelayout.css" TYPE="text/css">
 
-			</style>
+			
 
 		</head>
 
