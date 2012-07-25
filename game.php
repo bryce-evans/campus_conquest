@@ -5,6 +5,16 @@ if (isset($_GET['game_id'])){
 	$_SESSION['game_id'] = clean($_GET['game_id']);
 }
 
+$game_id = $_SESSION['game_id'];
+$u_id = $_SESSION['uid'];
+
+$_max = db_query_one("SELECT MAX(user_order) + 1 as turn FROM q_users_games
+	WHERE game_id = '$game_id'");
+	
+$max = $_max['turn'];
+$query = "INSERT INTO q_users_games VALUES('$u_id', '$game_id', '$max')";
+db_query_nr($query);
+
 $content .= '
 <div id="info">
 	Territory Grab-
