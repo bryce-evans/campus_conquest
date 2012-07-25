@@ -18,8 +18,10 @@ function parseState() {
 	 "game_id": "1"
 	 */
 
+	var game_id = $.ajax({ url : "ajax/get_gameid.php", async : false}).responseText.trim();
+	
 	$.ajax({
-		url : "ajax/get_state.php?game_id=1",
+		url : "ajax/get_state.php?game_id=" + game_id,
 		dataType : 'json',
 		success : function(jsonobj) {
 

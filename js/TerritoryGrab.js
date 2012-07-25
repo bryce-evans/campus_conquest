@@ -1,3 +1,5 @@
+var TROOPS_INIT = 100;
+
 function zoom(event) {
 	const sensitivity = 0.6;
 	const ceiling = 800;
@@ -24,10 +26,23 @@ var weight = .8;
 function onMouseDown(event) {
 
 	event.preventDefault();
+	
+	if (!is_my_turn){
+		alert("not my turn");
+		return;
+	}
 
 	var jsonobj = new Object;
-	jsonobj.u_id = 1;
-
+	var u_id = $.ajax({ url : "ajax/get_id.php", async : false}).responseText.trim();
+	var game_id =  $.ajax({ url : "ajax/get_gameid.php", async : false}).responseText.trim();
+	
+	if (u_id == -1 || game_id == -1){
+		return;
+	}
+	
+	jsonobj.u_id = u_id;
+	jsonobj.num_troops = TROOPS_INIT;
+	
 	var hitobj = getHitObject();
 
 	if (hitobj) {
@@ -52,8 +67,18 @@ function onMouseDown(event) {
 			hitobj.team = curPlayer;
 
 			jsonobj.t_id = hitobj.id;
-			alert(JSON.stringify(jsonobj));
-
+			jsonobj.game_id = game_id;
+			
+			$.ajax({
+			  type: 'POST',
+			  url: "ajax/get_territory.php",
+			  data: { json : jsonobj },
+			  datatype: "json",
+			  success: function(result){
+			  	alert("Picked " + hitobj.id);
+			  }
+			});
+			
 			// const conn_color = 0xffffff;
 			// var conbuilds = "";
 			// for(building in hitobj["connected"]) {

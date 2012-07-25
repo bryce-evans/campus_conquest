@@ -79,6 +79,7 @@ function init() {
 	//
 
 	loadBoard();
+	parseState();
 
 	canvas2D = document.getElementById('canvas2D');
 	renderer2D = new THREE.CanvasRenderer({

@@ -1,6 +1,10 @@
 <?php
 include "includes/functions.php";
 
+if (isset($_GET['game_id'])){
+	$_SESSION['game_id'] = clean($_GET['game_id']);
+}
+
 $content .= '
 <div id="info">
 	Territory Grab-
@@ -13,10 +17,13 @@ $content .= '
 <script src="js/lib/Three.js"></script>
 <script src="js/lib/Detector.js"></script>
 <script src="js/lib/Stats.js"></script>
-<script src="js/TerritoryGrab.js"></script>
-<script src="js/overlayText.js"></script>
+<script type="text/javascript" src="js/Turn.js"></script>
 <script src="map_loader/Loader.js"></script>
-<script type="text/javascript" src="js/Pick.js"></script>';
+<script src="js/TerritoryGrabTextOverlay.js"></script>
+<script src="js/TerritoryGrab.js"></script>
+<script type="text/javascript" src="js/Pick.js"></script>
+<script src="js/state.js"></script>
+';
 
 include "template.php";
 
