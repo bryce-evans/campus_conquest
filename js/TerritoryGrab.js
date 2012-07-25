@@ -25,6 +25,11 @@ function onMouseDown(event) {
 
 	event.preventDefault();
 
+	var jsonobj = new Object;
+	jsonobj.u_id = 1;
+
+	map.Territories = new Object;
+
 	var hitobj = getHitObject();
 
 	if (hitobj) {
@@ -47,6 +52,9 @@ function onMouseDown(event) {
 			newmat["color"] = new THREE.Color(newColor);
 			hitobj.material = newmat;
 			hitobj.team = curPlayer;
+
+			jsonobj.t_id = hitobj.id;
+			alert(stringify(jsonobj));
 
 			// const conn_color = 0xffffff;
 			// var conbuilds = "";

@@ -32,8 +32,8 @@
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>
 			
-			<script src="../js/AttackPhase.js"></script>
 			<script src="../js/AttackPanel.js"></script>
+			<script src="../js/AttackPhase.js"></script>			
 			<script src="../js/overlayText.js"></script>
 			<script src="../map_loader/Loader.js"></script>
 
@@ -51,6 +51,10 @@
 				function getObj(id) {
 					return buildings[id];
 				}
+				
+				
+				
+
 
 				var arrows = new Array();
 				var arrowMeshes = new Array();
@@ -60,8 +64,10 @@
 							return arrows[i];
 						}
 					}
-
-					return null;
+					
+					var arr = new arrow(start,end);
+					arrows.push(arr);
+					return arr;
 				}
 
 				//initialize to center to prevent unwanted pan

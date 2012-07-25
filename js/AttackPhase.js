@@ -3,7 +3,7 @@ const myTeam = 5;
 var cur_build;
 var map = new Object;
 
-var curPane;
+var pane = new attackPanel("test");
 
 const cur_build_color = 0x8888ff;
 const connected_color = 0x0088cc;
@@ -11,17 +11,12 @@ const connected_color = 0x0088cc;
 /**
  * Centers the current container
  */
-jQuery.fn.center = function () {
-    this.css("position","absolute");
-    this.css("top", Math.max(0, (($(window).height() - this.outerHeight()) / 2) + 
-                                                $(window).scrollTop()) + "px");
-    this.css("left", Math.max(0, (($(window).width() - this.outerWidth()) / 2) + 
-                                                $(window).scrollLeft()) + "px");
-    return this;
+jQuery.fn.center = function() {
+	this.css("position", "absolute");
+	this.css("top", Math.max(0, (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
+	this.css("left", Math.max(0, (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+	return this;
 }
-
-
-
 /*
  * Generates an arrow between two buildings
  *
@@ -29,7 +24,7 @@ jQuery.fn.center = function () {
  * id2- string id of end building
  * strength- thickness of arrow
  */
-arrow = function(id1, id2, strength) {
+arrow = function(id1, id2) {
 
 	arrows.push(this);
 
@@ -38,10 +33,9 @@ arrow = function(id1, id2, strength) {
 	var start = id1;
 	var end = id2;
 
-	this.pane = null;
 	this.start = start;
 	this.end = end;
-	this.strength = strength;
+	this.strength;
 
 	p1 = getObj(start).center;
 	var p2 = getObj(end).center;
@@ -86,22 +80,6 @@ arrow = function(id1, id2, strength) {
 
 	});
 
-	function start() {
-		return start;
-	}
-
-	function end() {
-		return end;
-	}
-
-	function startPt() {
-		return p1;
-	}
-
-	function endPt() {
-		return p2;
-	}
-
 	function setStrength(s) {
 		this.strength = s;
 		//mesh.scale.z = .03 * strength * scale + .5;
@@ -139,11 +117,6 @@ function onMouseDown(event) {
 
 	if (hitobj) {
 
-		//TODO- right click
-		if (curPane) {
-			curPane.active = false;
-		}
-
 		//select building
 		if (!cur_build && hitobj.team == myTeam) {
 
@@ -180,13 +153,15 @@ function onMouseDown(event) {
 
 				cur_build.material["color"] = new THREE.Color(colors[cur_build.team]);
 
-				//new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
-				var new_arr = new arrow(cur_build.id, hitobj.id, (cur_build.troops - 1));
-				curPane = new attackPanel(cur_build, hitobj);
-				new_arr.pane = curPane;
-				
+				var new_arr = getArr(cur_build.id, hitobj.id);
+				new_arr.strength =  (cur_build.troops - 1);
+
+				pane.setTo(cur_build, hitobj);
+
 				$("#popup").center();
-				$("#popup").css({"display" : "block"});
+				$("#popup").css({
+					"display" : "block"
+				});
 
 				cur_build.troops = 1;
 				cur_build = null;
@@ -197,10 +172,7 @@ function onMouseDown(event) {
 		var cur_arr = getHitArrow();
 
 		if (cur_arr) {
-			if (curPane) {
-				curPane.active = false;
-			}
-			curPane = cur_arr.pane;
+			pane.setTo(getObj(cur_arr.start), getObj(cur_arr.end));
 			cur_arr.material["color"] = new THREE.Color(0x00ff00);
 		}
 
@@ -358,7 +330,7 @@ function keyControls(e) {
 
 	//enter key
 	if (e == 13) {
-		curPane.active = false;
+		pane.active = false;
 	}
 
 }
