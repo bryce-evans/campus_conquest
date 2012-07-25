@@ -1,17 +1,24 @@
 <?php
-	include "includes/functions.php";
-	
-	if (isset($_GET['game_id'])){
-		$game_id = clean($_GET['game_id']);
-		
-		$res = db_query_one("SELECT game_turn FROM q_games WHERE game_id='$game_id'");
-		$game_turn = $res["game_turn"];
+include "includes/functions.php";
 
-		$u_id = $_SESSION['uid'];
-		$query = "SELECT user_turn 
-			FROM q_users_games NATURAL JOIN q_games NATURAL JOIN q_users WHERE u_id='$u_id'";
-		$res = db_query_one($query);
-		$my_turn = $res['user_turn'];
-		
-	}
+$content .= '
+<div id="info">
+	Territory Grab-
+	<span>&copy; 2012 Campus Conquest</span>
+</div>
+
+<canvas id="canvas2D" width="1920" height="1080"></canvas>
+<canvas id="canvas3D" ></canvas>
+
+<script src="js/lib/Three.js"></script>
+<script src="js/lib/Detector.js"></script>
+<script src="js/lib/Stats.js"></script>
+<script src="js/TerritoryGrab.js"></script>
+<script src="js/overlayText.js"></script>
+<script src="map_loader/Loader.js"></script>
+<script type="text/javascript" src="js/Pick.js"></script>';
+
+include "template.php";
+
 ?>
+

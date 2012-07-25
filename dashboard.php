@@ -1,6 +1,7 @@
 <? 
 	include "includes/functions.php";
 	
+	$uid = $_SESSION['uid'];
 	$fields = array(
 		"Title" => "game_title",
 		"Description" => "game_desc"
@@ -19,16 +20,39 @@
 		return tr($c);
 	}
 	
-	$content .= title("Available Games");
-	
+	/* Creates My Games */
+	$content .= title("My Games");
 	$query = "
-		SELECT q_states.game_id as game_id, game_title, game_desc, game_created, game_start
-		FROM ((q_states JOIN q_games ON q_states.game_id = q_games.game_id)
-			JOIN q_users ON q_states.u_id = q_users.u_id)
-		GROUP BY q_states.game_id";
-	$content .= table_with_header(db_query($query, "process_all_games"), $fields, 1);
+		SELECT *
+		FROM q_users_games NATURAL JOIN q_games
+		WHERE u_id = '$uid'";
+		
+	$content .= content(table_with_header(db_query($query, "process_all_games"), $fields, 1));
+	
+	/* Creates Games that are Available (but not mine) */
+	$content .= title("Other Games");
+	$query = "
+		SELECT *
+		FROM q_games
+		WHERE game_id NOT IN (
+			SELECT game_id
+			FROM q_users_games NATURAL JOIN q_games
+			WHERE u_id ='$uid'
+		)";
+		
+	$content .= content(table_with_header(db_query($query, "process_all_games"), $fields, 1));
 	
 	
+	/* Adds the Game */
+	$content .= title("Create Game");
+	$content .= content("
+	<form method='post' action='create.php'>
+		<table class='table_form'>
+			<tr><td>Title</td><td><input type='text' name='gameTitle' /></td></tr>
+			<tr><td>Description</td><td><textarea name='gameDesc' cols='70' rows='3'></textarea></td></tr>
+			<tr><td colspan='2'><input type='submit' name='newgame' value='New Game' /></td></tr>
+		</table>
+	</form>");
 	
 	include "template.php";
 ?>

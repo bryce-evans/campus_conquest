@@ -1,5 +1,5 @@
 var loader = new THREE.JSONLoader();
-var dir = "../rsc/obj/";
+var dir = "rsc/obj/";
 var global_data = undefined;
 
 var buildings = new Array();
@@ -19,7 +19,7 @@ function parseState() {
 	 */
 
 	$.ajax({
-		url : "../ajax/get_state.php?game_id=1",
+		url : "ajax/get_state.php?game_id=1",
 		dataType : 'json',
 		success : function(jsonobj) {
 
@@ -50,7 +50,7 @@ loadBoard = function() {
 
 	if (global_data == undefined) {
 		global_data = $.ajax({
-			url : "../map_loader/MapReader.php",
+			url : "map_loader/MapReader.php",
 			async : false
 		}).responseText;
 

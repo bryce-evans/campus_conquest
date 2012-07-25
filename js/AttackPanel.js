@@ -8,9 +8,32 @@
  *
  */
 
-attackPanel = function(string) {
-	console.log(string);
+attackPanel = function(start, end) {
 	//(cur_force, full_force, reinforce, enemy) {
+
+	//this.pane = p;
+	this.active = true;
+	var thisPane = this;
+
+	const origin = start;
+	const destination = end;
+	const arrow = getArr(start.id, end.id);
+
+	const titleYou = start.id;
+	const titleThem = end.id;
+	const reinforce = 0;
+
+	var max_force = start.troops - 1 + reinforce;
+	var cur_force = max_force;
+	var reinforcements = reinforce;
+	var enemy_force = end.troops;
+
+	var multiplier = 1;
+	var max = Math.max(max_force, enemy_force);
+
+	if (max > 200) {
+		multiplier *= 200 / max;
+	}
 
 	var WIDTH = $("#canvas").width();
 	var HEIGHT = $("#canvas").height();
@@ -29,50 +52,6 @@ attackPanel = function(string) {
 
 	const startPt = [100, 300];
 
-	this.active = true;
-	var thisPane = this;
-
-	var origin;
-	var destination;
-	var arrow;
-
-	var titleYou;
-	var titleThem;
-	var reinforce = 0;
-
-	var max_force = 0;
-	var cur_force = 0;
-	var reinforcements = 0;
-	var enemy_force;
-
-	var multiplier = 1;
-	var max = Math.max(max_force, enemy_force);
-
-	this.setTo = function(start, end) {
-		//this.pane = p;
-		thisPane.active = true;
-		
-
-		origin = start;
-		destination = end;
-		arrow = getArr(start.id, end.id);
-
-		titleYou = start.id;
-		titleThem = end.id;
-		reinforce = 0;
-
-		max_force = start.troops - 1 + reinforce;
-		cur_force = max_force;
-		reinforcements = reinforce;
-		enemy_force = end.troops;
-
-		multiplier = 1;
-		max = Math.max(max_force, enemy_force);
-
-		if (max > 200) {
-			multiplier *= 200 / max;
-		}
-	}
 	function init() {
 		c = $('#popup')[0].getContext("2d");
 
@@ -86,10 +65,8 @@ attackPanel = function(string) {
 		return setInterval(draw, 10);
 	}
 
-	function turnover() {
-		$("#popup").css({
-			"display" : "none"
-		});
+	function turnover(){
+		$("#popup").css({"display" : "none"});
 	}
 
 	function onKeyUp(e) {
@@ -98,8 +75,8 @@ attackPanel = function(string) {
 			rect.scale(1);
 		else if (e.keyCode == 40)
 			rect.scale(-1);
-		else if (e.keyCode == 13)
-			turnover();
+		// else if (e.keyCode == 13)
+			// turnover();
 	}
 
 	function onMouseDown(e) {

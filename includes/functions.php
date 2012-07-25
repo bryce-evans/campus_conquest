@@ -16,6 +16,10 @@
 		return "<div class='title'>".$text."</div>";
 	}
 	
+	function content($text){
+		return "<div class='content'>" . $text . "</div>";
+	}
+	
 	/**
 	 * Wrapper for TABLE
 	 */
@@ -276,6 +280,14 @@
 		
 		db_connect();
 		$mysqli->query($query);
+		db_close();
+	}
+	
+	function db_multiquery_nr($query){
+		global $mysqli;
+		
+		db_connect();
+		$mysqli->multi_query($query);
 		db_close();
 	}
 	

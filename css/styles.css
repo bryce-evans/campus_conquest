@@ -49,6 +49,9 @@ html, body {
 		color:#3D4C53;
 		border-bottom:1px solid #3D4C53;
 	}
+	.content{
+		padding: 20px 10px;
+	}
 	#content{
 		padding-top:10px;
 	}
@@ -72,6 +75,9 @@ html, body {
 	#btn_login{
 		height:100%;
 	}
+.table_form td{
+	vertical-align: top;
+}
 .table {
 	margin:5px;
 	vertical-align: top;
