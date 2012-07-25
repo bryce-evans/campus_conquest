@@ -30,7 +30,7 @@
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>
 			<script src="../js/TerritoryGrab.js"></script>
-			<script src="../js/overlayText.js"></script>
+			<script src="../js/TerritoryGrabTextOverlay.js"></script>
 			<script src="../map_loader/Loader.js"></script>
 
 			<script type="text/javascript">

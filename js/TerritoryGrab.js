@@ -28,8 +28,6 @@ function onMouseDown(event) {
 	var jsonobj = new Object;
 	jsonobj.u_id = 1;
 
-	map.Territories = new Object;
-
 	var hitobj = getHitObject();
 
 	if (hitobj) {
@@ -54,7 +52,7 @@ function onMouseDown(event) {
 			hitobj.team = curPlayer;
 
 			jsonobj.t_id = hitobj.id;
-			alert(stringify(jsonobj));
+			alert(JSON.stringify(jsonobj));
 
 			// const conn_color = 0xffffff;
 			// var conbuilds = "";
