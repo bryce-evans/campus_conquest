@@ -25,7 +25,7 @@
 			<canvas id="canvas2D" width="1920" height="1080"></canvas>
 			<canvas id="canvas3D" ></canvas>
 
-			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+			<script type="text/javascript" src="../js/lib/jQuery.js"></script>
 			<script src="../js/lib/Three.js"></script>
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>

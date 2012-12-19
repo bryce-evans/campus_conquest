@@ -21,6 +21,10 @@ function overlayText() {
 
 		if (obj.troops > 0) {
 			
+			if(obj.id == "teagle"){
+				var flag;
+			}
+			
 			ctx2d.font = "20px helvetica";
 			ctx2d.fillStyle = "#0088ff";
 			ctx2d.fillText(obj.troops, coord.x, coord.y);
@@ -28,6 +32,8 @@ function overlayText() {
 			ctx2d.font = "14px helvetica";
 			ctx2d.fillStyle = "#4466aa";
 			ctx2d.fillText(obj.id, coord.x, coord.y + 15);
+			
+			
 			
 		} else {
 			ctx2d.fillText(obj.id, coord.x, coord.y);

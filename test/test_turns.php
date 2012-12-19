@@ -10,7 +10,7 @@
 			$(document).ready(function(){
 				$("#next_turn").click(function(){
 					var game_id = getUrlVars()["game_id"];
-					var turn = $.ajax({"url" : "../ajax/next_turn.php?game_id=" + game_id, async : false}).responseText;
+					var turn = $.ajax({"url" : "/ajax/next_turn.php?game_id=" + game_id, async : false}).responseText;
 					$("#turn").html("Turn #" + turn);
 					return false;
 				});
@@ -34,7 +34,7 @@
 			
 			function updateState(){
 				var game_id = getUrlVars()["game_id"];
-				var turn = $.ajax({"url" : "../ajax/get_turn.php?game_id=" + game_id, async : false}).responseText;
+				var turn = $.ajax({"url" : "/ajax/get_turn.php?game_id=" + game_id, async : false}).responseText;
 				$("#turn").html("Turn #" + turn);
 			}
 			

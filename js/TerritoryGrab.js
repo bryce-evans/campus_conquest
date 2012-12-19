@@ -1,9 +1,12 @@
 var TROOPS_INIT = 100;
+var is_my_turn = true;
 
 function zoom(event) {
 	const sensitivity = 0.6;
 	const ceiling = 800;
 	const floor = 50;
+	
+	
 
 	var delta = 0;
 	delta = event.wheelDelta * sensitivity;
@@ -156,7 +159,7 @@ function panAuto(x, y) {
 		camera.position.x += sensitivity;
 		camera.target.x += sensitivity;
 
-		//left
+	//left
 	} else if (x < border * window.innerWidth && camera.target.x > -300) {
 		camera.position.x -= sensitivity;
 		camera.target.x -= sensitivity;
@@ -168,7 +171,7 @@ function panAuto(x, y) {
 		camera.position.z += sensitivity;
 		camera.target.z += sensitivity;
 
-		//top
+	//top
 	} else if (y < border * window.innerHeight && camera.target.z > -450) {
 		camera.position.z -= sensitivity;
 		camera.target.z -= sensitivity;

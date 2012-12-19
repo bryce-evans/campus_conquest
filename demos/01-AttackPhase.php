@@ -12,8 +12,6 @@
 			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 			<LINK REL=StyleSheet HREF="../css/gamelayout.css" TYPE="text/css">
 
-		
-
 		</head>
 
 		<body>
@@ -26,14 +24,14 @@
 			<canvas id="canvas3D"></canvas>
 			<canvas id="popup" width="600" height="400"></canvas>
 
-			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-			
+			<script type="text/javascript" src="../js/lib/jQuery.js"></script>
+
 			<script src="../js/lib/Three.js"></script>
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>
-			
+
 			<script src="../js/AttackPanel.js"></script>
-			<script src="../js/AttackPhase.js"></script>			
+			<script src="../js/AttackPhase.js"></script>
 			<script src="../js/overlayText.js"></script>
 			<script src="../map_loader/Loader.js"></script>
 
@@ -51,10 +49,6 @@
 				function getObj(id) {
 					return buildings[id];
 				}
-				
-				
-				
-
 
 				var arrows = new Array();
 				var arrowMeshes = new Array();
@@ -64,11 +58,11 @@
 							return arrows[i];
 						}
 					}
-					
-					var arr = new arrow(start,end);
-					arrows.push(arr);
+
+					var arr = new arrow(start, end);
 					return arr;
 				}
+
 
 				//initialize to center to prevent unwanted pan
 				var mouseX = SCREEN_WIDTH / 2;
@@ -229,8 +223,6 @@
 					renderer3D.render(scene, camera);
 
 				}
-
-				
 
 			</script>
 

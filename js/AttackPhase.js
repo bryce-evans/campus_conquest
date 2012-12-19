@@ -35,7 +35,7 @@ arrow = function(id1, id2) {
 
 	this.start = start;
 	this.end = end;
-	this.strength;
+	this.strength = getObj(start).troops - 1;
 
 	p1 = getObj(start).center;
 	var p2 = getObj(end).center;
@@ -61,7 +61,7 @@ arrow = function(id1, id2) {
 
 		var mesh = new THREE.Mesh(geometry, material);
 
-		mesh.scale.set((1 / (scale)) * mag * scale - .5 * (scale), .1 * mag * scale, .03 * strength * scale + .5);
+		mesh.scale.set((1 / (scale)) * mag * scale - .5 * (scale), .1 * mag * scale, .03 * thisArr.strength * scale + .5);
 
 		mesh.position.x = getObj(id1).center[0];
 		mesh.position.z = getObj(id1).center[2];
@@ -154,7 +154,7 @@ function onMouseDown(event) {
 				cur_build.material["color"] = new THREE.Color(colors[cur_build.team]);
 
 				var new_arr = getArr(cur_build.id, hitobj.id);
-				new_arr.strength =  (cur_build.troops - 1);
+				new_arr.strength = (cur_build.troops - 1);
 
 				pane.setTo(cur_build, hitobj);
 
@@ -163,7 +163,7 @@ function onMouseDown(event) {
 					"display" : "block"
 				});
 
-				cur_build.troops = 1;
+				//cur_build.troops = 1;
 				cur_build = null;
 
 			}
@@ -180,7 +180,7 @@ function onMouseDown(event) {
 }
 
 const sensitivity = 6;
-const border = .08;
+const border = .02;
 
 var old_obj;
 var cur_obj;
@@ -297,7 +297,6 @@ function getHitArrow() {
 
 		var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
 
-		console.log(arrowMeshes);
 		return ray.intersectObjects(arrowMeshes)[0].object;
 		// }
 	} catch(err) {

@@ -12,71 +12,75 @@ attackPanel = function(start, end) {
 	//(cur_force, full_force, reinforce, enemy) {
 
 	//this.pane = p;
-	this.active = true;
-	var thisPane = this;
+	this.active = false;
+	const thisPane = this;
+	const startPt = [100, 300];
 
-	const origin = start;
-	const destination = end;
-	const arrow = getArr(start.id, end.id);
+	const WIDTH = $("#canvas").width();
+	const HEIGHT = $("#canvas").height();
 
-	const titleYou = start.id;
-	const titleThem = end.id;
-	const reinforce = 0;
+	var c = $('#popup')[0].getContext("2d");
 
-	var max_force = start.troops - 1 + reinforce;
-	var cur_force = max_force;
-	var reinforcements = reinforce;
-	var enemy_force = end.troops;
-
-	var multiplier = 1;
-	var max = Math.max(max_force, enemy_force);
-
-	if (max > 200) {
-		multiplier *= 200 / max;
-	}
-
-	var WIDTH = $("#canvas").width();
-	var HEIGHT = $("#canvas").height();
-
-	var c;
 	var mousedown = false;
 	var mousex = 0;
 	var mousey = 0;
-
-	var rect;
-	var rect2;
 
 	const min_force = 0;
 	const rectWidth = 60;
 	const rectSpace = 4 * rectWidth;
 
-	const startPt = [100, 300];
+	var titleYou, titleThem, reinforce, max_force, cur_force, reinforcements, enemy_force, multiplier;
 
-	function init() {
-		c = $('#popup')[0].getContext("2d");
+	this.setTo = function(start, end) {
+
+		thisPane.active = true;
+
+		thisPane.origin = getObj(start.id);
+		thisPane.destination = end;
+		thisPane.arrow = getArr(start.id, end.id);
+
+		titleYou = start.id;
+		titleThem = end.id;
+
+		reinforcements = 0;
+		max_force = start.troops - 1 + reinforcements;
+		
+		cur_force = thisPane.arrow.strength;
+		enemy_force = end.troops;
+
+		// number of pixels per troop
+		multiplier = 1;
+		var max = Math.max(max_force, enemy_force);
+
+		//divides to make sure the rectangle is not more than 200 px high
+		if (max > 200) {
+			multiplier = 200 / max;
+		}
 
 		clear();
 
-		console.log(c.canvas.width);
-
-		rect = new scalableRect(cur_force);
-		rect.draw();
+		thisPane.rect = new scalableRect(cur_force);
+		thisPane.rect.draw();
 
 		return setInterval(draw, 10);
-	}
 
-	function turnover(){
-		$("#popup").css({"display" : "none"});
+	}
+	function turnover() {
+		$("#popup").css({
+			"display" : "none"
+		});
+
+		thisPane.active = false;
 	}
 
 	function onKeyUp(e) {
 
 		if (e.keyCode == 38)
-			rect.scale(1);
+			thisPane.rect.scale(1);
 		else if (e.keyCode == 40)
-			rect.scale(-1);
+			thisPane.rect.scale(-1);
 		// else if (e.keyCode == 13)
-			// turnover();
+		// turnover();
 	}
 
 	function onMouseDown(e) {
@@ -91,9 +95,9 @@ attackPanel = function(start, end) {
 
 		var delY = mousey - e.offsetY;
 
-		if (mousedown && thisPane.active) {
+		if (thisPane.rect && mousedown && thisPane.active) {
 
-			rect.scale(delY);
+			thisPane.rect.scale(delY);
 
 		}
 
@@ -101,7 +105,7 @@ attackPanel = function(start, end) {
 		mousey = e.offsetY;
 	}
 
-	function scalableRect(force) {
+	scalableRect = function(force) {
 		var f = force;
 		var h = force;
 
@@ -112,7 +116,7 @@ attackPanel = function(start, end) {
 			c.fillRect(startPt[0], startPt[1], rectWidth, -reinforcements * multiplier);
 
 			//main rect
-			c.fillStyle = "#" + zeroPad(colors[origin.team].toString(16));
+			c.fillStyle = "#" + zeroPad(colors[thisPane.origin.team].toString(16));
 
 			c.fillRect(startPt[0], startPt[1] - reinforcements, rectWidth, -(h * multiplier));
 
@@ -126,15 +130,19 @@ attackPanel = function(start, end) {
 			var newh = h + del;
 			//h = newh;
 
-			if (newh < (max_force) && newh > (min_force)) {
-				h = newh;
-				cur_force = h;
-				origin.troops = max_force - cur_force;
-
-				arrow.strength = cur_force;
-				arrow.mesh.scale.z = .03 * cur_force * scale + .5;
-
+			if (newh > (max_force)) {
+				newh = max_force;
+			} else if (newh < (min_force)) {
+				newh = 1;
 			}
+			
+			h = newh;
+			cur_force = h;
+			thisPane.origin.troops = max_force - cur_force + 1;
+
+			thisPane.arrow.strength = cur_force;
+			thisPane.arrow.mesh.scale.z = .03 * cur_force * scale + .5;
+
 		}
 
 		this.geth = function() {
@@ -145,7 +153,6 @@ attackPanel = function(start, end) {
 			return h;
 		}
 	}
-
 	// Draw Function
 	function draw() {
 
@@ -163,12 +170,11 @@ attackPanel = function(start, end) {
 			c.fillText(titleYou, startPt[0] + rectWidth / 2, 80);
 			c.fillText(titleThem, startPt[0] + rectWidth / 2 + rectSpace, 80);
 
-			//purple rect
-			c.fillStyle = "#" + zeroPad(colors[destination.team].toString(16));
+			//enemy rect
+			c.fillStyle = "#" + zeroPad(colors[thisPane.destination.team].toString(16));
 			c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
+			
 
-			c.strokeStyle = "#888";
-			c.strokeRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 
 			//fill line
 			c.strokeStyle = "#ff0000";
@@ -179,16 +185,18 @@ attackPanel = function(start, end) {
 			c.stroke();
 
 			//orange deficit warning
-			c.fillStyle = "#331100";
-			c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
+			// c.fillStyle = "#331100";
+			// c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
+			
+			//your force rectangle
+			c.fillStyle = "#" + zeroPad(colors[thisPane.origin.team].toString(16));
+			c.fillRect(startPt[0], startPt[1], rectWidth, -cur_force * multiplier);
 
-			rect.draw();
-
-			//your force
+			//your force (number)
 			c.font = "14px helvetica";
 			c.fillStyle = "#0088ff";
 			c.textAlign = 'center';
-			c.fillText(rect.geth() + reinforcements, startPt[0] + rectWidth / 2, startPt[1] + 20);
+			c.fillText(thisPane.rect.geth() + reinforcements, startPt[0] + rectWidth / 2, startPt[1] + 20);
 
 			//enemy force
 			c.font = "14px helvetica";
@@ -222,7 +230,6 @@ attackPanel = function(start, end) {
 	// Use JQuery to wait for document load
 	$(document).ready(function() {
 		init();
-
 	});
 
 	$(document).keyup(onKeyUp);

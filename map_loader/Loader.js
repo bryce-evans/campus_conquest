@@ -1,5 +1,5 @@
 var loader = new THREE.JSONLoader();
-var dir = "rsc/obj/";
+var dir = "../rsc/obj/";
 var global_data = undefined;
 
 var buildings = new Array();
@@ -18,8 +18,11 @@ function parseState() {
 	 "game_id": "1"
 	 */
 
-	var game_id = $.ajax({ url : "ajax/get_gameid.php", async : false}).responseText.trim();
-	
+	var game_id = $.ajax({
+		url : "/ajax/get_gameid.php",
+		async : false
+	}).responseText.trim();
+
 	$.ajax({
 		url : "ajax/get_state.php?game_id=" + game_id,
 		dataType : 'json',
@@ -52,7 +55,7 @@ loadBoard = function() {
 
 	if (global_data == undefined) {
 		global_data = $.ajax({
-			url : "map_loader/MapReader.php",
+			url : "../map_loader/MapReader.php",
 			async : false
 		}).responseText;
 
@@ -88,7 +91,7 @@ loadBoard = function() {
 
 			material = new THREE.MeshLambertMaterial({
 				color : colors[0],
-				shading : THREE.FlatShading
+				shading : THREE.FlatShading,
 			});
 
 			var mesh = new THREE.Mesh(geometry, material);
@@ -103,8 +106,14 @@ loadBoard = function() {
 			}
 
 			mesh.scale.set(scale, scale, scale);
-			mesh.team = 0;
-			mesh.troops = 0;
+			// mesh.team = 5;
+			// mesh.troops = 100;
+
+			mesh.setTeam(Math.floor((Math.random() * numPlayers) + 1));
+			mesh.troops = 100;
+			// mesh.troops = Math.floor((Math.random() * 400) + 100);
+
+
 			mesh.position.y = 0;
 
 			////////
@@ -129,20 +138,31 @@ loadBoard = function() {
 			mesh.id = model;
 			buildings[model] = mesh;
 			board.push(mesh);
+
 			scene.add(mesh);
+
+			//******RAND LOAD
+
 		});
 	}
 	loadGround = function() {
 		loader.load(dir + "aaa_ground/ground.js", function(geometry) {
 
-			var material = new THREE.MeshFaceMaterial();
+			material = new THREE.MeshLambertMaterial({
+				map: THREE.ImageUtils.loadTexture(dir + "aaa_ground/ground.png"),
+				shading : THREE.SmoothShading,
+			});
+			
+			// var material = new THREE.MeshFaceMaterial();
 			var mesh = new THREE.Mesh(geometry, material);
 
 			mesh.scale.set(scale, scale, scale);
 			mesh.position.y = 0;
-
+			try{
 			scene.add(mesh);
-
+			}catch(err){
+				alert(e.stack);
+			}
 		});
 	}
 	///////////////////////////////////////////
