@@ -1,10 +1,15 @@
-if(!Detector.webgl)
+if (!Detector.webgl)
 	Detector.addGetWebGLMessage();
+	
+	var controls_height = 0;
 
+//dimensions of map pane
 var SCREEN_WIDTH = window.innerWidth;
-var SCREEN_HEIGHT = window.innerHeight;
+var SCREEN_HEIGHT = window.innerHeight - controls_height;
+
 const WIDTH_INIT = SCREEN_WIDTH;
 const HEIGHT_INIT = SCREEN_WIDTH;
+
 const aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 var buildings = new Array();
@@ -12,10 +17,14 @@ function getObj(id) {
 	return buildings[id];
 }
 
+
+
 //initialize to center to prevent unwanted pan
 var mouseX = SCREEN_WIDTH / 2;
 var mouseY = SCREEN_HEIGHT / 2;
 var curHoverObj;
+
+
 
 var container, stats;
 var camera, scene, renderer3D;
@@ -40,19 +49,20 @@ animate();
 
 function init() {
 
-	container = document.createElement('page');
-
+	//container holding 2D,3D canvas objects
+	// does NOT hold controls or other pop ups
+	container = document.getElementById("container");
 	document.body.appendChild(container);
-
 	var info = document.getElementById('info');
-
+	container.style.height =  SCREEN_HEIGHT;
+	container.style.width =  SCREEN_WIDTH;
 	container.appendChild(info);
 
 	//
 
 	scene = new THREE.Scene();
 
-	camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 2000);
+	camera = new THREE.PerspectiveCamera(30, SCREEN_WIDTH  / SCREEN_HEIGHT, 1, 2000);
 	camera.position.set(0, 600, 0);
 	camera.target = new THREE.Vector3(0, 0, 0);
 	camera.position.x = 0;
@@ -85,6 +95,8 @@ function init() {
 	renderer2D = new THREE.CanvasRenderer({
 		canvas : canvas2D
 	});
+
+	renderer2D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	canvas3D = document.getElementById('canvas3D');
 	renderer3D = new THREE.WebGLRenderer({
@@ -119,7 +131,7 @@ function init() {
 	}
 
 	//disable right click
-	document.oncontextmenu = new Function("return false")
+	//document.oncontextmenu = new Function("return false")
 
 	//Add Listeners
 	window.addEventListener('resize', onWindowResize, false);
@@ -136,9 +148,10 @@ function init() {
 function onWindowResize(event) {
 
 	SCREEN_WIDTH = window.innerWidth;
-	SCREEN_HEIGHT = window.innerHeight;
+	SCREEN_HEIGHT = window.innerHeight - controls_height;
 
 	renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	canvas2D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	camera.updateProjectionMatrix();
 

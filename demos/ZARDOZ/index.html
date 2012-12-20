@@ -1,62 +1,196 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<title>ZARDOZ</title>
+		<title>Campus Conquest Login</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<LINK REL=StyleSheet HREF="../../css/gamelayout.css" TYPE="text/css">
+		<style>
+			body {
+				background: #000;
+				color: #fff;
+				padding: 0;
+				margin: 0;
+				font-weight: bold;
+				overflow: hidden;
+			}
 
+			a {
+				color: #ffffff;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+				z-index: 1000;
+			}
+
+			#oldie {
+				background: rgb(200,100,0) !important;
+				color: #fff;
+			}
+
+			#vt {
+				display: none
+			}
+			#vt, #vt a {
+				color: orange;
+			}
+			.code {
+			}
+
+			#logo {
+				position: relative;
+				top: 0px;
+				text-align: center;
+				/*	left: 36%;
+				 /*				margin-left: -70px;*/
+				/*	margin-left: auto;
+				 margin-right: auto;*/
+				z-index: 100;
+			}
+
+			#main {
+
+				top: 0px;
+				width: 420px;
+				height: 240px;
+				margin-top: 120px;
+				background-color: #000;
+				background-color: rgba(0,0,0,0.5);
+				font-family: Georgia;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
+				z-index: 99;
+			}
+
+			#login_title {
+				position: absolute;
+				top: 20px;
+				left: 40%;
+				font-size: 22px;
+			}
+
+			#form {
+				position: absolute;
+				margin-top: 40px;
+				left: 10%;
+				width: 80%;
+			}
+			#version {
+				font-family: sans;
+				position: relative;
+				bottom: 20px;
+				color: #c2d8ea;
+				left: 180px;
+				text-align: center;
+				z-index: 100;
+			}
+			#lower_left_options {
+				position: absolute;
+				bottom: 20px;
+				left: 10%;
+				z-index: 100;
+			}
+			#copyright {
+				position: absolute;
+				bottom: 20px;
+				text-align: right;
+				left: 80%;
+				z-index: 100;
+				
+			
+			}
+			.field {
+				text-transform: uppercase;
+				font-family: Georgia;
+				color: #333;
+				width: 100%;
+				height: 20px;
+				font-size: 20px;
+				text-align: center
+			}
+			#container {
+				position: absolute;
+				top: 0px;
+				z-index: 1;
+			}
+
+		</style>
 	</head>
 
 	<body>
+		<div id = "container"></div>
 
-		<div id="info">
-			ZARDOZ
-
-			<div id="vt"></div><a href="" target="_blank">Bryce Evans</a>
-		</div>
 
 		<script src="../../js/lib/Three.js"></script>
+
+		<script src="../../js/lib/shaders/ConvolutionShader.js"></script>
+		<script src="../../js/lib/shaders/CopyShader.js"></script>
+
+		<script src="../../js/lib/postprocessing/EffectComposer.js"></script>
+		<script src="../../js/lib/postprocessing/MaskPass.js"></script>
+		<script src="../../js/lib/postprocessing/RenderPass.js"></script>
+		<script src="../../js/lib/postprocessing/ShaderPass.js"></script>
+		<script src="../../js/lib/postprocessing/BloomPass.js"></script>
+
 		<script src="../../js/lib/Detector.js"></script>
-		<script src="../../js/lib/Stats.js"></script>
+		<script src="../../js/lib/jQuery.js"></script>
 
 		<script>
+			$("#main").center();
+
 			if (!Detector.webgl)
 				Detector.addGetWebGLMessage();
 
-			var statsEnabled = true;
-
-			var container, stats, loader;
+			var container, loader;
 
 			var camera, scene, renderer;
 
 			var mesh, zmesh, lightMesh, geometry;
-			var mesh1, mesh2, mesh3;
+			var mesh1;
 
-			var spotLight, pointLight, ambientLight;
+			var directionalLight, pointLight, ambientLight;
 
 			var mouseX = 0;
 			var mouseY = 0;
-
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
-
+			
 			var r = 0.0;
 
-			document.addEventListener('mousemove', onDocumentMouseMove, false);
+			var postprocessing = {
+				enabled : true
+			};
+
+			var composer;
+
+			SCREEN_WIDTH = window.innerWidth;
+			SCREEN_HEIGHT = window.innerHeight;
+
+			var windowHalfX = SCREEN_WIDTH / 2;
+			var windowHalfY = SCREEN_HEIGHT / 2;
 
 			init();
 			animate();
 
+			//
+
 			function init() {
 
-				container = document.createElement('div');
+				container = document.getElementById("container");
+
 				document.body.appendChild(container);
+
+				camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 10000);
+				camera.position.z = 1200;
 
 				scene = new THREE.Scene();
 
-				// CAMERA
+// CAMERA
 
 				camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0, 0);
 				camera.position.z = 1200;
@@ -112,24 +246,22 @@
 				lightMesh.scale.x = lightMesh.scale.y = lightMesh.scale.z = 0.05;
 				scene.add( lightMesh );
 
-				// common material parameters
 
-				var ambient = 0x050505, diffuse = 0x001144, specular = 0xffffff, shininess = 10, scale = 80;
+				// material parameters
 
-				var zardozTex = THREE.ImageUtils.loadTexture("zardoz.png");
-				var zardozNrm = THREE.ImageUtils.loadTexture("zardoz.png");
+				var ambient = 0x888, diffuse = 0xbbbbbb, specular = 0x060606, shininess = 20;
 
-				// normal map shader
 				var shader = THREE.ShaderUtils.lib["normal"];
 				var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
-				uniforms["enableAO"].value = true;
-				uniforms["enableDiffuse"].value = true;
-				uniforms["enableSpecular"].value = false;
-				uniforms["enableReflection"].value = true;
+				uniforms["tNormal"].value = THREE.ImageUtils.loadTexture("zardoz_NRM.png");
+				uniforms["uNormalScale"].value.set(0.8, 0.8);
 
-				uniforms["tNormal"].texture = zardozNrm;
-				uniforms["tDiffuse"].texture = zardozTex;
+				uniforms["tDiffuse"].value = THREE.ImageUtils.loadTexture("zardoz.png");
+
+				uniforms["enableAO"].value = false;
+				uniforms["enableDiffuse"].value = true;
+				uniforms["enableSpecular"].value = true;
 
 				uniforms["uDiffuseColor"].value.setHex(diffuse);
 				uniforms["uSpecularColor"].value.setHex(specular);
@@ -137,85 +269,38 @@
 
 				uniforms["uShininess"].value = shininess;
 
-				uniforms["uReflectivity"].value = 0.1;
-
-				uniforms["uDiffuseColor"].value.convertGammaToLinear();
-				uniforms["uSpecularColor"].value.convertGammaToLinear();
-				uniforms["uAmbientColor"].value.convertGammaToLinear();
-
+				uniforms["wrapRGB"].value.set(0.575, 0.5, 0.5);
 
 				var parameters = {
 					fragmentShader : shader.fragmentShader,
 					vertexShader : shader.vertexShader,
 					uniforms : uniforms,
 					lights : true,
-					fog : false,
-					map : zardozTex
+					depthTest : true,
 				};
-				var material1 = new THREE.ShaderMaterial(parameters);
+				var material = new THREE.ShaderMaterial(parameters);
 
-				//material
-				var material2 = new THREE.MeshLambertMaterial({
-					map : zardozTex,
-					depthTest : true
-				});
-
-				var shader = THREE.ShaderUtils.lib["normal"], u3 = THREE.UniformsUtils.clone(shader.uniforms);
-
-				u3["tNormal"].texture = zardozNrm;
-				u3["uNormalScale"].value = 1;
-
-				u3["tDiffuse"].texture = zardozTex;
-
-				u3["enableAO"].value = false;
-				u3["enableDiffuse"].value = true;
-				u3["enableSpecular"].value = false;
-
-				u3["uDiffuseColor"].value.setHex(0xffffff);
-				u3["uSpecularColor"].value.setHex(0x666666);
-				u3["uAmbientColor"].value.setHex(0x333333);
-
-				u3["uShininess"].value = 3;
-
-				u3["uDiffuseColor"].value.convertGammaToLinear();
-				u3["uSpecularColor"].value.convertGammaToLinear();
-				u3["uAmbientColor"].value.convertGammaToLinear();
-
-				// var material3 = new THREE.MeshLambertMaterial({
-				// color : 0x000000
-				//
-				// })
-
-				var material3 = new THREE.ShaderMaterial({
-					fragmentShader : shader.fragmentShader,
-					vertexShader : shader.vertexShader,
-					uniforms : u3,
-					lights : true,
-					depthTest : true
-				});
-
-				
-				//var material3 = material2 ;
-	
-
-				//
+				material.wrapAround = true;
 
 				loader = new THREE.JSONLoader(true);
 				document.body.appendChild(loader.statusDomElement);
 
-				loader.load("zardoz.js", function(geometry) {
-					createScene(geometry, scale, material1, material2, material3)
+				loader.load(" zardoz.js", function(geometry) {
+					createScene(geometry, 100, material)
 				});
+
+				renderer = new THREE.WebGLRenderer({
+					antialias : true,
+					clearColor : 0x508ab7, 
+					clearAlpha : 1
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
 
 				//
 
-				renderer = new THREE.WebGLRenderer({
-					maxLights : 8
-				});
-				renderer.setDepthTest(true);
-				
-				renderer.setSize(window.innerWidth, window.innerHeight);
-				container.appendChild(renderer.domElement);
+				renderer.autoClear = false;
+				//renderer.setClearColor( 0x0791c4, 1 );
 
 				//
 
@@ -223,86 +308,89 @@
 				renderer.gammaOutput = true;
 				renderer.physicallyBasedShading = true;
 
-				//
+				// Post Processing
 
-				renderer.shadowMapEnabled = true;
-				renderer.shadowMapSoft = true;
+				var renderModel = new THREE.RenderPass(scene, camera);
+				var effectBloom = new THREE.BloomPass(.5, 20, 4, 256);
+				//strength, kernelSize, sigma, resolution
+				var effectScreen = new THREE.ShaderPass(THREE.CopyShader);
+				effectScreen.renderToScreen = true;
+				composer = new THREE.EffectComposer(renderer);
+				composer.addPass(renderModel);
+				composer.addPass(effectBloom);
+				composer.addPass(effectScreen);
 
-				//
+				// EVENTS
 
-				if (statsEnabled) {
-
-					stats = new Stats();
-					stats.domElement.style.position = 'absolute';
-					stats.domElement.style.top = '0px';
-					stats.domElement.style.zIndex = 100;
-					container.appendChild(stats.domElement);
-
-				}
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+				window.addEventListener('resize', onWindowResize, false);
 
 			}
 
-			function createScene(geometry, scale, material1, material2, material3) {
+			//
+
+			function lensFlareUpdateCallback(object) {
+
+				var f, fl = object.lensFlares.length;
+				var flare;
+				var vecX = -object.positionScreen.x * 2;
+				var vecY = -object.positionScreen.y * 2;
+
+				for ( f = 0; f < fl; f++) {
+
+					flare = object.lensFlares[f];
+
+					flare.x = object.positionScreen.x + vecX * flare.distance;
+					flare.y = object.positionScreen.y + vecY * flare.distance;
+
+					flare.rotation = 0;
+
+				}
+
+				object.lensFlares[2].y += 0.025;
+				object.lensFlares[3].rotation = object.positionScreen.x * 0.5 + 45 * Math.PI / 180;
+
+			}
+
+			//
+
+			function createScene(geometry, scale, material) {
 
 				geometry.computeTangents();
 
-				// mesh1 = new THREE.Mesh(geometry, material1);
-				// mesh1.position.x = -6 * scale;
-				// mesh1.position.y -= 0;
-				// mesh1.scale.set(scale, scale, scale);
-				// mesh1.castShadow = true;
-				// mesh1.receiveShadow = true;
-				// scene.add(mesh1);
-				//
+				mesh1 = new THREE.Mesh(geometry, material);
 
-				mesh3 = new THREE.Mesh(geometry, material3);
-				mesh3.position.x = 0;
-				mesh3.position.y -= 150;
-				mesh3.scale.set(scale, scale, scale);
-				mesh3.castShadow = true;
-				mesh3.receiveShadow = true;
+				mesh1.position.x = 0;
+				mesh1.position.y -= 150;
 
-				mesh3.doubleSided = true;
+				mesh1.scale.x = mesh1.scale.y = mesh1.scale.z = scale;
 
-				var flip = false;
-
-				flip = true;
-				if (flip) {
-
-					mesh3.geometry.dynamic = true;
-					mesh3.geometry.__dirtyVertices = true;
-					mesh3.geometry.__dirtyNormals = true;
-
-					mesh3.flipSided = true;
-
-					var norm_scale = -1;
-					for (var i = 0; i < mesh3.geometry.faces.length; i++) {
-						mesh3.geometry.faces[i].normal.x = norm_scale * mesh3.geometry.faces[i].normal.x;
-						mesh3.geometry.faces[i].normal.y = norm_scale * mesh3.geometry.faces[i].normal.y;
-						mesh3.geometry.faces[i].normal.z = norm_scale * mesh3.geometry.faces[i].normal.z;
-					}
-					mesh3.geometry.computeVertexNormals();
-					mesh3.geometry.computeFaceNormals();
-				}
-				scene.add(mesh3);
-
-				// mesh2 = new THREE.Mesh(geometry, material2);
-				// mesh2.position.x = 6 * scale;
-				// mesh2.position.y -= 0;
-				// mesh2.scale.set(scale, scale, scale);
-				// mesh2.castShadow = true;
-				// mesh2.receiveShadow = true;
-				// scene.add(mesh2);
+				scene.add(mesh1);
 
 				loader.statusDomElement.style.display = "none";
 
 			}
 
+			//
+
+			function onWindowResize(event) {
+
+				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+				camera.updateProjectionMatrix();
+
+				if (postprocessing.enabled)
+					composer.reset();
+
+				//effectFXAA.uniforms['resolution'].value.set(1 / SCREEN_WIDTH, 1 / SCREEN_HEIGHT);
+
+			}
+
 			function onDocumentMouseMove(event) {
 
-				mouseX = (event.clientX - windowHalfX ) * 10;
+			mouseX = (event.clientX - windowHalfX ) * 10;
 				mouseY = (event.clientY - windowHalfY ) * 10;
-
 			}
 
 			//
@@ -312,8 +400,6 @@
 				requestAnimationFrame(animate);
 
 				render();
-				if (statsEnabled)
-					stats.update();
 
 			}
 
@@ -328,19 +414,7 @@
 
 				}
 
-				if (mesh2) {
 
-					mesh2.rotation.y = ry;
-					mesh2.rotation.x = rx;
-
-				}
-
-				if (mesh3) {
-
-					mesh3.rotation.y = ry;
-					mesh3.rotation.x = rx;
-
-				}
 
 				lightMesh.position.x = 2500 * Math.cos(r);
 				lightMesh.position.z = 2500 * Math.sin(r);

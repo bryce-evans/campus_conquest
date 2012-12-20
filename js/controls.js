@@ -1,0 +1,2 @@
+ctrls = document.getElementById('controls');
+

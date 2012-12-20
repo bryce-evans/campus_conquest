@@ -48,15 +48,21 @@ loadBoard = function() {
 
 	loader.load(dir + "aaa_ground/ground.js", function(geometry) {
 
-		var material = new THREE.MeshFaceMaterial();
+		material = new THREE.MeshLambertMaterial({
+			color : 0x005500,
+			shading : THREE.SmoothShading,
+		});
+
+		// var material = new THREE.MeshFaceMaterial();
 		var mesh = new THREE.Mesh(geometry, material);
 
 		mesh.scale.set(scale, scale, scale);
 		mesh.position.y = 0;
-		mesh.included = false;
-
-		scene.add(mesh);
-
+		try {
+			scene.add(mesh);
+		} catch(err) {
+			alert(e.stack);
+		}
 	});
 
 	load = function(model) {

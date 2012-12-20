@@ -119,24 +119,24 @@ function onMouseMove(event) {
 function panAuto(x, y) {
 
 	//right
-	if (x > (1 - border) * window.innerWidth && camera.target.x < 450) {
+	if (x > (1 - border) * SCREEN_WIDTH  && camera.target.x < 450) {
 		camera.position.x += sensitivity;
 		camera.target.x += sensitivity;
 
 		//left
-	} else if (x < border * window.innerWidth && camera.target.x > -300) {
+	} else if (x < border * SCREEN_WIDTH && camera.target.x > -300) {
 		camera.position.x -= sensitivity;
 		camera.target.x -= sensitivity;
 
 	}
 
 	//bottom
-	if (y > (1 - border) * window.innerHeight && camera.target.z < 120) {
+	if (y > (1 - border) * SCREEN_HEIGHT && camera.target.z < 120) {
 		camera.position.z += sensitivity;
 		camera.target.z += sensitivity;
 
-		//top
-	} else if (y < border * window.innerHeight && camera.target.z > -450) {
+	//top
+	} else if (y < border * SCREEN_HEIGHT && camera.target.z > -450) {
 		camera.position.z -= sensitivity;
 		camera.target.z -= sensitivity;
 
@@ -146,7 +146,7 @@ function panAuto(x, y) {
 
 function getHitObject() {
 	try {
-		var vector = new THREE.Vector3((mouseX / window.innerWidth ) * 2 - 1, -(mouseY / window.innerHeight ) * 2 + 1, 0.5);
+		var vector = new THREE.Vector3((mouseX / SCREEN_WIDTH ) * 2 - 1, -(mouseY / SCREEN_HEIGHT ) * 2 + 1, 0.5);
 		projector.unprojectVector(vector, camera);
 
 		var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
