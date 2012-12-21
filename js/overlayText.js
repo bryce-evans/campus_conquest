@@ -1,9 +1,8 @@
 function overlayText() {
 	ctx2d = renderer2D.domElement.getContext('2d');
 	ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
-	
-	var size = 800 - camera.position.y;
-	ctx2d.font = "30px helvetica";
+
+	ctx2d.font = "18px helvetica";
 	//ctx2d.font = coord.z + "px helvetica";
 	ctx2d.fillStyle = "#0088ff";
 	ctx2d.shadowOffsetX = 1;
@@ -22,11 +21,8 @@ function overlayText() {
 
 		if (obj.troops > 0) {
 			
-			if(obj.id == "teagle"){
-				var flag;
-			}
-			
-			ctx2d.font = (size + 2) + "px helvetica";
+			ctx2d.font = "20px helvetica";
+		
 			ctx2d.fillStyle = "#0088ff";
 			ctx2d.fillText(obj.troops, coord.x, coord.y);
 

@@ -2,9 +2,18 @@ function overlayText() {
 	ctx2d = renderer2D.domElement.getContext('2d');
 	ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-	ctx2d.font = "18px helvetica";
+	const ceil = 800;
+	const floor = 50;
+
+	const min_font = 18;
+	const max_font = 40;
+
+	var height = camera.position.y;
+
+	var size = (min_font - max_font) * (height - floor) / (ceil - floor) + max_font;
+	console.log(size);
+	ctx2d.font = size + "px helvetica";
 	//ctx2d.font = coord.z + "px helvetica";
-	ctx2d.fillStyle = "#0088ff";
 	ctx2d.shadowOffsetX = 1;
 	ctx2d.shadowOffsetY = 1;
 	ctx2d.shadowBlur = 2;
@@ -20,21 +29,24 @@ function overlayText() {
 		// ctx2d.fillText(obj.id, coord.x, coord.y);
 
 		if (obj.troops > 0) {
-			
-			ctx2d.font = "20px helvetica";
-			ctx2d.fillStyle = "#0088ff";
+
+			//troop count
+			ctx2d.font = (size) + "px helvetica";
+			ctx2d.fillStyle = "#88aaff";
 			ctx2d.fillText(obj.troops, coord.x, coord.y);
 
-			ctx2d.font = "14px helvetica";
-			ctx2d.fillStyle = "#4466aa";
-			ctx2d.fillText(obj.id, coord.x, coord.y + 15);
-			
+			//building names
+			if (height < 500) {
+				ctx2d.font = (size / 2) + "px helvetica";
+				ctx2d.fillStyle = "#8888aa";
+				ctx2d.fillText(obj.id, coord.x, coord.y + 15);
+			}
+
 		} else {
 			ctx2d.fillText(obj.id, coord.x, coord.y);
 		}
 
 	}
-
 
 }
 
