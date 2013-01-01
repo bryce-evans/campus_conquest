@@ -9,6 +9,7 @@
  */
 
 attackPanel = function(start, end) {
+	colors = teamdata.getColors();
 	//(cur_force, full_force, reinforce, enemy) {
 
 	//this.pane = p;
@@ -19,6 +20,7 @@ attackPanel = function(start, end) {
 	const WIDTH = $("#canvas").width();
 	const HEIGHT = $("#canvas").height();
 
+	$('#popup').hide();
 	var c = $('#popup')[0].getContext("2d");
 
 	var mousedown = false;
@@ -44,7 +46,7 @@ attackPanel = function(start, end) {
 
 		reinforcements = 0;
 		max_force = start.troops - 1 + reinforcements;
-		
+
 		cur_force = thisPane.arrow.strength;
 		enemy_force = end.troops;
 
@@ -66,9 +68,11 @@ attackPanel = function(start, end) {
 
 	}
 	function turnover() {
-		$("#popup").css({
-			"display" : "none"
-		});
+		// $("#popup").css({
+			// "display" : "none"
+		// });
+		
+		 $('#popup').hide();
 
 		thisPane.active = false;
 	}
@@ -79,8 +83,9 @@ attackPanel = function(start, end) {
 			thisPane.rect.scale(1);
 		else if (e.keyCode == 40)
 			thisPane.rect.scale(-1);
-		// else if (e.keyCode == 13)
-		// turnover();
+		else if (e.keyCode == 13) {
+			turnover();
+		}
 	}
 
 	function onMouseDown(e) {
@@ -135,7 +140,7 @@ attackPanel = function(start, end) {
 			} else if (newh < (min_force)) {
 				newh = 1;
 			}
-			
+
 			h = newh;
 			cur_force = h;
 			thisPane.origin.troops = max_force - cur_force + 1;
@@ -173,8 +178,6 @@ attackPanel = function(start, end) {
 			//enemy rect
 			c.fillStyle = "#" + zeroPad(colors[thisPane.destination.team].toString(16));
 			c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
-			
-
 
 			//fill line
 			c.strokeStyle = "#ff0000";
@@ -187,9 +190,11 @@ attackPanel = function(start, end) {
 			//orange deficit warning
 			// c.fillStyle = "#331100";
 			// c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
-			
+
 			//your force rectangle
 			c.fillStyle = "#" + zeroPad(colors[thisPane.origin.team].toString(16));
+			// console.log(thisPane.origin.team);
+			// console.log("#" + zeroPad(colors[thisPane.origin.team].toString(16)));
 			c.fillRect(startPt[0], startPt[1], rectWidth, -cur_force * multiplier);
 
 			//your force (number)

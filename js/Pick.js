@@ -32,17 +32,9 @@ var board = new Array();
 
 var scale = 15;
 
-var numPlayers = 6;
-var curPlayer = 1;
-var colors = new Array(numPlayers + 1);
-
-colors[0] = 0xffffff;
-colors[1] = 0xff0000;
-colors[2] = 0xffff00;
-colors[3] = 0x00ff00;
-colors[4] = 0x00ffff;
-colors[5] = 0x0000ff;
-colors[6] = 0xff00ff;
+var numPlayers = teamdata.getNumPlayers();
+var curPlayer = teamdata.getCurPlayer();
+var colors = teamdata.getColors();
 
 init();
 animate();
@@ -151,7 +143,6 @@ function onWindowResize(event) {
 	SCREEN_HEIGHT = window.innerHeight - controls_height;
 
 	renderer3D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	canvas2D.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	camera.updateProjectionMatrix();
 

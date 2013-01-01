@@ -11,9 +11,10 @@ function overlayText() {
 	var height = camera.position.y;
 
 	var size = (min_font - max_font) * (height - floor) / (ceil - floor) + max_font;
-	console.log(size);
-	ctx2d.font = size + "px helvetica";
-	//ctx2d.font = coord.z + "px helvetica";
+
+	ctx2d.font = "18px helvetica";
+
+	ctx2d.fillStyle = "#0088ff";
 	ctx2d.shadowOffsetX = 1;
 	ctx2d.shadowOffsetY = 1;
 	ctx2d.shadowBlur = 2;
@@ -29,23 +30,43 @@ function overlayText() {
 		// ctx2d.fillText(obj.id, coord.x, coord.y);
 
 		if (obj.troops > 0) {
+			ctx2d.font = (size + 2) + "px helvetica";
+			// ctx2d.font = "20px helvetica";
 
-			//troop count
-			ctx2d.font = (size) + "px helvetica";
-			ctx2d.fillStyle = "#88aaff";
+			ctx2d.fillStyle = "#0088ff";
 			ctx2d.fillText(obj.troops, coord.x, coord.y);
 
-			//building names
-			if (height < 500) {
-				ctx2d.font = (size / 2) + "px helvetica";
-				ctx2d.fillStyle = "#8888aa";
-				ctx2d.fillText(obj.id, coord.x, coord.y + 15);
-			}
+			ctx2d.font = "14px helvetica";
+			ctx2d.fillStyle = "#4466aa";
+			ctx2d.fillText(obj.id, coord.x, coord.y + 15);
 
 		} else {
 			ctx2d.fillText(obj.id, coord.x, coord.y);
 		}
 
+	}
+
+	ctx2d.font = "22px helvetica";
+	//ctx2d.font = coord.z + "px helvetica";
+	ctx2d.fillStyle = "#ff8800";
+	ctx2d.shadowOffsetX = 1;
+	ctx2d.shadowOffsetY = 1;
+	ctx2d.shadowBlur = 2;
+	ctx2d.shadowColor = "#ffffff";
+	ctx2d.textAlign = 'center';
+
+	if ( typeof arrows !== 'undefined') {
+		for (index in arrows) {
+
+			var arr = arrows[index];
+			var pos = new THREE.Vector3(arr.midpt[0], arr.midpt[1], arr.midpt[2]);
+
+			coord = toScreenXY(pos);
+			// ctx2d.fillText(obj.id, coord.x, coord.y);
+
+			ctx2d.fillText(arr.strength, coord.x, coord.y);
+
+		}
 	}
 
 }
@@ -66,7 +87,7 @@ function toScreenXY(pos) {
 		// y: (1 - b[1]/b[2])*renderer2D.domElement.height/2
 		x : (pos.x + 1 ) * renderer3D.domElement.width / 2, //+ renderer3D.domElement.offsetLeft / 2,
 		y : (-pos.y + 1) * renderer3D.domElement.height / 2, //+ renderer3D.domElement.offsetTop
-		// z :  .1 *((-25*pos.z + 1 ) * renderer3D.domElement.width / 2) //+ renderer3D.domElement.offsetLeft / 2,
+		//z :  .1 *((-25*pos.z + 1 ) * renderer3D.domElement.width / 2) //+ renderer3D.domElement.offsetLeft / 2,
 
 	};
 

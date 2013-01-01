@@ -11,16 +11,19 @@
 
 			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 			<LINK REL=StyleSheet HREF="../css/gamelayout.css" TYPE="text/css">
+			<LINK REL=StyleSheet HREF="../css/global.css" TYPE="text/css">
 
 		</head>
 
 		<body>
+		
+			<script src="../js/splash.js"></script>
 			<div id="info">
 				Attack Phase-
 				<span>&copy; 2012 Campus Conquest</span>
 			</div>
 
-			<canvas id="canvas2D" width="1300" height="728" ></canvas>
+			<canvas id="canvas2D" width="1600" height="900" ></canvas>
 			<canvas id="canvas3D"></canvas>
 			<canvas id="popup" width="600" height="400"></canvas>
 
@@ -30,10 +33,12 @@
 			<script src="../js/lib/Detector.js"></script>
 			<script src="../js/lib/Stats.js"></script>
 
+			<script src="../js/TeamData.js"></script>
 			<script src="../js/AttackPanel.js"></script>
 			<script src="../js/AttackPhase.js"></script>
-			<script src="../js/overlayText.js"></script>
+			<script src="../js/TextOverlay.js"></script>
 			<script src="../map_loader/Loader.js"></script>
+			
 
 			<script type="text/javascript">
 				if (!Detector.webgl)
@@ -74,18 +79,6 @@
 				var board = new Array();
 
 				var scale = 15;
-
-				var numPlayers = 6;
-				var curPlayer = 1;
-				var colors = new Array(numPlayers + 1);
-
-				colors[0] = 0xffffff;
-				colors[1] = 0xff0000;
-				colors[2] = 0xffff00;
-				colors[3] = 0x00ff00;
-				colors[4] = 0x00ffff;
-				colors[5] = 0x0000ff;
-				colors[6] = 0xff00ff;
 
 				init();
 				animate();

@@ -33855,8 +33855,9 @@ THREE.LensFlarePlugin = function ( ) {
 
 				_gl.activeTexture( _gl.TEXTURE0 );
 				_gl.bindTexture( _gl.TEXTURE_2D, _lensFlare.occlusionTexture );
-				_gl.copyTexImage2D( _gl.TEXTURE_2D, 0, _gl.RGBA, screenPositionPixels.x - 8, screenPositionPixels.y - 8, 16, 16, 0 );
-
+				try{
+			    _gl.copyTexImage2D( _gl.TEXTURE_2D, 0, _gl.RGBA, screenPositionPixels.x - 8, screenPositionPixels.y - 8, 16, 16, 0 );
+				}catch(err){console.log("copyTexImage2D error on three.js 33860");}//EDIT
 
 				// restore graphics
 

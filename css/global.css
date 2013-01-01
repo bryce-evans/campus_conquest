@@ -1,0 +1,21 @@
+div.loading-invisible {
+	/*make invisible*/
+	display: none;
+	color: #fff;
+}
+
+div.loading-visible {
+	
+	color: #fff;
+	font-size: 100px;
+	display: block;
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	background: #000029;
+	z-index: 10;
+}
+
+/*	   END LOADING SCREEN		*/

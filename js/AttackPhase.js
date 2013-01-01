@@ -1,7 +1,6 @@
-const myTeam = 5;
-
 var cur_build;
 var map = new Object;
+var myTeam = teamdata.getMyTeam();
 
 var pane = new attackPanel("test");
 
@@ -26,20 +25,24 @@ jQuery.fn.center = function() {
  */
 arrow = function(id1, id2) {
 
-	arrows.push(this);
-
 	var thisArr = this;
 
-	var start = id1;
-	var end = id2;
+	arrows.push(thisArr);
 
-	this.start = start;
-	this.end = end;
-	this.strength = getObj(start).troops - 1;
+	var origin = getObj(id1);
+	var end = getObj(id2);
+	
+	console.log(origin);
+	console.log("#" + zeroPad(teams[origin.team].color.toString(16)));
 
-	p1 = getObj(start).center;
-	var p2 = getObj(end).center;
+	this.start = id1;
+	this.end = id2;
+	this.strength = origin.troops - 1;
 
+	var p1 = origin.center;
+	var p2 = end.center;
+
+	// find arrow polar coords
 	var mag = Math.sqrt(Math.pow((p1[0] - p2[0]), 2) + Math.pow((p1[2] - p2[2]), 2));
 	var theta = -(Math.atan((p2[2] - p1[2]) / (p2[0] - p1[0]))) + Math.PI;
 
@@ -48,6 +51,7 @@ arrow = function(id1, id2) {
 		theta += Math.PI;
 	}
 
+	//get mesh object
 	var loader = new THREE.JSONLoader();
 	var x, z;
 	loader.load("../rsc/obj/aaa_arrow/arrow.js", function(geometry) {
@@ -117,7 +121,7 @@ function onMouseDown(event) {
 
 	if (hitobj) {
 
-		//select building
+		//select building		
 		if (!cur_build && hitobj.team == myTeam) {
 
 			cur_build = hitobj;
@@ -149,8 +153,8 @@ function onMouseDown(event) {
 				cur_build = hitobj;
 
 				//add attack command
-			} else if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
-
+			} else{// if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
+				console.log(cur_build);
 				cur_build.material["color"] = new THREE.Color(colors[cur_build.team]);
 
 				var new_arr = getArr(cur_build.id, hitobj.id);

@@ -5,30 +5,35 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<LINK REL=StyleSheet HREF="css/login.css" TYPE="text/css">
-		<LINK REL=StyleSheet HREF="css/global.css" TYPE="text/css">
 
 	</head>
 
 	<body>
-		<script type="text/javascript" src="js/splash.js"></script>
+
 		<!-- BEGIN LOAD SCREEN -->
 
-<!-- 				<div id="splash" class="loading-invisible">
+		<div id="loading" class="loading-invisible">
+			<div  style="height:100%;">
+				<img src="rsc/images/logo_noflag_small.png" style="position:relative; top:50%; text-align: center;">
+			</div>
 
-		<img src="rsc/images/logo_noflag_small.png" style="position:relative; top:0; text-align: center;">
+			
 
+			<!-- 			<img src="http://www.mytreedb.com/uploads/mytreedb/loader/ajax_loader_blue_512.gif" /> -->
 		</div>
 
-		<script type="text/javascript">document.getElementById("splash").className = "loading-visible";
-		var hideDiv = function() {
-		document.getElementById("splash").className = "loading-invisible";
-		};
-		var oldLoad = window.onload;
-		var newLoad = oldLoad ? function() {
-		hideDiv.call(this);
-		oldLoad.call(this);
-		} : hideDiv;
-		window.onload = newLoad;</script> -->
+		<script type="text/javascript">
+			document.getElementById("loading").className = "loading-visible";
+			var hideDiv = function() {
+				document.getElementById("loading").className = "loading-invisible";
+			};
+			var oldLoad = window.onload;
+			var newLoad = oldLoad ? function() {
+				hideDiv.call(this);
+				oldLoad.call(this);
+			} : hideDiv;
+			window.onload = newLoad;
+		</script>
 
 		<!-- END LOAD SCREEN -->
 
@@ -40,7 +45,7 @@
 		</div>
 		<div id="main" >
 			<div id="login_title">
-				Login:
+				New User:
 			</div>
 
 			<br>
@@ -71,7 +76,7 @@
 		</div>
 
 		<div id="lower_left_options">
-			<a href="/new.html">New User?</a>
+			<a href="/login.php">&lt; &lt; Back</a>
 			<br/>
 			Options
 		</div>

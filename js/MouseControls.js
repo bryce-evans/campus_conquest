@@ -1,3 +1,4 @@
+
 function zoom(event) {
 	const sensitivity = 0.6;
 	const ceiling = 800;
@@ -13,6 +14,7 @@ function zoom(event) {
 	//prevent default scrolling on page
 	if (event.preventDefault)
 		event.preventDefault();
+		
 	event.returnValue = false;
 }
 
@@ -72,7 +74,8 @@ var old_obj;
 var cur_obj;
 var mat;
 
-function onMouseMove(event) {
+function onMouseMove(event) { 
+	
 
 	const highlight = new THREE.Color(0xffff00);
 
@@ -92,7 +95,7 @@ function onMouseMove(event) {
 
 		//set old obj mat back
 		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			old_obj.material["color"] = new THREE.Color(colors[old_obj.team.id]);
 		}
 
 		//set new obj to highlight
@@ -109,7 +112,7 @@ function onMouseMove(event) {
 	//undoes highlight if no obj hovered over
 	else if (!cur_obj) {
 		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			old_obj.material["color"] = new THREE.Color(colors[old_obj.team.id]);
 			old_obj = null;
 		}
 	}

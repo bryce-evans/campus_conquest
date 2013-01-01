@@ -2,6 +2,8 @@ var loader = new THREE.JSONLoader();
 var dir = "../rsc/obj/";
 var global_data = undefined;
 
+var teams = teamdata.getTeams();
+
 var buildings = new Array();
 function getObj(id) {
 	console.log("getting mesh");
@@ -90,29 +92,41 @@ loadBoard = function() {
 			geometry.computeMorphNormals();
 
 			material = new THREE.MeshLambertMaterial({
-				color : colors[0],
+				color : teamdata.getColors()[0],
 				shading : THREE.FlatShading,
 			});
 
 			var mesh = new THREE.Mesh(geometry, material);
 			mesh.connected = json["Cornell"]["Territories"][model];
 
-			mesh.setTeam = function(newTeam) {
+			mesh.setTeam = function(id) {
 				var newmat = mesh.material;
-				var newColor = colors[newTeam];
+				var newColor = teamdata.getColors()[id];
 				newmat["color"] = new THREE.Color(newColor);
 				mesh.material = newmat;
-				mesh.team = newTeam;
+				mesh.team = id;//teams[id];
+				
+			}
+			
+			// also updates team data
+			mesh.setTroops = function(newTroops) {
+				oldTroops = mesh.troops;
+				mesh.troops = newTroops;
+				teams[mesh.team].troops += newTroops - oldTroops;
+				
 			}
 
+
 			mesh.scale.set(scale, scale, scale);
-			// mesh.team = 5;
-			// mesh.troops = 100;
 
-			mesh.setTeam(Math.floor((Math.random() * numPlayers) + 1));
-			mesh.troops = 100;
-			// mesh.troops = Math.floor((Math.random() * 400) + 100);
-
+			thisTeam = Math.floor((Math.random() * teamdata.getNumPlayers()) + 1);
+			mesh.setTeam(thisTeam);
+			
+			thisTroops = Math.floor((Math.random() * 150) + 100);
+			mesh.setTroops(thisTroops);
+			
+			var team = teams[thisTeam];
+	
 
 			mesh.position.y = 0;
 
@@ -149,18 +163,18 @@ loadBoard = function() {
 		loader.load(dir + "aaa_ground/ground.js", function(geometry) {
 
 			material = new THREE.MeshLambertMaterial({
-				map: THREE.ImageUtils.loadTexture(dir + "aaa_ground/ground.png"),
+				map : THREE.ImageUtils.loadTexture(dir + "aaa_ground/ground.png"),
 				shading : THREE.SmoothShading,
 			});
-			
+
 			// var material = new THREE.MeshFaceMaterial();
 			var mesh = new THREE.Mesh(geometry, material);
 
 			mesh.scale.set(scale, scale, scale);
 			mesh.position.y = 0;
-			try{
-			scene.add(mesh);
-			}catch(err){
+			try {
+				scene.add(mesh);
+			} catch(err) {
 				alert(e.stack);
 			}
 		});

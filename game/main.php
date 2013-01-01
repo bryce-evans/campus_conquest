@@ -44,9 +44,9 @@
 
 					draw_arc = function(color, troops) {
 						var startAngle = cur_angle;
-						var endAngle = startAngle - (troops / total_troops) * 2 * Math.PI;
+						var endAngle = startAngle - (troops/total_troops)* 2 * Math.PI;
 						cur_angle = endAngle;
-
+						
 						var counterClockwise = true;
 
 						context.beginPath();
@@ -57,11 +57,12 @@
 						context.strokeStyle = color;
 						context.stroke();
 					}
-					draw_arc("00cc00", 20);
-					draw_arc("#ff0000", 40);
-
+					
+					draw_arc("00cc00",20);
+					draw_arc("#ff0000",40);
+					
 				</script>
-
+				
 				<div style="float:right; position:absolute; right: 30px; bottom: 30px;]">
 					Options
 					<br>
@@ -69,9 +70,9 @@
 				</div>
 
 			</div>
-			<script src="../js/TeamData.js"></script>
+
 			<script src="../js/TerritoryGrab.js"></script>
-			<script src="../js/TextOverlay.js"></script>
+			<script src="../js/TerritoryGrabTextOverlay.js"></script>
 			<script src="../map_loader/Loader.js"></script>
 			<script type="text/javascript" src="../js/Pick.js"></script>
 			<script src="../js/controls.js"></script>
