@@ -16,7 +16,7 @@
 		</head>
 
 		<body>
-		
+
 			<script src="../js/splash.js"></script>
 			<div id="info">
 				Attack Phase-
@@ -38,7 +38,22 @@
 			<script src="../js/AttackPhase.js"></script>
 			<script src="../js/TextOverlay.js"></script>
 			<script src="../map_loader/Loader.js"></script>
-			
+
+			<div id = "controls">
+				Controls Area
+
+				<canvas id="turn_wheel" width="150" height="150"></canvas>
+				<script src="../js/Controls.js" >
+		
+				</script>
+
+				<div style="float:right; position:absolute; right: 30px; bottom: 30px;]">
+					Options
+					<br>
+					<a href="#">Next Turn</a>
+				</div>
+
+			</div>
 
 			<script type="text/javascript">
 				if (!Detector.webgl)
@@ -67,7 +82,6 @@
 					var arr = new arrow(start, end);
 					return arr;
 				}
-
 
 				//initialize to center to prevent unwanted pan
 				var mouseX = SCREEN_WIDTH / 2;

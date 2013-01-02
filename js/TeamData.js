@@ -5,15 +5,15 @@ teamData = function() {
 
 	var colors = new Array(numPlayers + 1);
 
-	colors[0] = 0xffffff;
-	colors[1] = 0xff0000;
-	colors[2] = 0xff8a00;
-	colors[3] = 0xe4ff00;
-	colors[4] = 0x19d500;
-	colors[5] = 0x00b2d2;
-	colors[6] = 0x7100d0;
+	colors[0] = "ffffff";
+	colors[1] = "ff0000";
+	colors[2] = "ff8a00";
+	colors[3] = "e4ff00";
+	colors[4] = "19d500";
+	colors[5] = "00b2d2";
+	colors[6] = "7100d0";
 
-	const myTeam = 5;
+	const myTeam = 1;
 
 	this.getColors = function() {
 		return colors;
@@ -37,19 +37,22 @@ teamData = function() {
 		this.troops = 0;
 
 	}
+	
+	this.teams = new Array(numPlayers);
+
+	for (var i = 1; i <= numPlayers; i++) {
+		if (i === myTeam) {
+			this.teams[i] = new team(i, "ME", colors[i]);
+		} else {
+			this.teams[i] = new team(i, "COM", colors[i]);
+		}
+	}
+
+	this.getTeams = function() {
+		return this.teams;
+	}
 	//returns array of team data,
 	// index 0 is collective data (total troops, undefined color)
-	this.getTeams = function() {
-		teams = new Array(numPlayers);
 
-		for (var i = 1; i <= numPlayers; i++) {
-			if (i === myTeam) {
-				teams[i] = new team(i, "ME", colors[i]);
-			} else {
-				teams[i] = new team(i, "COM", colors[i]);
-			}
-		}
-		return teams;
-	}
 }
 var teamdata = new teamData();

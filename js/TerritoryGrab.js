@@ -64,7 +64,7 @@ function onMouseDown(event) {
 			// hitobj.material = newmat;
 
 			var newmat = hitobj.material;
-			var newColor = (colors[curPlayer] * weight + 0xffffff * (1 - weight));
+			var newColor = (("0x" + colors[curPlayer]) * weight + 0xffffff * (1 - weight));
 			newmat["color"] = new THREE.Color(newColor);
 			hitobj.material = newmat;
 			hitobj.team = curPlayer;
@@ -128,7 +128,7 @@ function onMouseMove(event) {
 
 		//set old obj mat back
 		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			old_obj.material["color"] = new THREE.Color("0x" + colors[old_obj.team]);
 		}
 
 		//set new obj to highlight
@@ -145,7 +145,7 @@ function onMouseMove(event) {
 	//undoes highlight if no obj hovered over
 	else if (!cur_obj) {
 		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+			old_obj.material["color"] = new THREE.Color("0x" + colors[old_obj.team]);
 			old_obj = null;
 		}
 	}

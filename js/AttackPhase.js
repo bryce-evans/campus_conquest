@@ -10,6 +10,7 @@ const connected_color = 0x0088cc;
 /**
  * Centers the current container
  */
+
 jQuery.fn.center = function() {
 	this.css("position", "absolute");
 	this.css("top", Math.max(0, (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
@@ -33,7 +34,6 @@ arrow = function(id1, id2) {
 	var end = getObj(id2);
 	
 	console.log(origin);
-	console.log("#" + zeroPad(teams[origin.team].color.toString(16)));
 
 	this.start = id1;
 	this.end = id2;
@@ -143,19 +143,18 @@ function onMouseDown(event) {
 			//deselect current building
 			if (hitobj == cur_build) {
 
-				cur_build.material["color"] = new THREE.Color(colors[hitobj.team]);
+				cur_build.material["color"] = new THREE.Color("0x" + colors[hitobj.team]);
 
 				cur_build = null;
 
 				//change selection
-			} else if (hitobj.team == cur_build.team) {
-				cur_build.material["color"] = new THREE.Color(colors[old_obj.team]);
+			} else if (cur_build && hitobj.team === cur_build.team) {
+				cur_build.material["color"] = new THREE.Color("0x" + colors[old_obj.team]);
 				cur_build = hitobj;
 
 				//add attack command
-			} else{// if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
-				console.log(cur_build);
-				cur_build.material["color"] = new THREE.Color(colors[cur_build.team]);
+			} else if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
+				cur_build.material["color"] = new THREE.Color("0x" + colors[cur_build.team]);
 
 				var new_arr = getArr(cur_build.id, hitobj.id);
 				new_arr.strength = (cur_build.troops - 1);
@@ -214,11 +213,12 @@ function onMouseMove(event) {
 			if (old_obj == cur_build) {
 				old_obj.material["color"] = new THREE.Color(cur_build_color);
 			} else {
-				old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+				old_obj.material["color"] = new THREE.Color("0x" + colors[old_obj.team]);
 			}
 		}
 
 		//set new obj to highlight
+		// console.log(cur_obj);
 		mat = cur_obj.material;
 
 		//***SOLID HIGHLIGHT
@@ -233,9 +233,9 @@ function onMouseMove(event) {
 	else if (!cur_obj) {
 		if (old_obj) {
 			if (old_obj == cur_build) {
-				old_obj.material["color"] = new THREE.Color(cur_build_color);
+				old_obj.material["color"] = new THREE.Color("0x" + cur_build_color);
 			} else {
-				old_obj.material["color"] = new THREE.Color(colors[old_obj.team]);
+				old_obj.material["color"] = new THREE.Color("0x" + colors[old_obj.team]);
 			}
 			old_obj = null;
 		}
@@ -250,6 +250,7 @@ function onMouseMove(event) {
 
 }
 
+//has hard coded boundaries
 function panAuto(x, y) {
 	//right
 	if (x > (1 - border) * window.innerWidth && camera.target.x < 450) {

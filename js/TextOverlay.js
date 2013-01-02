@@ -59,13 +59,14 @@ function overlayText() {
 		for (index in arrows) {
 
 			var arr = arrows[index];
-			var pos = new THREE.Vector3(arr.midpt[0], arr.midpt[1], arr.midpt[2]);
+			if (arr.midpt) {
+				var pos = new THREE.Vector3(arr.midpt[0], arr.midpt[1], arr.midpt[2]);
 
-			coord = toScreenXY(pos);
-			// ctx2d.fillText(obj.id, coord.x, coord.y);
+				coord = toScreenXY(pos);
+				// ctx2d.fillText(obj.id, coord.x, coord.y);
 
-			ctx2d.fillText(arr.strength, coord.x, coord.y);
-
+				ctx2d.fillText(arr.strength, coord.x, coord.y);
+			}
 		}
 	}
 

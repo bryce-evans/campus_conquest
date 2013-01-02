@@ -27,7 +27,7 @@ attackPanel = function(start, end) {
 	var mousex = 0;
 	var mousey = 0;
 
-	const min_force = 0;
+	const min_force = 10;
 	const rectWidth = 60;
 	const rectSpace = 4 * rectWidth;
 
@@ -37,7 +37,9 @@ attackPanel = function(start, end) {
 
 		thisPane.active = true;
 
-		thisPane.origin = getObj(start.id);
+//start allows for extra men
+//getObj doesnt update text
+		thisPane.origin = getObj(start.id);//start;
 		thisPane.destination = end;
 		thisPane.arrow = getArr(start.id, end.id);
 
@@ -67,10 +69,11 @@ attackPanel = function(start, end) {
 		return setInterval(draw, 10);
 
 	}
-	function turnover() {
+	function hide() {
 		// $("#popup").css({
 			// "display" : "none"
 		// });
+		// thisPane.origin.setTroops(thisPane.cur_force);
 		
 		 $('#popup').hide();
 
@@ -84,7 +87,7 @@ attackPanel = function(start, end) {
 		else if (e.keyCode == 40)
 			thisPane.rect.scale(-1);
 		else if (e.keyCode == 13) {
-			turnover();
+			hide();
 		}
 	}
 
@@ -121,8 +124,8 @@ attackPanel = function(start, end) {
 			c.fillRect(startPt[0], startPt[1], rectWidth, -reinforcements * multiplier);
 
 			//main rect
-			c.fillStyle = "#" + zeroPad(colors[thisPane.origin.team].toString(16));
-
+			c.fillStyle = "#" + colors[thisPane.origin.team];
+			
 			c.fillRect(startPt[0], startPt[1] - reinforcements, rectWidth, -(h * multiplier));
 
 			//border
@@ -176,7 +179,7 @@ attackPanel = function(start, end) {
 			c.fillText(titleThem, startPt[0] + rectWidth / 2 + rectSpace, 80);
 
 			//enemy rect
-			c.fillStyle = "#" + zeroPad(colors[thisPane.destination.team].toString(16));
+			c.fillStyle = "#" + colors[thisPane.origin.team];
 			c.fillRect(startPt[0] + rectSpace, startPt[1], rectWidth, -enemy_force * multiplier);
 
 			//fill line
@@ -192,7 +195,7 @@ attackPanel = function(start, end) {
 			// c.fillRect(startPt[0], startPt[1], rectWidth, -enemy_force * multiplier);
 
 			//your force rectangle
-			c.fillStyle = "#" + zeroPad(colors[thisPane.origin.team].toString(16));
+			c.fillStyle = "#" + colors[thisPane.origin.team];
 			// console.log(thisPane.origin.team);
 			// console.log("#" + zeroPad(colors[thisPane.origin.team].toString(16)));
 			c.fillRect(startPt[0], startPt[1], rectWidth, -cur_force * multiplier);

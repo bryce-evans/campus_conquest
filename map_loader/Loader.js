@@ -99,9 +99,10 @@ loadBoard = function() {
 			var mesh = new THREE.Mesh(geometry, material);
 			mesh.connected = json["Cornell"]["Territories"][model];
 
+			// int id
 			mesh.setTeam = function(id) {
 				var newmat = mesh.material;
-				var newColor = teamdata.getColors()[id];
+				var newColor = "0x" + teamdata.getColors()[id];
 				newmat["color"] = new THREE.Color(newColor);
 				mesh.material = newmat;
 				mesh.team = id;//teams[id];
@@ -122,7 +123,7 @@ loadBoard = function() {
 			thisTeam = Math.floor((Math.random() * teamdata.getNumPlayers()) + 1);
 			mesh.setTeam(thisTeam);
 			
-			thisTroops = Math.floor((Math.random() * 150) + 100);
+			thisTroops = 200;// Math.floor((Math.random() * 150) + 100);
 			mesh.setTroops(thisTroops);
 			
 			var team = teams[thisTeam];
@@ -158,6 +159,7 @@ loadBoard = function() {
 			//******RAND LOAD
 
 		});
+		//updateWheel();
 	}
 	loadGround = function() {
 		loader.load(dir + "aaa_ground/ground.js", function(geometry) {

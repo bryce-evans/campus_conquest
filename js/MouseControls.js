@@ -75,7 +75,6 @@ var cur_obj;
 var mat;
 
 function onMouseMove(event) { 
-	
 
 	const highlight = new THREE.Color(0xffff00);
 
@@ -100,7 +99,7 @@ function onMouseMove(event) {
 
 		//set new obj to highlight
 		mat = cur_obj.material;
-
+		
 		//***SOLID HIGHLIGHT
 		//cur_obj.object.material["color"] = highlight;
 

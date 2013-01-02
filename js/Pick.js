@@ -18,13 +18,9 @@ function getObj(id) {
 }
 
 
-
 //initialize to center to prevent unwanted pan
 var mouseX = SCREEN_WIDTH / 2;
 var mouseY = SCREEN_HEIGHT / 2;
-var curHoverObj;
-
-
 
 var container, stats;
 var camera, scene, renderer3D;
@@ -81,7 +77,7 @@ function init() {
 	//
 
 	loadBoard();
-	parseState();
+	//parseState();
 
 	canvas2D = document.getElementById('canvas2D');
 	renderer2D = new THREE.CanvasRenderer({
