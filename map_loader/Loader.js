@@ -123,7 +123,7 @@ loadBoard = function() {
 			thisTeam = Math.floor((Math.random() * teamdata.getNumPlayers()) + 1);
 			mesh.setTeam(thisTeam);
 			
-			thisTroops = 200;// Math.floor((Math.random() * 150) + 100);
+			thisTroops = Math.floor((Math.random() * 150) + 100);
 			mesh.setTroops(thisTroops);
 			
 			var team = teams[thisTeam];

@@ -30,6 +30,9 @@ function overlayText() {
 		// ctx2d.fillText(obj.id, coord.x, coord.y);
 
 		if (obj.troops > 0) {
+			
+			//size = 3*(coord.z + 1917) + 5;
+			//ctx2d.font = size + "px helvetica";
 			ctx2d.font = (size + 2) + "px helvetica";
 			// ctx2d.font = "20px helvetica";
 

@@ -1,0 +1,520 @@
+body {
+	font-family: 'Trebuchet MS', Verdana, Helvetica, Arial, sans-serif;
+/*	background: #000 !important;*/
+}
+
+#wrap {
+	min-width: 750px;
+	max-width: 1600px;
+	/*width: 1500px;*/
+	margin: 0 auto;
+	/*position: relative;*/
+	/*top: 60px;*/
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+/*COLUMN 1*/
+#c1_div {
+	float: left;
+	width: 100%;
+	background: #000;
+}
+
+#c1 {
+	margin-right: 610px;
+	/*border: 1px solid #aaa;*/
+	height: 100%;
+	background-color: #111;
+}
+
+.CodeMirror {
+	border: 2px solid #999;
+	/*box-shadow: 0px 0px 7px #888;*/
+}
+
+.CodeMirror-scroll {
+	/*min-height: 100px;*/
+	/*max-height: 800px;*/
+	height: auto;
+	max-height: 800px;
+}
+
+/*COLUMN 2*/
+#c2 {
+	float: left;
+	width: 600px;
+	margin-left: -600px;
+	/*padding-top: 2px;*/
+	/*width: 600px;*/
+	/*height: 404px;*/
+	/*border: 1px dotted #aaa;*/
+}
+
+#result {
+	/*    position: absolute;
+	 left: 500px;
+	 top: 10px;
+	 */
+	/*padding-top: 2px;*/
+	width: 600px;
+	height: 400px;
+	/*height: 404px;*/
+	border: 2px solid #999;
+	/*border: none;*/
+}
+
+#run {
+	width: 100%;
+	height: 30px;
+	border: 1px solid #888;
+	background-color: #006d00;
+	color: #ccc;
+	margin-top: 5px;
+	text-align: center;
+	line-height: 30px;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	cursor: default;
+	/*box-shadow: 0px 0px 7px #888;*/
+}
+
+#run:hover {
+	background-color: #00a300;
+}
+
+#run:active {
+	background-color: #00bb00;
+}
+
+.shaderTitleLine {
+	background: #333;
+}
+
+/*
+ * SAVING and SUBMITTING OVERLAY
+ */
+#save_saving_overlay, #submitting_overlay {
+	/* must be initially hidden */
+	display: none;
+	/* place overlay on top of other elements */
+	z-index: 10000;
+	/* styling */
+	background-color: #ffffff;
+	width: 300px;
+	min-height: 80px;
+	border: 1px solid #777;
+	padding: 10px;
+	/* CSS3 styling for latest browsers */
+	-moz-box-shadow: 0 0 70px 5px #000;
+	-webkit-box-shadow: 0 0 70px #000;
+}
+
+#save_saving_overlay p, #submitting_overlay p {
+	margin: 0;
+	padding: 0;
+	margin-top: 27px;
+	text-align: center;
+}
+
+/*
+ * SAVE OVERLAY
+ */
+#save_overlay {
+	/* must be initially hidden */
+	display: none;
+	/* place overlay on top of other elements */
+	z-index: 10000;
+	/* styling */
+	background-color: #ffffff;
+	width: 300px;
+	min-height: 80px;
+	border: 1px solid #777;
+	padding: 10px;
+	/* CSS3 styling for latest browsers */
+	-moz-box-shadow: 0 0 70px 5px #000;
+	-webkit-box-shadow: 0 0 70px #000;
+}
+
+/* center message inside the overlay */
+#save_overlay p {
+	margin: 0;
+	padding: 0;
+	margin-top: 27px;
+	text-align: center;
+}
+
+#save_overlay .close {
+	background-image: url(overlay/close.png);
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	cursor: pointer;
+	height: 35px;
+	width: 35px;
+}
+
+/*
+ * NOCHANGES OVERLAY
+ */
+#save_nochanges_overlay {
+	/* must be initially hidden */
+	display: none;
+	/* place overlay on top of other elements */
+	z-index: 10000;
+	/* styling */
+	background-color: #ffffff;
+	width: 300px;
+	min-height: 80px;
+	border: 1px solid #777;
+	padding: 10px;
+	/* CSS3 styling for latest browsers */
+	-moz-box-shadow: 0 0 70px 5px #000;
+	-webkit-box-shadow: 0 0 70px #000;
+}
+
+/* center message inside the overlay */
+#save_nochanges_overlay p {
+	margin: 0;
+	padding: 0;
+	margin-top: 16px;
+	text-align: center;
+}
+
+#save_nochanges_overlay .close {
+	background-image: url(overlay/close.png);
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	cursor: pointer;
+	height: 35px;
+	width: 35px;
+}
+
+/*
+ * SHARE OVERLAY
+ */
+#share_overlay {
+	/* must be initially hidden */
+	display: none;
+	/* place overlay on top of other elements */
+	z-index: 10000;
+	/* styling */
+	background-color: #ffffff;
+	width: 550px;
+	min-height: 200px;
+	border: 1px solid #777;
+	padding: 10px;
+	/* CSS3 styling for latest browsers */
+	-moz-box-shadow: 0 0 70px 5px #000;
+	-webkit-box-shadow: 0 0 70px #000;
+}
+
+#share_overlay dt {
+	font-weight: bold;
+	margin-top: 20px;
+	color: #333;
+}
+
+#share_overlay dd {
+	margin-left: 0px;
+	font-size: 14px;
+	color: #777;
+}
+
+#share_overlay li {
+	color: #333;
+}
+#share_overlay span {
+	color: #777;
+}
+#share_overlay textarea {
+	border: 1px solid #444;
+	background-color: #eee;
+	color: #555;
+	resize: none;
+	overflow: hidden; /* no scrollbars */
+	width: 100%;
+	font-size: 16px;
+}
+
+#share_overlay .close {
+	background-image: url(overlay/close.png);
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	cursor: pointer;
+	height: 35px;
+	width: 35px;
+}
+/* SHARE OVERLAY END */
+
+/* CONTRIBUTE OVERLAY */
+#contribute_overlay {
+	/* must be initially hidden */
+	display: none;
+	/* place overlay on top of other elements */
+	z-index: 10000;
+	/* styling */
+	background-color: #ffffff;
+	width: 550px;
+	min-height: 200px;
+	border: 1px solid #777;
+	padding: 10px;
+	/* CSS3 styling for latest browsers */
+	-moz-box-shadow: 0 0 70px 5px #000;
+	-webkit-box-shadow: 0 0 70px #000;
+}
+
+/*#contribute_overlay textarea.one {
+ border: 1px solid #444;
+ background-color: #eee;
+ color: #555;
+ resize: none;
+ overflow: hidden;
+ width: 100%;
+ font-size: 14px;
+ }*/
+
+/*#contribute_overlay input[type="text"] {
+ border: 1px solid #aaa;
+ width: 400px;
+ }
+ */
+
+#contribute_taurl {
+	border: 1px solid #444;
+	background-color: #fafafa;
+	color: #555;
+	resize: none;
+	overflow: hidden; /* no scrollbars */
+	width: 100%;
+	font-size: 16px;
+}
+
+#contribute_taauthor, #contribute_tainfo {
+	border: 1px solid #444;
+	background-color: #fafafa;
+	color: #555;
+	resize: none;
+	overflow: hidden; /* no scrollbars */
+	width: 350px;
+	font-size: 16px;
+}
+
+.contribute_property {
+	float: left;
+	/*display: inline-block;*/
+	width: 150px;
+	text-align: left;
+	vertical-align: top;
+}
+
+#contribute_overlay div {
+	margin-top: 14px;
+}
+
+#contribute_boldp {
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+	margin-top: 20px;
+	color: #333;
+}
+
+.contribute_infop {
+	margin: 0;
+	margin-left: 150px;
+	margin-bottom: 10px;
+	padding: 0;
+	color: #777;
+	font-style: italic;
+	font-size: 12px;
+	width: 350px;
+}
+
+#contribute_overlay .close {
+	background-image: url(overlay/close.png);
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	cursor: pointer;
+	height: 35px;
+	width: 35px;
+}
+
+#contribute_submit {
+	width: 100%;
+	height: 30px;
+	border: 1px solid #888;
+	background-color: #eee;
+	margin-top: 5px;
+	text-align: center;
+	line-height: 30px;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	cursor: default;
+}
+
+#contribute_submit:hover {
+	background-color: #ddd;
+}
+
+#contribute_submit:active {
+	background-color: #ccc;
+}
+/* END */
+
+/* header */
+/*#header_left {*/
+/*    float:left;*/
+/*}*/
+/**/
+/*#header_right {*/
+/*    float:right;*/
+/*}*/
+
+/* MENU */
+#menu_wrap {
+	background: url(../images/menu_left.png) left bottom no-repeat;
+	float: left;
+	height: 50px;
+	position: relative;
+	top: 35px;
+	left: 40px;
+}
+
+#menu {
+	background: url(../images/menu_right.png) right bottom no-repeat;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	margin-right: -10px;
+	height: 100%;
+	float: left;
+}
+
+#menu li {
+	float: left;
+	margin-top: 25px;
+}
+
+#menu a {
+	padding-left: 10px;
+	padding-right: 10px;
+	text-decoration: none;
+	color: white;
+}
+
+#menu a:hover {
+	text-decoration: underline;
+}
+
+#header {
+	background: url(../images/topt.png) repeat-x;
+	height: 90px;
+	position: relative;
+	pointer-events: none;
+	margin-bottom: 20px;
+}
+
+/* BACKGROUND DIV */
+html {
+	background: url(../images/background.png) repeat;
+}
+body {
+	/*background: url(../images/topt.png) repeat-x;*/
+	margin: 0;
+	/*padding-left: 15px;*/
+	/*padding-right: 15px;*/
+	/*height: 100px;*/
+}
+/*#background_div {
+ background: url(../images/background.png) repeat;
+ }*/
+
+#logo {
+	display: block;
+	position: absolute;
+	top: 10px;
+	border: 0 !important;
+}
+
+#result {
+	background-color: white;
+}
+
+/* donate */
+#donate {
+	position: absolute;
+	top: 9px;
+	right: 10px;
+	width: 550px;
+}
+
+input[type="submit"] {
+	font-family: 'Trebuchet MS', Verdana, Helvetica, Arial, sans-serif;
+	font-size: 1em;
+	border: none;
+	cursor: pointer;
+	background-color: #0F1923;
+	color: white;
+}
+
+input[type="submit"]:hover {
+	text-decoration: underline;
+}
+
+#fps {
+	position: absolute;
+	margin-top: -1.5em;
+	margin-left: 3px;
+}
+
+#plusone {
+	/*position: absolute;
+	 top: 5px;*/
+	position: relative;
+	float: right;
+	top: 5px;
+	margin-left: 10px;
+	width: 77px;
+}
+
+#facebook {
+	/*position: absolute;
+	 top: 5px;
+	 left: 39px;*/
+	position: relative;
+	float: right;
+	top: 5px;
+	width: 85px;
+	z-index: 2; /* on top of the plus button which does nto change the width */
+}
+
+#tweeter {
+	/*position: absolute;
+	 left: 90px;
+	 top: 5px;*/
+	position: relative;
+	float: right;
+	top: 5px;
+}
+
+#paypal {
+	float: right;
+	line-height: 28px;
+	width: 120px;
+}
+
+#flattr {
+	float: right;
+	position: relative;
+	top: 6px;
+}
