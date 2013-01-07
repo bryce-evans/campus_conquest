@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Materials - Environment Maps Test</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ffffff;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+				font-weight: bold;
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				padding: 5px;
+			}
+
+			a {
+
+				color: #ffffff;
+			}
+
+			#oldie a {
+				color: #da0
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="info"></div>
+
+		<script src="../../js/lib/Three.js"></script>
+
+		<script src="../../js/lib/shaders/ConvolutionShader.js"></script>
+		<script src="../../js/lib/shaders/CopyShader.js"></script>
+		<script src="../../js/lib/shaders/FilmShader.js"></script>
+
+		<script src="../../js/lib/postprocessing/EffectComposer.js"></script>
+		<script src="../../js/lib/postprocessing/ShaderPass.js"></script>
+		<script src="../../js/lib/postprocessing/MaskPass.js"></script>
+		<script src="../../js/lib/postprocessing/RenderPass.js"></script>
+		<script src="../../js/lib/postprocessing/BloomPass.js"></script>
+		<script src="../../js/lib/postprocessing/FilmPass.js"></script>
+
+		<script src="../../js/lib/Detector.js"></script>
+		<script src="../../js/lib/Stats.js"></script>
+
+		<script>
+			if (!Detector.webgl)
+				Detector.addGetWebGLMessage();
+
+			var container, stats;
+			var mesh;
+
+			var clock = new THREE.Clock();
+
+			var camera, scene, renderer, composer;
+
+			var uniforms, material, mesh;
+
+			var mouseX = 0, mouseY = 0, lat = 0, lon = 0, phy = 0, theta = 0;
+
+			var width = window.innerWidth || 2;
+			var height = window.innerHeight || 2;
+
+			var windowHalfX = width / 2;
+			var windowHalfY = height / 2;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.getElementById('container');
+
+				camera = new THREE.PerspectiveCamera(35, windowHalfX / windowHalfY, 1, 3000);
+				camera.position.z = 4;
+
+				scene = new THREE.Scene();
+
+
+				var size = 0.65;
+
+				var urls = ['envmap3/nebula.png', 'envmap3/nebula.png', 'envmap3/nebula.png', 'envmap3/nebula.png', 'envmap3/nebula.png', 'envmap3/nebula.png'];
+				var cubemap = THREE.ImageUtils.loadTextureCube(urls);
+				var material = new THREE.MeshBasicMaterial({
+					color : 0xcccccc,
+					envMap : cubemap
+				});
+
+				var loader = new THREE.JSONLoader();
+
+				loader.load("../../rsc/obj/aaa_other/quintrino.js", function(geometry) {
+
+					createScene(geometry, material);
+				});
+
+				function createScene(geometry, mat) {
+
+					// geometry.computeTangents();
+					// geometry.computeMorphNormals();
+
+					mesh = new THREE.Mesh(geometry, mat);
+					mesh.scale.x = mesh.scale.y = mesh.scale.z = .85;
+
+					scene.add(mesh);
+
+				}
+
+				//
+
+				renderer = new THREE.WebGLRenderer({
+					antialias : true
+				});
+				container.appendChild(renderer.domElement);
+				renderer.autoClear = false;
+
+				//
+
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				//container.appendChild( stats.domElement );
+
+				//
+
+				var renderModel = new THREE.RenderPass(scene, camera);
+				var effectBloom = new THREE.BloomPass(1.00);
+				var effectFilm = new THREE.FilmPass(0.0, 0.95, 2048, false);
+
+				effectFilm.renderToScreen = true;
+
+				composer = new THREE.EffectComposer(renderer);
+
+				composer.addPass(renderModel);
+				composer.addPass(effectBloom);
+				composer.addPass(effectFilm);
+
+				//
+
+				onWindowResize();
+
+				window.addEventListener('resize', onWindowResize, false);
+
+			}
+
+			function onWindowResize(event) {
+
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				composer.reset();
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame(animate);
+
+				render();
+				stats.update();
+
+			}
+
+			function render() {
+
+				var delta = 5 * clock.getDelta();
+
+				mesh.rotation.y += 0.021 * delta;
+				mesh.rotation.x += 0.008 * delta;
+
+				renderer.clear();
+				composer.render(0.01);
+
+			}
+
+		</script>
+
+	</body>
+</html>

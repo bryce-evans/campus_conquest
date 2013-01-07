@@ -90,6 +90,18 @@ body {
 	background-color: #00bb00;
 }
 
+.b{
+	background-color: #0077FF;
+	color: #fff;
+	width:200px;
+}
+.b:hover{
+	background-color: #66DFF1;
+}
+.option{
+	color:#fff;
+}
+
 .shaderTitleLine {
 	background: #333;
 }
