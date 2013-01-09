@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html itemscope itemtype="http://schema.org/WebPage" xmlns:og="http://ogp.me/ns#">
+	<head>
+
+		<script type="text/javascript" src="js/codemirror/codemirror_newest.js"></script>
+
+		<script type="text/javascript" src="http://webglplayground.net/js/codemirror/overlay.js"></script>
+		
+		<script type="text/javascript" src="http://codemirror.net/lib/util/searchcursor.js"></script>
+
+		<script type="text/javascript" src="js/codemirror/mode/javascript_old.js"></script>
+
+		<script type="text/javascript" src="js/codemirror/mode/clike_glsl.js"></script>
+
+		<script type="text/javascript" src="../js/lib/jQuery.js"></script>
+
+		<script type="text/javascript" src="http://cdn.jquerytools.org/1.2.5/all/jquery.tools.min.js"></script>
+
+		<script type="text/javascript" src="http://webglplayground.net/js/editormode.js"></script>
+
+		<script type="text/javascript" src="js/main.js"></script>
+
+		<script type="text/javascript" src="http://webglplayground.net/js/header.js"></script>
+
+		<link id="text_theme" type="text/css" rel="stylesheet" href="css/text_custom.css">
+
+		<link id="cm_theme"  type="text/css" rel="stylesheet" href="css/codemirror.css">
+
+		<link id="main_theme"  type="text/css" rel="stylesheet" href="css/main.css">
+
+		<style type="text/css">
+			body {
+				margin: 0px;
+			}
+			#canvas {
+				padding: 0px;
+			}
+		</style>
+
+		<title>Shader Editor</title>
+
+	</head>
+
+	<body>
+
+		<script src="http://webglplayground.net/js/RequestAnimationFrame.js"></script>
+		
+
+		<script type="text/javascript">
+			var viewportWidth = ' + width + ';
+		</script>
+
+		<script type="text/javascript">
+			var viewportHeight = ' + height + ';
+		</script>
+
+		<script type="text/javascript">
+			var containerId = "canvas";
+		</script>
+		<script src="http://webglplayground.net/js/scriptContext.js"></script>
+
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+				scriptContext.Run();
+			});
+		</script>
+		<!-- ------------------------------------------------------------------------------- -->
+
+<!-- <script type="text/javascript" src="js/filter_purp.js"></script> -->
+
+		<!-- ------------------------------------------------------------------------------- -->
+		<div id="wrap">
+			<div id="c1_div">
+				<div id="c1">
+					<textarea id="editor">
+@info
+Plasma Shader
+Based Upon:
+<http://mrdoob.github.com/three.js/examples/webgl_shader_lava.html>
+@libs
+../js/lib/jQuery.js
+
+@main
+
+
+</textarea>
+					<img id = "switch" src="images/switch.png" style="position: fixed;
+					right: 20px; bottom: 20px;">
+
+					<script type="text/javascript">
+						// the CSS file is chosen  according to the positive or negative value of this variable
+
+						var plusmin = 1;
+
+						$("#switch").click(function() {
+							plusmin *= -1;
+
+							// change the polarity of "plusmin" var
+							var s1 = plusmin < 0 ? 'css/cm_default.css' : 'css/text_custom.css';
+
+							var s2 = plusmin < 0 ? 'css/main.css' : 'css/main.css';
+
+							if (plusmin < 0) {
+								$("#c1_div").css("background-color", "#DDD");
+								$("#c1").css("background-color", "#f7f7f7");
+								$(".shaderTitleLine").css("background-color", "#DDD");
+							} else {
+								$("#c1_div").css("background-color", "black");
+								$("#c1").css("background-color", "#111");
+								$(".shaderTitleLine").css("background-color", "#333");
+							}
+
+							$("#text_theme").attr("href", s1);
+							//$("#main_theme").attr("href", "s2");
+							return false;
+						});
+
+					</script>
+
+				</div>
+			</div>
+			<div id="c2">
+				<div id="fps">
+					FPS:
+				</div>
+				<div id="run">
+					Run
+				</div>
+			</div>
+		</div>
+
+	</body>
+</html>
