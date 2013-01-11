@@ -34,9 +34,9 @@
 		<div id="container"></div>
 
 		<script src="../js/lib/Three.js"></script>
-
 		<script src="../js/lib/Detector.js"></script>
 		<script src="../js/lib/Stats.js"></script>
+		<script type="text/javascript" src="../js/lib/PerlinNoise.js"></script>
 
 		<script type="x-shader/x-vertex" id="vertexshader">
 
@@ -83,24 +83,123 @@
 			var renderer, scene, camera, stats;
 			var geometry;
 
-			var sphere, uniforms, attributes;
+			var uniforms, attributes;
 			var particleCount;
-			var vc1;
 			var particleSystem;
+			var perlin;
 
 			var WIDTH = window.innerWidth;
 			var HEIGHT = window.innerHeight;
 
+			////////
+
+			var
+			boxW, boxH;
+			var boxD = 1000;
+			var noiseScale = 114;
+			var container, camera, scene, renderer;
+			var particleSystem, particleGeometry;
+			var particles = [];
+			var perlin;
+			var mouse2D;
+			var windDir = 0;
+			var params;
+			var gui;
+			var box;
+			var shaderMaterial;
+
+			particleCount = 2000;
+			particleSize = 30;
+			windSpeed = 1.5;
+			gravity = 2;
+			particleLifeSpan = 400;
+			cameraZ = 600;
+			colorize = false;
+			showBox = true;
+
 			init();
-			animate();
+
+			function Particle(id) {
+
+				this.lifeSpan = 200;
+				this.id = id;
+				this.posn = new THREE.Vector3();
+				this.screenPosn = new THREE.Vector3();
+				particleGeometry.vertices.push(this.screenPosn);
+				this.color = new THREE.Color();
+				particleGeometry.colors.push(this.color);
+
+				this.init = function() {
+
+					//set random posn
+					//this.screenPosn.set(getRand(-boxW / 2, boxW / 2), getRand(-boxH / 2, boxH / 2), getRand(-boxD / 2, boxD / 2));
+					this.screenPosn.set(getRand(-boxW / 2, boxW / 2), Math.random() * 200, getRand(-boxD / 2, boxD / 2));
+
+					this.posn.x = this.screenPosn.x + boxW / 2;
+					this.posn.y = this.screenPosn.y + boxH / 2;
+
+					//get color from Y posn
+					var col = map(this.screenPosn.y, -boxH / 2, boxH / 2, 0, 1);
+					this.color.setHSV(col, colorize ? 1 : 0, 1);
+					this.speed = getRand(windSpeed / 3, windSpeed);
+					this.age = 0;
+					this.lifespan = Math.random() * particleLifeSpan;
+				}
+				this.update = function() {
+
+					this.id += 0.01;
+					this.direction = perlin.noise(this.id, this.posn.x / noiseScale, this.posn.y / noiseScale);
+					this.direction += windDir;
+
+					this.posn.x += Math.cos(this.direction) * this.speed;
+					this.posn.y += Math.sin(this.direction) * this.speed;
+					//gravity
+					this.posn.y -= gravity;
+
+					if (this.posn.x < 0 || this.posn.y < 0) {
+						this.init();
+					}
+
+					this.age++;
+					if (this.age >= this.lifespan) {
+						this.init();
+					}
+
+					this.screenPosn.x = this.posn.x - boxW / 2;
+					this.screenPosn.y = this.posn.y - boxH / 2;
+
+				}
+
+				this.init();
+			}
+
+			////////////////////
+			//UTILS
+			////////////////////
+
+			function getRand(minVal, maxVal, round) {
+				var r = minVal + (Math.random() * (maxVal - minVal));
+				if (round) {
+					r = Math.round(r);
+				}
+				return r;
+
+			}
+
+			function map(value, istart, istop, ostart, ostop) {
+				return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+			}
 
 			function init() {
 
 				camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 1, 10000);
-				camera.position.z = 300;
-				camera.position.y = 0;
+				camera.position.z = 400;
+				camera.position.x = 100;
+				camera.position.y = 100;
 
 				scene = new THREE.Scene();
+
+				perlin = new ImprovedNoise();
 
 				attributes = {
 
@@ -134,7 +233,7 @@
 
 				uniforms.texture.value.wrapS = uniforms.texture.value.wrapT = THREE.RepeatWrapping;
 
-				var shaderMaterial = new THREE.ShaderMaterial({
+				shaderMaterial = new THREE.ShaderMaterial({
 
 					uniforms : uniforms,
 					attributes : attributes,
@@ -145,34 +244,25 @@
 				});
 
 				var radius = 100, segments = 68, rings = 38;
-				//var geometry = new THREE.SphereGeometry(radius, segments, rings);
-				//////////////////////////////////////////////////////////////////////////////////
-				particleCount = 2500;
-				geometry = new THREE.Geometry(),
-				// pMaterial = new THREE.ParticleBasicMaterial({
-				// color : 0xFFFFFF,
-				// size : 20,
-				// map : THREE.ImageUtils.loadTexture("../rsc/textures/snowflake.jpg"),
-				// blending : THREE.AdditiveBlending,
-				// transparent : true
-				// });
 
-				vc1 = geometry.vertices.length;
+				//////////////////////////////////////////////////////////////////////////////////
+
+				particleCount = 2;
+				geometry = new THREE.Geometry();
 
 				for (var p = 0; p < particleCount; p++) {
 
 					// create a particle with random
 					// position values, -250 -> 250
-					var pX = Math.random() * 400 - 200;
-					var pY = Math.random() * 400 - 200;
-					var pZ = Math.random() * 400 - 200;
+					var pX = Math.random() * 200;
+					var pY = Math.random() * 200;
+					var pZ = Math.random() * 200;
 					var particle = new THREE.Vector3(pX, pY, pZ);
 					// create a velocity vector
-					particle.velocity = new THREE.Vector3(
-					Math.random() +3,
-					-Math.random() - 1,
+					particle.velocity = new THREE.Vector3(0, // x
+					-(Math.random() / 10 + 0.1), // y
 					0);
-					
+					// z
 
 					// add it to the geometry
 					geometry.vertices.push(particle);
@@ -185,11 +275,11 @@
 				particleSystem.sortParticles = true;
 
 				// add it to the scene
-				scene.add(particleSystem);
+				//scene.add(particleSystem);
 
 				/////////////////////////////////////////
 
-				var vertices = geometry.vertices;
+				var vertices = particleSystem.geometry.vertices;
 				var values_size = attributes.size.value;
 				var values_color = attributes.ca.value;
 
@@ -197,13 +287,10 @@
 
 					values_color[v] = new THREE.Color(0xffffff);
 
-					values_size[v] = 10;
-					//Math.random()*10 + 15;
-					//values_color[v].setHSV(150/255, Math.max(Math.random() -.5,0), 1.0 );
+					values_size[v] = Math.random() * 10 + 25;
+					values_color[v].setHSV(150 / 255, Math.max(Math.random() - .5, 0), 1.0);
 
 				}
-
-				//	scene.add(sphere);
 
 				renderer = new THREE.WebGLRenderer({
 					clearColor : 0x000000,
@@ -223,6 +310,52 @@
 
 				window.addEventListener('resize', onWindowResize, false);
 
+				/////////////////////////////////////////
+
+				initParticles();
+
+				animate();
+			}
+
+			function initParticles() {
+
+				// particles = [];
+				// particleGeometry = new THREE.Geometry();
+				//
+				// //init particle system
+				//
+				// // scene.add(particleSystem);
+				//
+				// for ( i = 0; i < particleCount; i++) {
+				// var p = new Particle(i / particleCount);
+				// particles.push(p);
+				// }
+				//
+				// particleSystem = new THREE.ParticleSystem(particleGeometry, shaderMaterial);
+				// particleSystem.dynamic = true;
+				// particleSystem.sortParticles = true;
+				//
+				// // add it to the scene
+				// scene.add(particleSystem);
+				//
+				// //////
+
+				if (particleSystem)
+					scene.remove(particleSystem);
+				particles = [];
+				particleGeometry = new THREE.Geometry();
+
+				for ( i = 0; i < params.particleCount; i++) {
+					var p = new Particle(i / params.particleCount);
+					particles.push(p);
+				}
+
+				//init particle system
+				particleSystem = new THREE.ParticleSystem(particleGeometry, material);
+				particleSystem.dynamic = true;
+				particleSystem.sortParticles = false;
+				scene.add(particleSystem);
+
 			}
 
 			function onWindowResize() {
@@ -236,10 +369,25 @@
 
 			function animate() {
 
+				// requestAnimationFrame(animate);
+				//
+				// render();
+				// stats.update();
+
 				requestAnimationFrame(animate);
 
-				render();
 				stats.update();
+
+				windDir += .005;
+
+				//loop thru each particle
+				for ( i = 0; i < particleCount; i++) {
+					particles[i].update();
+				}
+
+				particleGeometry.verticesNeedUpdate = true;
+
+				renderer.render(scene, camera);
 
 			}
 
@@ -247,12 +395,11 @@
 
 				var time = Date.now() * 0.005;
 
-				for (var i = 0; i < attributes.size.value.length; i++) {
-
-					if (i < vc1)
-						attributes.size.value[i] = 16 + 12 * Math.sin(0.1 * i + time);
-
-				}
+				// for (var i = 0; i < attributes.size.value.length; i++) {
+				//
+				// attributes.size.value[i] = 16 + 12 * Math.sin(0.1 * i + time);
+				//
+				// }
 
 				attributes.size.needsUpdate = true;
 
@@ -262,20 +409,14 @@
 					var particle = geometry.vertices[pCount];
 
 					// check if we need to reset
-					if (particle.x > 200) {
-						particle.x = -200;
-						particle.velocity.y = -Math.random() - 1;
-						particle.velocity.x = Math.random() +3;
-					} else if (particle.y < -200) {
+					if (particle.y < 0) {
 						particle.y = 200;
-						particle.velocity.y = -Math.random() - 1;
-						particle.velocity.x = Math.random() + 3;
+						particle.velocity.y = -Math.random() / 10 - .1;
 					}
 
 					// update the velocity
-					//particle.velocity.x += Math.random() * .008;
-					particle.velocity.y -= Math.random() * .005;
-					particle.x -= Math.sin(particle.velocity.x) * particle.velocity.x;
+					particle.velocity.y -= Math.random() * .003;
+					particle.y -= Math.sin(particle.velocity.y) * particle.velocity.y;
 
 					// and the position
 					particle.addSelf(particle.velocity);
