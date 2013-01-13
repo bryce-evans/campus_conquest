@@ -13,7 +13,7 @@
 		<script type="text/javascript" src="js/splash.js"></script>
 		<!-- BEGIN LOAD SCREEN -->
 
-<!-- 				<div id="splash" class="loading-invisible">
+		<!-- 				<div id="splash" class="loading-invisible">
 
 		<img src="rsc/images/logo_noflag_small.png" style="position:relative; top:0; text-align: center;">
 
@@ -181,9 +181,11 @@
 
 				// lens flares
 
-				var textureFlare0 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/lensflare0.png");
-				var textureFlare2 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/lensflare2.png");
-				var textureFlare3 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/lensflare3.png");
+				var textureSun = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/lensflare0.png");
+				var textureFlare1 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/flare1.png");
+				var textureFlare2 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/flare2.png");
+				var textureFlare3 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/flare3.png");
+				var textureFlare4 = THREE.ImageUtils.loadTexture("rsc/textures/lensflare/light_circle.png");
 
 				//addLight(0.55, 0.825, 0.99, 5000, 0, -1000);
 				addLight(0, 0, .5, -500, 250, -1000);
@@ -197,20 +199,40 @@
 
 					light.color.setHSV(h, s, v);
 
-					var flareColor = new THREE.Color(0xffffff);
-					flareColor.copy(light.color);
+					var flareColor = new THREE.Color(0x453600);
+
+					//flareColor.setHSV(Math.random(),1,.8);
+					//flareColor.copy(light.color);
 					THREE.ColorUtils.adjustHSV(flareColor, 0, -0.5, 0.5);
 
-					var lensFlare = new THREE.LensFlare(textureFlare0, 700, 0.0, THREE.AdditiveBlending, flareColor);
+					var lensFlare = new THREE.LensFlare(textureSun, 700, 0.0, THREE.AdditiveBlending, flareColor);
+					var color_rand  = new THREE.Color(0x00ff00);
+					var blending = THREE.AdditiveBlending;
 
-					lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
-					lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
-					lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
+					function newcolor(){
+						color_rand.setHSV(.2,1,.2);
+					}
+					
+					lensFlare.add(textureFlare4, 2000, 0.0, blending,color_rand,.8);
+					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
+					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
+					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
+newcolor();
+					lensFlare.add(textureFlare2, 60, 0.22, blending,color_rand);
+					lensFlare.add(textureFlare2, 40, 0.24, blending,color_rand);
+					lensFlare.add(textureFlare2, 30, 0.36, blending,color_rand);
+					newcolor();
+					lensFlare.add(textureFlare2, 20, 0.42,blending,color_rand);
+					newcolor();
+					lensFlare.add(textureFlare2, 40, 0.43,blending,color_rand);
+					
+					lensFlare.add(textureFlare2, 70, 0.5, blending,color_rand);
+					lensFlare.add(textureFlare2, 120, 0.7, blending,color_rand);
+					lensFlare.add(textureFlare1, 250, 1.08,blending,color_rand);
 
-					lensFlare.add(textureFlare3, 60, 0.4, THREE.AdditiveBlending);
-					lensFlare.add(textureFlare3, 70, 0.5, THREE.AdditiveBlending);
-					lensFlare.add(textureFlare3, 120, 0.7, THREE.AdditiveBlending);
-					lensFlare.add(textureFlare3, 70, .8, THREE.AdditiveBlending);
+					lensFlare.add(textureFlare2, 100, 1.12, blending,color_rand);
+					lensFlare.add(textureFlare2, 60, 1.2,blending,color_rand);
+					lensFlare.add(textureFlare2, 20, 1.22,blending,color_rand);
 
 					lensFlare.customUpdateCallback = lensFlareUpdateCallback;
 					lensFlare.position = light.position;
@@ -221,13 +243,13 @@
 
 				// material parameters
 
-				var ambient = 0x888, diffuse = 0xbbbbbb, specular = 0x060606, shininess = 20;
+				var ambient = 0x888, diffuse = 0xbbbbbb, specular = 0x000000, shininess = .5;
 
 				var shader = THREE.ShaderUtils.lib["normal"];
 				var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
 				uniforms["tNormal"].value = THREE.ImageUtils.loadTexture("rsc/obj/aaa_scenes/mcgraw/mcgraw_nrm_inverted.png");
-				uniforms["uNormalScale"].value.set(0.8, 0.8);
+				uniforms["uNormalScale"].value.set(-1.5, -1.5);
 
 				uniforms["tDiffuse"].value = THREE.ImageUtils.loadTexture("rsc/obj/aaa_scenes/mcgraw/mcgraw_inverted.png");
 

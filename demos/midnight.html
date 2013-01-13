@@ -104,6 +104,150 @@
 
 		</script>
 
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			uniform float time;
+			//uniform vec2 resolution;
+
+			uniform float fogDensity;
+			uniform vec3 fogColor;
+
+			uniform sampler2D noise1;
+			uniform sampler2D noise2;
+			uniform sampler2D noise3;
+
+			uniform vec4 ambient;
+			uniform vec4 diffuse;
+			uniform vec4 specular;
+			uniform float shininess;
+
+			varying vec2 texcoord;
+
+			vec2 mod1(vec2 x) {
+			return (x - floor(x));
+			}
+
+			void main( void ) {
+
+			vec2 position = -1.0 + 2.0 * texcoord;
+
+			vec2 new_texcoord1;
+			new_texcoord1.x += (texcoord.x + 0.01 * time);
+			new_texcoord1.y += (texcoord.y + .05 * time);
+			vec4 n1 = texture2D( noise1, (new_texcoord1) );
+
+			vec2 new_texcoord2;
+			new_texcoord2.x += (texcoord.x + 0.02 * time);
+			new_texcoord2.y += (texcoord.y - 0.03 * time);
+			vec4 n2 = texture2D( noise2, (new_texcoord2) );
+
+			vec2 new_texcoord3;
+			new_texcoord3.x += (texcoord.x - 0.04 * time);
+			new_texcoord3.y += (texcoord.y + .01 * time);
+			vec4 n3 = texture2D( noise3, (new_texcoord3) );
+
+			vec4 weight;
+			//weight = (n1 + n2 + n3)/3.0;
+			weight.x = (n1.x + n2.x + n3.x)/3.0;
+			weight.y = (n1.y + n2.y + n3.y)/3.0;
+			weight.z = (n1.z + n2.z + n3.z)/3.0;
+
+			vec4 dif = texture2D( tex_dif, texcoord );
+			vec4 nrm = texture2D( tex_nrm, texcoord);
+			//vec3 lightPos = (0,0,1);
+
+			//vec3 l = normalize(lightPos - gl_Vertex.xyz);
+			//vec3 vn = normalize(gl_ModelViewMatrix * vec4(n,0)).xyz;
+
+			//vec4 la = ambient * gl_LightSource.ambient;
+			//vec4 ld = diffuse * max(dot(vn, l), 0);
+			vec4 ambient = vec4(0.0,0.0,0.0,1);
+			gl_FragColor = weight*(vec4(0,1,1,1)) + ambient; //ld * dif;
+
+			}
+
+		</script>
+
+		<script id="cloudFS" type="x-shader/x-fragment">
+
+			uniform float time;
+			//uniform vec2 resolution;
+
+			uniform float fogDensity;
+			uniform vec3 fogColor;
+
+			uniform sampler2D noise1;
+			uniform sampler2D noise2;
+			uniform sampler2D noise3;
+
+			uniform vec4 ambient;
+			uniform vec4 diffuse;
+			uniform vec4 specular;
+			uniform float shininess;
+
+			varying vec2 texcoord;
+
+			vec2 mod1(vec2 x) {
+			return (x - floor(x));
+			}
+
+			void main( void ) {
+
+			vec2 position = -1.0 + 2.0 * texcoord;
+
+			vec2 new_texcoord1;
+			new_texcoord1.x += (texcoord.x + 0.01 * time);
+			new_texcoord1.y += (texcoord.y + .05 * time);
+			vec4 n1 = texture2D( noise1, (new_texcoord1) );
+
+			vec2 new_texcoord2;
+			new_texcoord2.x += (texcoord.x + 0.02 * time);
+			new_texcoord2.y += (texcoord.y - 0.03 * time);
+			vec4 n2 = texture2D( noise2, (new_texcoord2) );
+
+			vec2 new_texcoord3;
+			new_texcoord3.x += (texcoord.x - 0.04 * time);
+			new_texcoord3.y += (texcoord.y + .01 * time);
+			vec4 n3 = texture2D( noise3, (new_texcoord3) );
+
+			vec4 weight;
+			//weight = (n1 + n2 + n3)/3.0;
+			weight.x = (n1.x + n2.x + n3.x)/3.0;
+			weight.y = (n1.y + n2.y + n3.y)/3.0;
+			weight.z = (n1.z + n2.z + n3.z)/3.0;
+
+			vec4 dif = texture2D( tex_dif, texcoord );
+			vec4 nrm = texture2D( tex_nrm, texcoord);
+			//vec3 lightPos = (0,0,1);
+
+			//vec3 l = normalize(lightPos - gl_Vertex.xyz);
+			//vec3 vn = normalize(gl_ModelViewMatrix * vec4(n,0)).xyz;
+
+			//vec4 la = ambient * gl_LightSource.ambient;
+			//vec4 ld = diffuse * max(dot(vn, l), 0);
+			vec4 ambient = vec4(0.0,0.0,0.0,1);
+			gl_FragColor = weight*(vec4(0,1,1,1)) + ambient; //ld * dif;
+
+			}
+
+		</script>
+
+		<script id="cloudVS" type="x-shader/x-vertex">
+
+			uniform vec2 uvScale;
+			varying vec2 texcoord;
+
+			void main()
+			{
+
+			texcoord = uvScale * uv;
+			vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+			gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
 		<script>
 			/* testing cloth simulation */
 
@@ -145,6 +289,7 @@
 			var object;
 			const snow_scalar = 2;
 			var rotate = false;
+			var scale = 200;
 
 			init();
 			animate();
@@ -158,15 +303,14 @@
 
 				scene = new THREE.Scene();
 
-				scene.fog = new THREE.Fog(0x000018, 500, 10000);
+				scene.fog = new THREE.Fog(0x000018, 9000, 10000);
+				// 500, 10k
 				//scene.fog.color.setHSV(0.6, 0.2, 1);
 
 				// camera
 
 				camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
-				camera.position.y = 30;
-				camera.position.z = 1000;
-				camera.position.x = -1000;
+				camera.position = new THREE.Vector3(-5 * scale, -3 * scale, 5 * scale)
 				scene.add(camera);
 
 				// lights
@@ -206,7 +350,7 @@
 
 				// cloth material
 
-				var clothTexture = THREE.ImageUtils.loadTexture('../rsc/obj/flag/red.png');
+				var clothTexture = THREE.ImageUtils.loadTexture('../rsc/textures/flags/aap.png');
 				clothTexture.wrapS = clothTexture.wrapT = THREE.RepeatWrapping;
 				clothTexture.anisotropy = 16;
 
@@ -223,10 +367,6 @@
 
 				// cloth geometry
 				clothGeometry = new THREE.ParametricGeometry(clothFunction, cloth.w, cloth.h, true);
-				var loader = new THREE.JSONLoader();
-
-				// loader.load("../rsc/obj/flag/flag.js", function(geometry) {}
-				// clothGeometry = geometry;
 
 				clothGeometry.dynamic = true;
 
@@ -270,6 +410,27 @@
 				mesh.receiveShadow = true;
 				mesh.castShadow = true;
 				scene.add(mesh);
+
+				// Building
+
+				var stone_tex = THREE.ImageUtils.loadTexture("../rsc/obj/aaa_scenes/barton/stone.jpg");
+				stone_tex.wrapS = stone_tex.wrapT = THREE.RepeatWrapping;
+				//stone_tex.repeat.set(15, 15);
+
+				var loader = new THREE.JSONLoader();
+
+				loader.load("../rsc/obj/aaa_scenes/barton/barton.js", function(geometry) {
+					material = new THREE.MeshLambertMaterial({
+						//color : 0x444444,
+						map : stone_tex,
+						shading : THREE.FlatShading
+					})
+					mesh = new THREE.Mesh(geometry, material);
+
+					mesh.scale = new THREE.Vector3(scale, scale, scale);
+					mesh.position = new THREE.Vector3(1.5 * scale, -6.5 * scale, -2.3 * scale);
+					scene.add(mesh)
+				});
 
 				// SNOW
 
@@ -325,8 +486,8 @@
 
 					// create a particle with random
 					// position values, -250 -> 250
-					var pX = (Math.random() * 1600 - 800);
-					var pY = (Math.random() * 400 - 200) * snow_scalar;
+					var pX = (Math.random() * 2000 - 1200);
+					var pY = (Math.random() * 1000 - 600) * snow_scalar;
 					var pZ = (Math.random() * 400 - 200) * snow_scalar;
 					var particle = new THREE.Vector3(pX, pY, pZ);
 					// create a velocity vector
@@ -361,6 +522,89 @@
 					//values_color[v].setHSV(150/255, Math.max(Math.random() -.5,0), 1.0 );
 
 				}
+
+				// CLOUDS
+
+				uniforms_clouds = {
+
+					ambient : new THREE.Vector3(1, 1, 1),
+
+					diffuse : new THREE.Vector3(1, 1, 1),
+
+					specular : new THREE.Vector3(1, 1, 1),
+
+					shininess : 1.0,
+
+					fogDensity : {
+						type : "f",
+						value : 0.4
+					},
+					fogColor : {
+						type : "v3",
+						value : new THREE.Vector3(0, 0, 0)
+					},
+					time : {
+						type : "f",
+						value : 1.0
+					},
+					resolution : {
+						type : "v2",
+						value : new THREE.Vector2()
+					},
+					uvScale : {
+						type : "v2",
+						value : new THREE.Vector2(1.0, 1.0)
+					},
+
+					noise1 : {
+						type : "t",
+						value : THREE.ImageUtils.loadTexture("../rsc/textures/clouds.png")
+
+					},
+					noise2 : {
+						type : "t",
+						value : THREE.ImageUtils.loadTexture("../rsc/textures/clouds.png")
+
+					},
+					noise3 : {
+						type : "t",
+						value : THREE.ImageUtils.loadTexture("../rsc/textures/uv_test.png")
+
+					}
+
+				};
+
+				uniforms_clouds.noise1.value.wrapS = uniforms_clouds.noise1.value.wrapT = THREE.RepeatWrapping;
+				uniforms_clouds.noise2.value.wrapS = uniforms_clouds.noise2.value.wrapT = THREE.RepeatWrapping;
+				uniforms_clouds.noise3.value.wrapS = uniforms_clouds.noise3.value.wrapT = THREE.RepeatWrapping;
+
+				var size = 0.65;
+				//
+				material_clouds = new THREE.ShaderMaterial({
+
+					uniforms : uniforms_clouds,
+					vertexShader : document.getElementById('cloudVS').textContent,
+					fragmentShader : document.getElementById('cloudFS').textContent
+
+				});
+
+				material_clouds = new THREE.MeshLambertMaterial({
+
+					uniforms : uniforms_clouds,
+					color : 0xff0000
+
+				});
+				//
+				var cloud_plane = new THREE.PlaneGeometry(1, 1, 1, 1);
+
+				var clouds = new THREE.Mesh(cloud_plane, material_clouds);
+				clouds.scale.x = clouds.scale.y = clouds.scale.z = 2500;
+				clouds.position.y = 400;
+				clouds.rotation.x = Math.PI / 2;
+				//clouds.rotation.y = Math.PI/4;
+				scene.add(clouds);
+
+				//END CLOUDS
 
 				//
 
@@ -407,8 +651,6 @@
 
 				simulate(time);
 				render();
-				stats.update();
-
 			}
 
 			function render() {
@@ -448,10 +690,10 @@
 
 					// check if we need to reset
 					if (particle.x > 800) {
-						particle.x = -800;
+						particle.x = -1200;
 						particle.velocity.y = (-Math.random() - 1) * 2;
 						particle.velocity.x = (Math.random() * 2 + 8);
-					} else if (particle.y < -400) {
+					} else if (particle.y < -600) {
 						particle.y = 400;
 						particle.velocity.y = (-Math.random() - 1) * 2;
 						particle.velocity.x = (Math.random() * 2 + 8);
@@ -470,7 +712,8 @@
 
 				//
 
-				camera.lookAt(scene.position);
+				// camera.lookAt(scene.position);
+				camera.lookAt(new THREE.Vector3(-scale, -0.5 * scale, -2 * scale));
 
 				renderer.render(scene, camera);
 
