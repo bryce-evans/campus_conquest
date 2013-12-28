@@ -8,14 +8,14 @@ document.body.appendChild(splash);
 
 // Add Title image
 var title = document.createElement("IMG");
-title.src = "../rsc/images/logo_small.png";
+title.src = "rsc/images/logo_small.png";
 document.getElementById('splash').appendChild(title);
 
 document.getElementById('splash').appendChild(document.createElement('div'));
 
 // Add loading gif image
 var title = document.createElement("IMG");
-title.src = "../rsc/images/loading.png";
+title.src = "rsc/images/loading.png";
 // title.src = "http://www.mytreedb.com/uploads/mytreedb/loader/ajax_loader_red_32.gif";
 
 document.getElementById('splash').appendChild(title);

@@ -80,9 +80,9 @@
 			</div>
 
 			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-			<script src="js/Three.js"></script>
-			<script src="js/Detector.js"></script>
-			<script src="js/Stats.js"></script>
+			<script src="js/lib/Three.js"></script>
+			<script src="js/lib/Detector.js"></script>
+			<script src="js/lib/Stats.js"></script>
 			<!-- <script src="js/MouseControls.js"></script> -->
 			<script src="js/mapBuilder.js"></script>
 			<!-- <script src="map_loader/loadMap.php"></script> -->

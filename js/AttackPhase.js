@@ -153,7 +153,7 @@ function onMouseDown(event) {
 				cur_build = hitobj;
 
 				//add attack command
-			} else if (cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
+			} else if (cur_build && cur_build.troops > 1 /* && map.contains(hitobj) */ ) {
 				cur_build.material["color"] = new THREE.Color("0x" + colors[cur_build.team]);
 
 				var new_arr = getArr(cur_build.id, hitobj.id);

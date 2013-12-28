@@ -206,33 +206,32 @@
 					THREE.ColorUtils.adjustHSV(flareColor, 0, -0.5, 0.5);
 
 					var lensFlare = new THREE.LensFlare(textureSun, 700, 0.0, THREE.AdditiveBlending, flareColor);
-					var color_rand  = new THREE.Color(0x00ff00);
+					var color_rand = new THREE.Color(0x00ff00);
 					var blending = THREE.AdditiveBlending;
 
-					function newcolor(){
-						color_rand.setHSV(.2,1,.2);
+					function newcolor() {
+						color_rand.setHSV(.2, 1, .2);
 					}
-					
-					lensFlare.add(textureFlare4, 2000, 0.0, blending,color_rand,.8);
-					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
-					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
-					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
-newcolor();
-					lensFlare.add(textureFlare2, 60, 0.22, blending,color_rand);
-					lensFlare.add(textureFlare2, 40, 0.24, blending,color_rand);
-					lensFlare.add(textureFlare2, 30, 0.36, blending,color_rand);
-					newcolor();
-					lensFlare.add(textureFlare2, 20, 0.42,blending,color_rand);
-					newcolor();
-					lensFlare.add(textureFlare2, 40, 0.43,blending,color_rand);
-					
-					lensFlare.add(textureFlare2, 70, 0.5, blending,color_rand);
-					lensFlare.add(textureFlare2, 120, 0.7, blending,color_rand);
-					lensFlare.add(textureFlare1, 250, 1.08,blending,color_rand);
 
-					lensFlare.add(textureFlare2, 100, 1.12, blending,color_rand);
-					lensFlare.add(textureFlare2, 60, 1.2,blending,color_rand);
-					lensFlare.add(textureFlare2, 20, 1.22,blending,color_rand);
+
+					lensFlare.add(textureFlare4, 2000, 0.0, blending, color_rand, .8);
+					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
+					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
+					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
+					newcolor();
+					lensFlare.add(textureFlare2, 60, 0.22, blending, color_rand);
+					lensFlare.add(textureFlare2, 40, 0.24, blending, color_rand);
+					lensFlare.add(textureFlare2, 30, 0.36, blending, color_rand);
+					lensFlare.add(textureFlare2, 20, 0.42, blending, color_rand);
+					lensFlare.add(textureFlare2, 40, 0.43, blending, color_rand);
+
+					lensFlare.add(textureFlare2, 70, 0.5, blending, color_rand);
+					lensFlare.add(textureFlare2, 120, 0.7, blending, color_rand);
+					lensFlare.add(textureFlare1, 250, 1.08, blending, color_rand);
+
+					lensFlare.add(textureFlare2, 100, 1.12, blending, color_rand);
+					lensFlare.add(textureFlare2, 60, 1.2, blending, color_rand);
+					lensFlare.add(textureFlare2, 20, 1.22, blending, color_rand);
 
 					lensFlare.customUpdateCallback = lensFlareUpdateCallback;
 					lensFlare.position = light.position;
