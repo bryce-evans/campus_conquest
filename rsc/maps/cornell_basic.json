@@ -1,5 +1,10 @@
 {
 	"Cornell": {
+		"Continents": { 
+			"EngineeringQuad": [ "duffield_phillips", "rhodes", "upson" ], 
+			"ArtsQuad": [ "goldwin", "mcgraw_uris", "taylor" ], 
+			"Central": [ "statler", "sage" ] 
+		},
 		"Territories": {
 			"duffield_phillips": ["upson", "hoy", "statler", "sage", "carpenter"],
 			"upson": ["duffield_phillips", "ktb"],

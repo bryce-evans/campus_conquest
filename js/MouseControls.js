@@ -1,171 +1,168 @@
+MouseControls = function(world) {
 
-function zoom(event) {
-	const sensitivity = 0.6;
-	const ceiling = 800;
-	const floor = 50;
+	this.world = world;
+	
+  //speed of panning
+  this.pan_speed = 6;
+  this.zoom_speed = 0.6;
 
-	var delta = 0;
-	delta = event.wheelDelta * sensitivity;
-	var newPos = camera.position.y - delta;
-	if (delta && newPos < ceiling && newPos > floor) {
-		camera.position.y = newPos;
-	}
+  this.zoom_ceiling = 800;
+  this.zoom_floor = 50;
 
-	//prevent default scrolling on page
-	if (event.preventDefault)
-		event.preventDefault();
-		
-	event.returnValue = false;
-}
+  // % of frame that allows for panning
+  this.border = .1;
 
-/**
- *click function, colors buildings for territory grab
- *
- */
-var weight = .8;
-function onMouseDown(event) {
+  // weight of highlight colors vs texture
+  this.weight = .8;
 
-	event.preventDefault();
+  this.old_obj;
+  this.cur_obj;
+  this.mat;
 
-	var hitobj = getHitObject();
+  this.mouseX;
+  this.mouseY;
 
-	if (hitobj) {
+  this.addListeners = function() {
+    //disable right click
+    document.oncontextmenu = new Function("return false")
 
-		console.log("Clicked: " + hitobj.id);
-		console.log(hitobj);
+    //Add Listeners
+    document.addEventListener('mousedown', this.onMouseDown, false);
+    //document.addEventListener('mousedown', this.zoom, false);
+    document.addEventListener('mousewheel', this.zoom, false);
+    document.addEventListener('keypress', this.getKeyCode, false);
+    document.addEventListener('mousemove', this.onMouseMove, false);
+  }
 
-		//***SOLID COLORATION
-		// var newmat = new THREE.MeshBasicMaterial({
-		// color : (colors[curPlayer]), // HEX, not string or array
-		// reflectivity : 0,
-		// ambient : [0, 0, 0]
-		//
-		// });//
-		// hitobj.material = newmat;
+  this.zoom = function(event) {
+    var delta = event.wheelDelta * this.pan_speed;
+    var newPos = this.world.graphics.camera.position.y - delta;
+    if (delta && newPos < this.zoom_ceiling && newPos > this.zoom_floor) {
+      this.world.graphics.camera.position.y = newPos;
+    }
 
-		var newmat = hitobj.material;
-		var newColor = (colors[curPlayer] * weight + 0xffffff * (1 - weight));
-		newmat["color"] = new THREE.Color(newColor);
-		hitobj.material = newmat;
-		hitobj.team = curPlayer;
+    //prevent default scrolling on page
+    if (event.preventDefault) {
+      event.preventDefault();
+    }
+    event.returnValue = false;
+  }.bind(this)
 
-		// const conn_color = 0xffffff;
-		// var conbuilds = "";
-		// for(building in hitobj["connected"]) {
-		// try {
-		// objLookup(hitobj["connected"][building]).material["color"] = new THREE.Color(0x888888);
-		// conbuilds = conbuilds + " " + (hitobj["connected"][building]);
-		// } catch(err) {
-		// }
-		// }
-		// console.log("Connected: " + conbuilds);
-		curPlayer = curPlayer % numPlayers + 1;
+  // click function, colors buildings for territory grab
+  this.onMouseDown = function(event) {
 
-	}
+    event.preventDefault();
 
-}
+    var hit_object = this.getHitObject();
 
-//speed of panning
-const sensitivity = 6;
-// % of frame that allows for panning
-const border = .5;
+    if (hit_object) {
 
-var old_obj;
-var cur_obj;
-var mat;
+      console.log(hit_object.game_piece.id, hit_object);
+      
+      hit_object.material.color = new THREE.Color(this.world.state_handler.team_colors[this.world.state_handler.current.player]);
+      hit_object.game_piece.team = this.world.state_handler.current.player;
 
-function onMouseMove(event) { 
+      this.world.state_handler.nextTurn();
 
-	const highlight = new THREE.Color(0xffff00);
+    }
 
-	//refresh mouse location for use in other functions
-	mouseX = event.x;
-	mouseY = event.y;
+  }.bind(this)
 
-	//*****highlights hovered
-	cur_obj = getHitObject();
+  this.onMouseMove = function(event) {
+    const highlight = new THREE.Color(0xffff00);
 
-	//if mouse is over a new object than last frame
-	//make sure you:
-	// have a current object
-	// either don't have an old one (was over nothing previously)
-	//or the old object isnt the same as the current
-	if (cur_obj && (!old_obj || (cur_obj !== old_obj))) {
+    //refresh mouse location for use in other functions
+    this.mouseX = event.x;
+    this.mouseY = event.y;
 
-		//set old obj mat back
-		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team.id]);
-		}
+    //*****highlights hovered
+    this.cur_obj = this.getHitObject();
 
-		//set new obj to highlight
-		mat = cur_obj.material;
-		
-		//***SOLID HIGHLIGHT
-		//cur_obj.object.material["color"] = highlight;
+    // CASE: mouse is over a new object than last frame
+    // make sure:
+    // have a current object
+    // either don't have an old one (was over nothing previously)
+    //or the old object isnt the same as the current
+    if (this.cur_obj && (!this.old_obj || (this.cur_obj !== this.old_obj))) {
 
-		curmat = blend(cur_obj.material["color"], highlight);
+      //set old obj mat back
+      if (this.old_obj) {
+        this.old_obj.material.color = new THREE.Color(this.world.state_handler.team_colors[this.old_obj.game_piece.team]);
+      }
 
-		old_obj = cur_obj;
-	}
+      //set new obj to highlight
+      var material = this.cur_obj.material;
 
-	//undoes highlight if no obj hovered over
-	else if (!cur_obj) {
-		if (old_obj) {
-			old_obj.material["color"] = new THREE.Color(colors[old_obj.team.id]);
-			old_obj = null;
-		}
-	}
+      //***SOLID HIGHLIGHT
+      //cur_obj.object.material["color"] = highlight;
+      var current_material = this.blend(this.cur_obj.material.color, highlight);
 
-}
+      this.old_obj = this.cur_obj;
+    }
 
-function panAuto(x, y) {
+    //undoes highlight if no obj hovered over
+    else if (!this.cur_obj) {
+      if (this.old_obj) {
+        this.old_obj.material.color = new THREE.Color(this.world.state_handler.team_colors[this.old_obj.game_piece.team]);
+        this.old_obj = null;
+      }
+    }
 
-	//right
-	if (x > (1 - border) * SCREEN_WIDTH  && camera.target.x < 450) {
-		camera.position.x += sensitivity;
-		camera.target.x += sensitivity;
+  }.bind(this)
 
-		//left
-	} else if (x < border * SCREEN_WIDTH && camera.target.x > -300) {
-		camera.position.x -= sensitivity;
-		camera.target.x -= sensitivity;
+  this.panAuto = function(x, y) {
+    var camera = this.world.graphics.camera;
+    var screen_width = this.world.window_handler.dimensions.width;
+    var screen_height = this.world.window_handler.dimensions.height;
 
-	}
+    //right
+    if (x > (1 - this.border) * screen_width && camera.target.x < 450) {
+      camera.position.x += this.pan_speed;
+      camera.target.x += this.pan_speed;
 
-	//bottom
-	if (y > (1 - border) * SCREEN_HEIGHT && camera.target.z < 120) {
-		camera.position.z += sensitivity;
-		camera.target.z += sensitivity;
+      //left
+    } else if (x < this.border * screen_width && camera.target.x > -300) {
+      camera.position.x -= this.pan_speed;
+      camera.target.x -= this.pan_speed;
 
-	//top
-	} else if (y < border * SCREEN_HEIGHT && camera.target.z > -450) {
-		camera.position.z -= sensitivity;
-		camera.target.z -= sensitivity;
+    }
 
-	}
+    //bottom
+    if (y > (1 - this.border) * screen_height && camera.target.z < 120) {
+      camera.position.z += this.pan_speed;
+      camera.target.z += this.pan_speed;
 
-}
+      //top
+    } else if (y < this.border * screen_height && camera.target.z > -450) {
+      camera.position.z -= this.pan_speed;
+      camera.target.z -= this.pan_speed;
+    }
 
-function getHitObject() {
-	try {
-		var vector = new THREE.Vector3((mouseX / SCREEN_WIDTH ) * 2 - 1, -(mouseY / SCREEN_HEIGHT ) * 2 + 1, 0.5);
-		projector.unprojectVector(vector, camera);
+  }
 
-		var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+  this.getHitObject = function() {
+    try {
+      var vector = new THREE.Vector3((this.mouseX / this.world.window_handler.dimensions.width ) * 2 - 1, -(this.mouseY / this.world.window_handler.dimensions.height ) * 2 + 1, 0.5);
+      this.world.graphics.projector.unprojectVector(vector, this.world.graphics.camera);
 
-		return ray.intersectObjects(board)[0].object;
-	} catch(err) {
-		return null;
-	}
-}
+      var ray = new THREE.Ray(this.world.graphics.camera.position, vector.subSelf(this.world.graphics.camera.position).normalize());
 
-function printrgb(mat) {
-	console.log(mat["color"].r + " " + mat["color"].g + " " + mat["color"].b);
-}
+      return ray.intersectObjects(this.world.map.selectable_objects)[0].object;
 
-function blend(mat1, mat2) {
-	mat1.r = (mat1.r + mat2.r) / 2;
-	mat1.g = (mat1.g + mat2.g) / 2;
-	mat1.b = (mat1.b + mat2.b) / 2;
-	return mat1;
+      // clicked on empty space, fail silently
+    } catch(err) {
+      return null;
+    }
+  }
+
+  this.printrgb = function(mat) {
+    console.log(mat.color.r + " " + mat.color.g + " " + mat.color.b);
+  }
+
+  this.blend = function(mat1, mat2) {
+    mat1.r = (mat1.r + mat2.r) / 2;
+    mat1.g = (mat1.g + mat2.g) / 2;
+    mat1.b = (mat1.b + mat2.b) / 2;
+    return mat1;
+  }
 }

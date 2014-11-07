@@ -20453,9 +20453,9 @@ THREE.WebGLRenderer = function ( parameters ) {
 
 		var refreshMaterial = false;
 
-		var program = material.program,
-			p_uniforms = program.uniforms,
-			m_uniforms = material.uniforms;
+		var program = material.program;
+		var	p_uniforms = program.uniforms;
+		var	m_uniforms = material.uniforms;
 
 		if ( program !== _currentProgram ) {
 
