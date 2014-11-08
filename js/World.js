@@ -1,5 +1,4 @@
 World = function() {
-
   this.map;
   this.state_handler;
   this.control_panel;

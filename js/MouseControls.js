@@ -59,14 +59,29 @@ MouseControls = function(world) {
 
       console.log(hit_object.game_piece.id, hit_object);
       
-      hit_object.material.color = new THREE.Color(this.world.state_handler.team_colors[this.world.state_handler.current.player]);
-      hit_object.game_piece.team = this.world.state_handler.current.player;
+      var team = this.world.state_handler.current.player
+      
+      hit_object.material.color = new THREE.Color(this.world.state_handler.team_colors[team]);
+      hit_object.game_piece.team = team;
 
       this.world.state_handler.nextTurn();
-
+      
+      //emit to others
+      socket.emit('building click', [hit_object.game_piece.team, hit_object.game_piece.id]);
     }
 
   }.bind(this)
+  
+  
+  // recieve other clicks
+  socket.on('building click', function(data) {
+   	var team = data[0];
+   	var building_id= data[1];
+   	var building = this.world.map.buildings[building_id];
+   	building.material.color = new THREE.Color(this.world.state_handler.team_colors[team]);
+    building.game_piece.team = team;
+    this.world.state_handler.nextTurn();
+  }.bind(this));
 
   this.onMouseMove = function(event) {
     const highlight = new THREE.Color(0xffff00);

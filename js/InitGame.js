@@ -5,6 +5,7 @@ function initGame() {
   }
 
   world = new World();
+  socket = io();
 
   var map = new Map(world);
   var state = new StateHandler(world);

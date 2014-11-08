@@ -6,12 +6,18 @@ Map = function(world) {
 
   this.map
   this.map_territories
+  
+  // map: string id -> connected (string[] ids)
   this.buildings = new Array();
+  
+  // mesh[]
   this.selectable_objects = new Array();
   this.scale = 15;
 
   this.ctx2d = world.renderer2D.domElement.getContext('2d');
 
+
+  
   this.getObj = function(id) {
     return this.buildings[id];
   }
@@ -45,16 +51,15 @@ Map = function(world) {
    * returns string array of connected buildings
    * Precondition: obj must have field called name
    */
-  this.getConnected = function(obj) {
-    var name = obj["name"];
-    return this.map_territories[name];
+  this.getConnectedByMesh = function(obj) {
+    return this.map_territories[obj.game_piece.id];
   }
   /**
-   * returns the object in the scene with str as a name
+   * returns string[] ids of connected buildings
    * returns undefined if str not in scene
    */
-  this.getBuilding = function(str) {
-    return this.map_territories[str];
+  this.getConnectedById = function(id) {
+    return this.map_territories[id];
   }
 
   this.updateView = function() {
