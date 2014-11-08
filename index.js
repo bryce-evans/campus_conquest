@@ -47,7 +47,7 @@ io.on('connection', function(socket) {
   console.log('a user connected');
   socket.on('building click', function(move_data) {
 
-    console.log('building click');
+    console.log("update "+ move_data[1] + " to team " + move_data[0]);
 
     db.query('select exists(select true from "territory_grab"."test" where piece_name=\'' + move_data[1] + '\')', function(err, result) {
 
@@ -61,7 +61,7 @@ io.on('connection', function(socket) {
 
     });
 
-    io.emit('building click', move_data);
+      io.emit('building click', move_data);
   });
 });
 

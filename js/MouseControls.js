@@ -55,25 +55,14 @@ MouseControls = function(world) {
 
     var hit_object = this.getHitObject();
 
-    if (hit_object) {
-
-      console.log(hit_object.game_piece.id, hit_object);
-      
-      var team = this.world.state_handler.current.player
-      
-      hit_object.material.color = new THREE.Color(this.world.state_handler.team_colors[team]);
-      hit_object.game_piece.team = team;
-
-      this.world.state_handler.nextTurn();
-      
-      //emit to others
-      socket.emit('building click', [hit_object.game_piece.team, hit_object.game_piece.id]);
+    if (hit_object) {     
+      // send move
+      socket.emit('building click', [this.world.state_handler.current.player, hit_object.game_piece.id]);
     }
 
   }.bind(this)
   
-  
-  // recieve other clicks
+  // recieve moves
   socket.on('building click', function(data) {
    	var team = data[0];
    	var building_id= data[1];

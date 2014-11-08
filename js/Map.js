@@ -6,44 +6,47 @@ Map = function(world) {
 
   this.map
   this.map_territories
-  
+
   // map: string id -> connected (string[] ids)
   this.buildings = new Array();
-  
+
   // mesh[]
   this.selectable_objects = new Array();
   this.scale = 15;
 
   this.ctx2d = world.renderer2D.domElement.getContext('2d');
 
-
-  
   this.getObj = function(id) {
     return this.buildings[id];
   }
 
   this.loadBoard = function(hasGround) {
-
     $.ajax({
       // "../rsc/maps/cornell_basic.json"
-      url : "../rsc/maps/cornell_basic.json",
-    }).done( function(data) {
-      this.map = data;
-      this.map_territories = this.map.Cornell.Territories;
+      url : "/state",
+    }).done( function(init_data) {
 
-      var i = 0;
-      jQuery.each(this.map_territories, function(key, val) {
-        this.buildings[i++] = key;
+      $.ajax({
+        // "../rsc/maps/cornell_basic.json"
+        url : "../rsc/maps/cornell_basic.json",
+      }).done( function(data) {
+        this.map = data;
+        this.map_territories = this.map.Cornell.Territories;
+
+        var i = 0;
+        jQuery.each(this.map_territories, function(key, val) {
+          this.buildings[i++] = key;
+        }.bind(this));
+
+        if (this.hasGround == undefined || this.hasGround) {
+          this.loadGround();
+        }
+
+        // load models
+        for (var index in this.buildings) {
+          this.load(this.buildings[index], init_data);
+        }
       }.bind(this));
-
-      if (this.hasGround == undefined || this.hasGround) {
-        this.loadGround();
-      }
-
-      // load models
-      for (var index in this.buildings) {
-        this.load(this.buildings[index]);
-      }
     }.bind(this));
   }
   /**
@@ -102,12 +105,12 @@ Map = function(world) {
 
   }
 
-  this.GamePiece = function(map, id, mesh) {
+  this.GamePiece = function(map, id, mesh, init_team) {
 
     this.id = id;
     this.mesh = mesh;
-    this.team = 0;
-    
+    this.team;
+
     mesh.game_piece = this;
 
     this.connected = map.map_territories[id];
@@ -124,7 +127,7 @@ Map = function(world) {
       this.team = team_number;
     }
 
-    this.setTeam(0);
+    this.setTeam(init_team || 0);
 
     // also updates team data
     this.setTroops = function(newTroops) {
@@ -155,9 +158,9 @@ Map = function(world) {
     map.selectable_objects.push(mesh);
   }
 
-  this.load = function(model) {
+  this.load = function(model_name, init_state) {
 
-    this.loader.load(this.map_dir + "buildings/" + model + "/" + model + ".js", function(geometry) {
+    this.loader.load(this.map_dir + "buildings/" + model_name + "/" + model_name + ".js", function(geometry) {
 
       geometry.computeMorphNormals();
 
@@ -166,7 +169,12 @@ Map = function(world) {
       });
 
       var mesh = new THREE.Mesh(geometry, material);
-      var game_piece = new this.GamePiece(this, model, mesh);
+      var piece_owner;
+      if(init_state[model_name]){
+      	piece_owner = init_state[model_name].team;
+      }
+
+      var game_piece = new this.GamePiece(this, model_name, mesh, piece_owner);
       this.world.graphics.scene.add(mesh);
 
     }.bind(this));
