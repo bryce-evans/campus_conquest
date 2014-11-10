@@ -146,7 +146,7 @@ Map.prototype.loadGround = function() {
     }
   }.bind(this));
 }
-Map.prototype.overlayText() {
+Map.prototype.overlayText = function() {
   ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   const ceil = 800;
@@ -221,7 +221,7 @@ Map.prototype.overlayText() {
 
 }
 
-Map.prototype.toScreenXY(pos) {
+Map.prototype.toScreenXY = function(pos) {
 
   var projScreenMat = new THREE.Matrix4();
   projScreenMat.multiply(camera.projectionMatrix, camera.matrixWorldInverse);
@@ -233,7 +233,6 @@ Map.prototype.toScreenXY(pos) {
   };
 
 }
-
 GamePiece = function(map, id, mesh, init_team) {
 
   this.id = id;
@@ -243,27 +242,7 @@ GamePiece = function(map, id, mesh, init_team) {
   mesh.game_piece = this;
 
   this.connected = map.map_territories[id];
-
-  // @team_number : int
-  this.setTeam = function(team_number) {
-    if (team_number > world.state_handler.team_count) {
-      console.error("set piece to invalid team");
-    }
-    var new_material = mesh.material;
-    var new_color = world.state_handler.team_colors[team_number];
-    new_material.color = new THREE.Color(new_color);
-    mesh.material = new_material;
-    this.team = team_number;
-  }
-
   this.setTeam(init_team || 0);
-
-  // also updates team data
-  this.setTroops = function(newTroops) {
-    var oldTroops = mesh.troops;
-    this.troops = newTroops;
-    teams[this.team].troops += newTroops - oldTroops;
-  }
 
   mesh.scale.set(map.scale, map.scale, map.scale);
   mesh.position.y = 0;
@@ -279,11 +258,29 @@ GamePiece = function(map, id, mesh, init_team) {
     sumy += verts[index].y;
     sumz += verts[index].z;
     counter++;
+
+    this.mesh.center = new Array(map.scale * sumx / counter, map.scale * sumy / counter, map.scale * sumz / counter);
+
+    map.buildings[id] = mesh;
+    map.selectable_objects.push(mesh);
   }
+}
 
-  this.center = new Array(map.scale * sumx / counter, map.scale * sumy / counter, map.scale * sumz / counter);
-
-  map.buildings[id] = mesh;
-  map.selectable_objects.push(mesh);
+// @team_number : int
+GamePiece.prototype.setTeam = function(team_number) {
+  if (team_number > world.state_handler.team_count) {
+    console.error("set piece to invalid team");
+  }
+  var new_material = mesh.material;
+  var new_color = world.state_handler.team_colors[team_number];
+  new_material.color = new THREE.Color(new_color);
+  mesh.material = new_material;
+  this.team = team_number;
+}
+// also updates team data
+GamePiece.prototype.setTroops = function(newTroops) {
+  var oldTroops = mesh.troops;
+  this.troops = newTroops;
+  teams[this.team].troops += newTroops - oldTroops;
 }
 

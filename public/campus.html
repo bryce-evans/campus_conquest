@@ -12,17 +12,93 @@
 			<meta charset="utf-8">
 
 			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
+			<link rel="stylesheet" href="css/fonts.css" />
+			<link rel="stylesheet" href="css/global.css" />
+			<link rel="stylesheet" href="css/signin.css" />
 			<link rel="stylesheet" href="css/game.css" />
 		</head>
 
 		<body>
-			<div id="info">
-				Model Test-
+			<div id='signin-pane'>
+				<div class='card'>
+					<div class='card-contents'>
+
+						<h1> Join Game</h1>
+						<form id="form">
+							<div>
+								Game ID: <span>test</span>
+							</div>
+							<div>
+
+								<input type="text" id="netId" name="netId" class = "field" placeholder="Name">
+
+								<input type="text" id="netId" name="netId" class = "field" placeholder="NetID">
+							</div>
+							<div>
+								Team:
+								<ul>
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="hotel" />
+											<img src="rsc/images/flags/full/hotel.png"> </label>
+									</li>
+
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="as" />
+											<img src="rsc/images/flags/full/as.png"> </label>
+									</li>
+
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="aap" />
+											<img src="rsc/images/flags/full/aap.png"> </label>
+									</li>
+
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="cals" />
+											<img src="rsc/images/flags/full/cals.png"> </label>
+									</li>
+
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="ilr" />
+											<img src="rsc/images/flags/full/ilr.png"> </label>
+									</li>
+
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="eng" />
+											<img src="rsc/images/flags/full/eng.png"> </label>
+									</li>
+
+									<li>
+										<label>
+											<input type="radio" name="team-choice" value="humec" />
+											<img src="rsc/images/flags/full/humec.png"> </label>
+									</li>
+								</ul>
+							</div>
+							<div>
+								<a href="#" class="button" id="join-button">Join Game</a>
+							</div>
+
+						</form>
+					</div>
+
+				</div>
+			</div>
+			<div id="game-window" style="display: none;">
 				<div id = "container">
 					<canvas id="canvas2D"></canvas>
 					<canvas id="canvas3D"></canvas>
 				</div>
+			</div>
+
+			<div id="info">
+				Model Test-
+
 				<span>&copy; 2014 Campus Conquest</span>
 			</div>
 
@@ -36,14 +112,19 @@
 			<script src="js/Map.js"></script>
 			<script src="js/StateHandler.js"></script>
 			<!-- <script src="js/ControlPanel.js"></script> -->
-			<script src="js/MouseControls.js"></script>
+			<script src="js/ClientListeners.js"></script>
+			<script src="js/SocketListeners.js"></script>
 			<script src="js/Graphics.js"></script>
 			<script src="js/WindowHandler.js"></script>
 
 			<script src="js/InitGame.js"></script>
 			<script>
         $(document).ready(function() {
-          initGame();
+          $('img').on('dragstart', function(event) {
+            event.preventDefault();
+          });
+          console.log('init game canceled')
+          // initGame();
         });
 
 			</script>

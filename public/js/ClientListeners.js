@@ -1,4 +1,4 @@
-MouseControls = function(world) {
+ClientListeners = function(world) {
 
   this.world = world;
 
@@ -24,7 +24,7 @@ MouseControls = function(world) {
 
 }
 
-MouseControls.prototype.addListeners = function() {
+ClientListeners.prototype.addListeners = function() {
   //disable right click
   document.oncontextmenu = new Function("return false")
 
@@ -36,7 +36,7 @@ MouseControls.prototype.addListeners = function() {
   document.addEventListener('mousemove', this.onMouseMove, false);
 }
 
-MouseControls.prototype.zoom = function(event) {
+ClientListeners.prototype.zoom = function(event) {
   var delta = event.wheelDelta * this.pan_speed;
   var newPos = this.world.graphics.camera.position.y - delta;
   if (delta && newPos < this.zoom_ceiling && newPos > this.zoom_floor) {
@@ -51,7 +51,7 @@ MouseControls.prototype.zoom = function(event) {
 }.bind(this)
 
 // click function, colors buildings for territory grab
-MouseControls.prototype.onMouseDown = function(event) {
+ClientListeners.prototype.onMouseDown = function(event) {
 
   event.preventDefault();
 
@@ -64,7 +64,7 @@ MouseControls.prototype.onMouseDown = function(event) {
 
 }.bind(this)
 
-MouseControls.prototype.onMouseMove = function(event) {
+ClientListeners.prototype.onMouseMove = function(event) {
   const highlight = new THREE.Color(0xffff00);
 
   //refresh mouse location for use in other functions
@@ -106,7 +106,7 @@ MouseControls.prototype.onMouseMove = function(event) {
 
 }.bind(this)
 
-MouseControls.prototype.panAuto = function(x, y) {
+ClientListeners.prototype.panAuto = function(x, y) {
   var camera = this.world.graphics.camera;
   var screen_width = this.world.window_handler.dimensions.width;
   var screen_height = this.world.window_handler.dimensions.height;
@@ -136,7 +136,7 @@ MouseControls.prototype.panAuto = function(x, y) {
 
 }
 
-MouseControls.prototype.getHitObject = function() {
+ClientListeners.prototype.getHitObject = function() {
   try {
     var vector = new THREE.Vector3((this.mouseX / this.world.window_handler.dimensions.width ) * 2 - 1, -(this.mouseY / this.world.window_handler.dimensions.height ) * 2 + 1, 0.5);
     this.world.graphics.projector.unprojectVector(vector, this.world.graphics.camera);
@@ -151,11 +151,11 @@ MouseControls.prototype.getHitObject = function() {
   }
 }
 
-MouseControls.prototype.printrgb = function(mat) {
+ClientListeners.prototype.printrgb = function(mat) {
   console.log(mat.color.r + " " + mat.color.g + " " + mat.color.b);
 }
 
-MouseControls.prototype.blend = function(mat1, mat2) {
+ClientListeners.prototype.blend = function(mat1, mat2) {
   mat1.r = (mat1.r + mat2.r) / 2;
   mat1.g = (mat1.g + mat2.g) / 2;
   mat1.b = (mat1.b + mat2.b) / 2;

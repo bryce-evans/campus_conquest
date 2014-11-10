@@ -1,9 +1,10 @@
 function initGame() {
+	$('#game-window').show();
   if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
     return;
   }
-
+	
   world = new World();
   socket = io();
 

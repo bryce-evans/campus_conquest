@@ -55,7 +55,7 @@ TeamData = function(id, name, allow_multiple_players) {
 }
 
 // returns true if successfully added player
-TeamData.prototype.addPlayer(player) {
+TeamData.prototype.addPlayer = function(player) {
   if (this.isTeam || this.players.length == 0) {
   	var index = this.players.length;
     this.players[index] = player;
