@@ -27,7 +27,6 @@ Graphics.prototype.init = function() {
 
   this.container = document.createElement('page');
   document.body.appendChild(this.container);
-  this.container.appendChild(document.getElementById('info'));
 
   this.camera = new THREE.PerspectiveCamera(30, world.window_handler.aspect_ratio, 1, 2000);
   this.camera.position.set(0, 600, 0);
@@ -64,7 +63,7 @@ Graphics.prototype.init = function() {
 
   this.stats = new Stats();
   this.stats.domElement.style.position = 'absolute';
-  this.stats.domElement.style.top = '0px';
+  this.stats.domElement.style.bottom = '0px';
   this.stats.domElement.children[ 0 ].children[0].style.color = "#666";
   this.stats.domElement.children[0].style.background = "transparent";
   this.stats.domElement.children[ 0 ].children[1].style.display = "none";

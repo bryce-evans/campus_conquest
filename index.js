@@ -24,7 +24,15 @@ app.use('/css', express.static(__dirname + '/public/css'));
 app.get('/state', function(req, res) {
   db.query('SELECT * FROM "territory_grab"."test"', function(err, result) {
     //NOTE: error handling not present
-    var json = JSON.stringify(result.rows);
+
+    var ret = {};
+    for (var i = 0; i < result.rows.length; i++) {
+      var piece = result.rows[i];
+      ret[piece.piece_name] = {
+        team : piece.team
+      }
+    }
+    var json = JSON.stringify(ret);
     res.writeHead(200, {
       'content-type' : 'application/json',
       'content-length' : Buffer.byteLength(json)
@@ -45,9 +53,16 @@ app.get('/test', function(req, res) {
 io.on('connection', function(socket) {
 
   console.log('a user connected');
+
+  // handle global messages
+  socket.on('global message', function(msg) {
+    io.emit('global message', msg);
+  });
+
+  // handle selecting buildings
   socket.on('building click', function(move_data) {
 
-    console.log("update "+ move_data[1] + " to team " + move_data[0]);
+    console.log("update " + move_data[1] + " to team " + move_data[0]);
 
     db.query('select exists(select true from "territory_grab"."test" where piece_name=\'' + move_data[1] + '\')', function(err, result) {
 
@@ -61,7 +76,7 @@ io.on('connection', function(socket) {
 
     });
 
-      io.emit('building click', move_data);
+    io.emit('building click', move_data);
   });
 });
 

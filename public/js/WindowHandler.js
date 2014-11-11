@@ -1,6 +1,5 @@
-WindowHandler = function(world) {
-  this.world = world;
-  this.setDimensions();
+WindowHandler = function() {
+
 }
 
 WindowHandler.prototype.setDimensions = function() {
@@ -9,6 +8,10 @@ WindowHandler.prototype.setDimensions = function() {
     width : window.innerWidth
   };
   this.aspect_ratio = this.dimensions.width / this.dimensions.height;
+  
+  $('#canvas2D, #canvas3D').width(this.dimensions.width - world.control_panel_handler.width);
+  $('#canvas2D, #canvas3D').height(this.dimensions.height - world.nav.height);
+  
 }
 
 WindowHandler.prototype.addWindowResizeListener = function() {
@@ -17,8 +20,8 @@ WindowHandler.prototype.addWindowResizeListener = function() {
 
 WindowHandler.prototype.onWindowResize = function(event) {
   this.setDimensions();
-  this.world.graphics.renderer.setSize(this.dimensions.width, this.dimensions.height / this.aspect_ratio);
-  this.world.graphics.camera.updateProjectionMatrix();
+  world.graphics.renderer.setSize(this.dimensions.width - 400, (this.dimensions.height - 40) / this.aspect_ratio);
+  world.graphics.camera.updateProjectionMatrix();
 }
 
 WindowHandler.prototype.maxWindow = function() {

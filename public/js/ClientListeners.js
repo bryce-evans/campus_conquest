@@ -23,7 +23,7 @@ ClientListeners = function() {
 	// must use this.fn for listeners to bind this obj to this instead of window or the event
   this.addListeners = function() {
     //disable right click
-    document.oncontextmenu = new Function("return false")
+    //document.oncontextmenu = new Function("return false")
 
     //Add Listeners
     document.addEventListener('mousedown', this.onMouseDown, false);

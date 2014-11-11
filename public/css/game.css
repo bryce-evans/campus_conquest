@@ -10,9 +10,33 @@ body {
 span {
   color: #ffaa55;
 }
+nav {
+  height: 48px;
+  border-bottom: 2px solid #000;
+  background-color: #0f0f0f;
+}
+nav > img {
+  height: 40px;
+  margin-top: 4px;
+  margin-left: 5px;
+}
+nav > a {
+  float: right;
+  padding: 15px;
+  margin-top: 2px;
+}
+#control-panel {
+  position: absolute;
+  right: 0;
+  width: 260px;
+  background: #111;
+  height: 100%;
+  padding: 20px;
+  z-index: 10;
+}
 #info {
   position: absolute;
-  bottom: 0px;
+  bottom: 90px;
   width: 100%;
   color: #ffffff;
   padding: 5px;
@@ -20,9 +44,26 @@ span {
   font-size: 13px;
   text-align: center;
   z-index: 1000;
+  right: -8px;
+}
+.messages {
+  width: 90%;
+  height: 200px;
+  background: #0a0a0a;
+  border-radius: 10px;
+  font-family: sans,arial;
+}
+#msgs-global {
+  padding: 0px;
+  height: 28px;
+  background-color: #181818;
+  color: #eee;
+  margin-top: 6px;
+  width: 230px;
+  font-size: 16px;
+  font-family: sans,arial;
 }
 #canvas2D, #canvas3D {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  left: 0;
 }

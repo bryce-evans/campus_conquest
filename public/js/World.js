@@ -5,6 +5,7 @@ World = function() {
   this.client_listeners
   this.graphics
   this.window_handler
+  this.nav = {height: 50};
 
   this.options = {
     display : {
@@ -58,4 +59,6 @@ World.prototype.setGraphics = function(graphics) {
 World.prototype.setWindowHandler = function(window_handler) {
   this.window_handler = window_handler;
 }
-
+World.prototype.setControlPanelHandler = function(control_panel_handler) {
+  this.control_panel_handler = control_panel_handler;
+}
