@@ -19,7 +19,7 @@
 		</head>
 
 		<body>
-			<div id='signin-pane'>
+			<div id='signin-pane' style="display: block;">
 				<div class='card'>
 					<div class='card-contents'>
 
@@ -35,47 +35,47 @@
 								<input type="text" id="netId" name="netId" class = "field" placeholder="NetID">
 							</div>
 							<div>
-								Team:
+								Team <span id="myteam"> Hotel</span>
 								<ul>
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="hotel" />
+											<input type="radio" name="team-choice" value="Hotel" checked/>
 											<img src="rsc/images/flags/full/hotel.png"> </label>
 									</li>
 
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="as" />
+											<input type="radio" name="team-choice" value="Arts & Sciences" />
 											<img src="rsc/images/flags/full/as.png"> </label>
 									</li>
 
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="aap" />
+											<input type="radio" name="team-choice" value="Archetecture & Arts Planning" />
 											<img src="rsc/images/flags/full/aap.png"> </label>
 									</li>
 
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="cals" />
+											<input type="radio" name="team-choice" value="CALS" />
 											<img src="rsc/images/flags/full/cals.png"> </label>
 									</li>
 
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="ilr" />
+											<input type="radio" name="team-choice" value="ILR" />
 											<img src="rsc/images/flags/full/ilr.png"> </label>
 									</li>
 
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="eng" />
+											<input type="radio" name="team-choice" value="Engineering" />
 											<img src="rsc/images/flags/full/eng.png"> </label>
 									</li>
 
 									<li>
 										<label>
-											<input type="radio" name="team-choice" value="humec" />
+											<input type="radio" name="team-choice" value="Human Ecology" />
 											<img src="rsc/images/flags/full/humec.png"> </label>
 									</li>
 								</ul>
@@ -120,11 +120,22 @@
 			<script src="js/InitGame.js"></script>
 			<script>
         $(document).ready(function() {
+
+          $('input').click(function(e) {
+            console.log(e.target.value)
+            $('#myteam').text(e.target.value);
+          });
           $('img').on('dragstart', function(event) {
             event.preventDefault();
           });
-          console.log('init game canceled')
-          // initGame();
+          
+          $('#join-button').click(function(){
+          	$('#signin-pane').hide();
+          	$('#game-window').show();
+          	initGame();
+          });
+          // console.log('init game canceled')
+          //initGame();
         });
 
 			</script>

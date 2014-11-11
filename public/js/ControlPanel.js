@@ -1,6 +1,5 @@
-ControlPanel = function(world) {
+ControlPanel = function() {
 
-	this.world = world;
   this.teams = world.teams;
   this.cur_angle = -Math.PI / 2;
   this.total_troops = (teamdata.getNumPlayers()) * 20;

@@ -1,6 +1,5 @@
-Map = function(world) {
+Map = function() {
 
-  this.world = world;
   this.map_dir = "/rsc/models/map/";
   this.loader = new THREE.JSONLoader();
 
@@ -122,7 +121,7 @@ Map.prototype.load = function(model_name, init_state) {
     }
 
     var game_piece = new GamePiece(this, model_name, mesh, piece_owner);
-    this.world.graphics.scene.add(mesh);
+    world.graphics.scene.add(mesh);
 
   }.bind(this));
 }
@@ -271,16 +270,16 @@ GamePiece.prototype.setTeam = function(team_number) {
   if (team_number > world.state_handler.team_count) {
     console.error("set piece to invalid team");
   }
-  var new_material = mesh.material;
+  var new_material = this.mesh.material;
   var new_color = world.state_handler.team_colors[team_number];
   new_material.color = new THREE.Color(new_color);
-  mesh.material = new_material;
+  this.mesh.material = new_material;
   this.team = team_number;
 }
 // also updates team data
 GamePiece.prototype.setTroops = function(newTroops) {
   var oldTroops = mesh.troops;
   this.troops = newTroops;
-  teams[this.team].troops += newTroops - oldTroops;
+  this.teams[this.team].troops += newTroops - oldTroops;
 }
 

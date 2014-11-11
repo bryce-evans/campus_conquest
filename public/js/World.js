@@ -49,7 +49,7 @@ World.prototype.setStateHandler = function(state_handler) {
 World.prototype.setControlPanel = function(control_panel) {
   this.control_panel = control_panel;
 }
-World.prototype.setMouseControls = function(client_listeners) {
+World.prototype.setClientListeners = function(client_listeners) {
   this.client_listeners = client_listeners;
 }
 World.prototype.setGraphics = function(graphics) {

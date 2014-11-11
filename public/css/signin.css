@@ -66,12 +66,16 @@ label > input + img {
   border-radius: 50%;
   opacity: 0.4;
   float: left;
+  margin-top: 15px;
+  transition: .3s;
 }
 
 /* (CHECKED) IMAGE STYLES */
 label > input:checked + img {
   border: 2px solid #cc8;
   opacity: 1;
+  margin-top: 0;
+  transition: .3s;
 }
 
 /* (HOVER) IMAGE STYLES */

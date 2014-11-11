@@ -8,16 +8,16 @@ function initGame() {
   world = new World();
   socket = io();
 
-  var map = new Map(world);
-  var state = new StateHandler(world);
+  var map = new Map();
+  var state = new StateHandler();
   // var control_panel = new ControlPanel(world);
-  var client_listeners = new ClientListeners(world);
+  var client_listeners = new ClientListeners();
   
-  var socket_listeners = new SocketListeners(world,socket);
+  var socket_listeners = new SocketListeners(socket);
   socket_listeners.initListeners();
   
-  var graphics = new Graphics(world);
-  var window_handler = new WindowHandler(world);
+  var graphics = new Graphics();
+  var window_handler = new WindowHandler();
 
   world.setMap(map);
   world.setStateHandler(state);
@@ -26,7 +26,7 @@ function initGame() {
   world.setGraphics(graphics);
   world.setWindowHandler(window_handler);
   
-  mouse_controls.addListeners();
+  client_listeners.addListeners();
   world.graphics.startRender();
 
 }
