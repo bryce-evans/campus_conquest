@@ -1,16 +1,19 @@
 ControlPanelHandler = function() {
-this.width = 260;
-}
+  this.width = 260;
 
-this.addListeners = function() {
-  $('#msgs-global').onkeydown(function(e) {
+  $('#msgs-global').keypress(function(e) {
     if (e.keyCode == 13) {
       socket.emit('global message', $('#msgs-global').val());
+      $('#msgs-global').val('');
     }
   });
   socket.on('global message', function(msg) {
     $('#messages').append($('<li>').text(msg));
   });
+
+  this.addListeners = function() {
+
+  }
 }
 // ControlPanel = function() {
 //

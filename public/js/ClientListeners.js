@@ -20,13 +20,13 @@ ClientListeners = function() {
   this.mouseX
   this.mouseY
 
-	// must use this.fn for listeners to bind this obj to this instead of window or the event
+  // must use this.fn for listeners to bind this obj to this instead of window or the event
   this.addListeners = function() {
     //disable right click
     //document.oncontextmenu = new Function("return false")
 
     //Add Listeners
-    document.addEventListener('mousedown', this.onMouseDown, false);
+    $('#canvas3D').click(this.onMouseDown);
     document.addEventListener('mousedown', this.zoom, false);
     document.addEventListener('mousewheel', this.zoom, false);
     document.addEventListener('keypress', this.getKeyCode, false);
@@ -41,16 +41,16 @@ ClientListeners = function() {
     }
 
     //prevent default scrolling on page
-    if (event.preventDefault) {
-      event.preventDefault();
-    }
-    event.returnValue = false;
+   // if (event.preventDefault) {
+   //   event.preventDefault();
+   // }
+   // event.returnValue = false;
   }.bind(this)
 
   // click function, colors buildings for territory grab
   this.onMouseDown = function(event) {
 
-    event.preventDefault();
+    //event.preventDefault();
 
     var hit_object = this.getHitObject();
 
@@ -135,7 +135,9 @@ ClientListeners = function() {
 
   this.getHitObject = function() {
     try {
-      var vector = new THREE.Vector3((this.mouseX / world.window_handler.dimensions.width ) * 2 - 1, -(this.mouseY / world.window_handler.dimensions.height ) * 2 + 1, 0.5);
+      console.log(this.mouseX, this.mouseY);
+      var vector = new THREE.Vector3((this.mouseX - 115) / $('#canvas3D').width() * 2 - 1, -((this.mouseY - 1.5 * world.nav.height) / $('#canvas3D').height() ) * 2 + 1, 0.5);
+      console.log(vector);
       world.graphics.projector.unprojectVector(vector, world.graphics.camera);
 
       var ray = new THREE.Ray(world.graphics.camera.position, vector.subSelf(world.graphics.camera.position).normalize());

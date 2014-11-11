@@ -36,16 +36,16 @@ MapBuilder.prototype.zoom = function(event) {
   }
 
   //prevent default scrolling on page
-  if (event.preventDefault)
-    event.preventDefault();
-  event.returnValue = false;
+  //if (event.preventDefault)
+  //  event.preventDefault();
+  //event.returnValue = false;
 }
 /**
  *click function, colors buildings for territory grab
  */
 MapBuilder.prototype.onMouseDown = function(event) {
 
-  event.preventDefault();
+  //event.preventDefault();
 
   var hitobj = getHitObject();
 

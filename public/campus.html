@@ -100,12 +100,10 @@
 					<h2 id='my-team'> My Team </h2>
 					<img src="">
 
-					<div >
-						<ul class="messages"></ul>
-					</div>
-					<form action="">
-						<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
-					</form>
+					<ul id="messages"></ul>
+
+					<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
+
 					<div id="info">
 						Model Test-
 
@@ -146,13 +144,10 @@
           });
 
           $('#join-button').click(function() {
-            $('#signin-pane').hide();
-            $('#game-window').show();
-            $('#my-team').text('Team ' + $('input:radio[name=team-choice]:checked').val());
-            //initGame();
+
+            initGame();
           });
-          // console.log('init game canceled')
-          initGame();
+
         });
 
 			</script>

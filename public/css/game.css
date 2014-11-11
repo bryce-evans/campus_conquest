@@ -46,13 +46,20 @@ nav > a {
   z-index: 1000;
   right: -8px;
 }
-.messages {
+#messages {
+	padding: 10px;
   width: 90%;
   height: 200px;
   background: #0a0a0a;
   border-radius: 10px;
   font-family: sans,arial;
+  overflow-y: scroll;
+  margin: 0;
 }
+#messages > li {
+	text-align: left;
+}
+
 #msgs-global {
   padding: 0px;
   height: 28px;

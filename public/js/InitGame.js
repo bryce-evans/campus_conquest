@@ -1,5 +1,9 @@
 function initGame() {
   $('#game-window').show();
+  $('#signin-pane').hide();
+  $('#game-window').show();
+  $('#my-team').text('Team ' + $('input:radio[name=team-choice]:checked').val());
+
   if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
     return;
@@ -26,6 +30,7 @@ function initGame() {
   world.setControlPanelHandler(control_panel_handler);
 
   window_handler.setDimensions();
+  control_panel_handler.addListeners();
   client_listeners.addListeners();
   socket_listeners.initListeners();
   world.graphics.startRender();

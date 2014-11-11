@@ -56,6 +56,7 @@ io.on('connection', function(socket) {
 
   // handle global messages
   socket.on('global message', function(msg) {
+    console.log('recieved message:' + msg);
     io.emit('global message', msg);
   });
 
