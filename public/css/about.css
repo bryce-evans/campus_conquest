@@ -37,6 +37,7 @@ html {
 }
 .dark {
   background: #181818;
+  border-radius: 5px 5px 0 0;
 }
 .logo-m {
   max-width: 60%;
@@ -53,10 +54,50 @@ width: 100%;
 margin: 10px 0 0 30px;
 max-width: 550px;
 }
-.circle-img {
+
+li{
+	list-style: none;
+	line-height: 1.5em;
+}
+  li:before {
+      /* For a round bullet */
+      content:'\2022';
+      /* For a square bullet */
+      /*content:'\25A0';*/
+      display: block;
+      position: relative;
+      max-width: 0px;
+      max-height: 0px;
+      left: -13px;
+      top: -3px;
+      color: #f20033;
+      font-size: 20px;
+    }
+    a {
+    	text-decoration: underline;
+    	color: #444;
+    }
+    a:hover{
+    	color: #DB4826;
+    }
+.right {
+	float: right;
+}
+.img {
 background-position: center;
 background-size: cover;
-float: right;
+box-shadow: 2px 2px 2px rgba(0,0,0,.6);
+width: 180px;
+height: 220px;
+margin-top: 3.5em;
+border-radius: 3px;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+}
+
+.circle {
+background-position: center;
+background-size: cover;
 box-shadow: 1px 1px 2px rgba(0,0,0,.3);
 width: 220px;
 height: 220px;
