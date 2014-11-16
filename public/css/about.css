@@ -1,0 +1,70 @@
+h1 {
+  float: right;
+  margin-right: 1em;
+  background: -webkit-linear-gradient(#FFB06E, #FF8117);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: open sans, sans;
+  font-weight: 500;
+  font-size: 50px;
+}
+h2 {
+  background: -webkit-linear-gradient(#ff9300, #f20033);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: open sans, sans;
+  font-weight: 300;
+  font-size: 50px;
+  margin: 0em;
+  padding: .5em 0 .5em 0;
+}
+h2 > span {
+  font-size: 22px;
+  font-weight: 300;
+  display: block;
+}
+html {
+  font-family: georgia;
+  font-size: 16px;
+  color: #444;
+}
+.center {
+  text-align: center;
+}
+.center > div {
+  margin-left: auto;
+  margin-right: auto;
+}
+.dark {
+  background: #181818;
+}
+.logo-m {
+  max-width: 60%;
+  max-height: 7em;
+  margin: .8em 0 .8em 0em;
+  padding-left: 1em;
+}
+body {
+  background-image: url(http://turbo.designwoop.com/uploads/2012/10/subtle_background_textures_12.jpg);
+}
+.text-body {
+float: left;
+width: 100%;
+margin: 10px 0 0 30px;
+max-width: 550px;
+}
+.circle-img {
+background-position: center;
+background-size: cover;
+float: right;
+box-shadow: 1px 1px 2px rgba(0,0,0,.3);
+width: 220px;
+height: 220px;
+border-radius: 50%;
+-webkit-border-radius: 50%;
+-moz-border-radius: 50%;
+margin-top: 1em;
+}
+.card-contents > div{
+	height: 300px;
+}

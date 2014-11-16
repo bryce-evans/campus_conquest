@@ -50,9 +50,18 @@ app.get('/test', function(req, res) {
 });
 
 //var nsp = io.of('/');
-io.on('connection', function(socket) {
 
-  console.log('a user connected');
+this.current_turn = 1;
+this.teams = 7;
+this.clients = [];
+this.nextTurn = function(){
+	this.current_turn = (this.current_turn + 1) % this.teams + 1;
+}
+
+io.on('connection', function(socket) {
+  this.clients.push(socket);
+  
+  console.log('user ' + socket.id +' connected');
 
   // handle global messages
   socket.on('global message', function(msg) {
@@ -63,14 +72,14 @@ io.on('connection', function(socket) {
   // handle selecting buildings
   socket.on('building click', function(move_data) {
 
-    console.log("update " + move_data[1] + " to team " + move_data[0]);
+    console.log("update " + move_data.piece + " to team " + move_data.team);
 
     db.query('select exists(select true from "territory_grab"."test" where piece_name=\'' + move_data[1] + '\')', function(err, result) {
 
       if (result.rows[0]["?column?"]) {
-        var query_string = 'UPDATE "territory_grab"."test" SET team =\'' + move_data[0] + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data[1] + '\'';
+        var query_string = 'UPDATE "territory_grab"."test" SET team =\'' + move_data.piece + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
       } else {
-        var query_string = 'INSERT INTO "territory_grab"."test"(piece_name, team, player) VALUES (\'' + move_data[1] + '\',' + move_data[0] + ',\'Bryce\')';
+        var query_string = 'INSERT INTO "territory_grab"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
       }
 
       db.query(query_string);
