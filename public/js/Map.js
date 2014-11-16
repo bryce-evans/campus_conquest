@@ -13,40 +13,28 @@ Map = function() {
   this.selectable_objects = new Array();
   this.scale = 15;
 
-  this.ctx2d = world.renderer2D.domElement.getContext('2d');
+  // this.ctx2d = world.renderer2D.domElement.getContext('2d');
 }
 Map.prototype.getObj = function(id) {
   return this.buildings[id];
 }
 
-Map.prototype.loadBoard = function(hasGround) {
-  $.ajax({
-    // "../rsc/maps/cornell_basic.json"
-    url : "/state",
-  }).done( function(init_data) {
+Map.prototype.loadBoard = function(options) {
+  hasGround = options.has_ground || false;
 
+  if (options.game_id > 0) {
     $.ajax({
-      // "../rsc/maps/cornell_basic.json"
-      url : "../rsc/maps/cornell_basic.json",
-    }).done( function(data) {
-      this.map = data;
-      this.map_territories = this.map.Cornell.Territories;
-
-      var i = 0;
-      jQuery.each(this.map_territories, function(key, val) {
-        this.buildings[i++] = key;
-      }.bind(this));
-
-      if (this.hasGround == undefined || this.hasGround) {
-        this.loadGround();
-      }
-
-      // load models
-      for (var index in this.buildings) {
-        this.load(this.buildings[index], init_data);
-      }
+      url : "/state",
+    }).done( function(init_data) {
+      this.loadFromState(init_data);
     }.bind(this));
-  }.bind(this));
+  } else {
+    $.ajax({
+      url : "/rsc/maps/example_state.json",
+    }).done( function(init_data) {
+      this.loadFromState(init_data);
+    }.bind(this));
+  }
 }
 /**
  * given an object
@@ -63,45 +51,35 @@ Map.prototype.getConnectedByMesh = function(obj) {
 Map.prototype.getConnectedById = function(id) {
   return this.map_territories[id];
 }
+/*
+ "state_id": "1",
+ "t_id": "dickson",
+ "u_id": "1",
+ "num_troops": "174",
+ "game_id": "1"
+ */
 
-this.updateView = function() {
-
-  /*
-  "state_id": "1",
-  "t_id": "dickson",
-  "u_id": "1",
-  "num_troops": "174",
-  "game_id": "1"
-  */
-
-  // var game_id = $.ajax({
-  // url : "/ajax/get_gameid.php",
-  // async : false
-  // }).responseText.trim();
-
+Map.prototype.loadFromState = function(state) {
   $.ajax({
-    url : "ajax/get_state.php?game_id=" + game_id,
-    dataType : 'json',
-    success : function(jsonobj) {
+    url : "/rsc/maps/cornell_basic.json",
+  }).done( function(data) {
+    this.map = data;
+    this.map_territories = this.map.Cornell.Territories;
 
-      jQuery.each(jsonobj, function(ignore, building) {
+    var i = 0;
+    jQuery.each(this.map_territories, function(key, val) {
+      this.buildings[i++] = key;
+    }.bind(this));
 
-        var b = getObj(building.t_id);
-        if (b) {
-          b.setTeam(building.u_id);
-          b.troops = building.num_troops;
-
-        } else {
-          console.log("ERROR PARSING " + building.t_id);
-        }
-
-      });
-    },
-    error : function(a, b, e) {
-      console.log("ERROR CODE IS " + e + ", " + b + ", " + a);
+    if (world.graphics.complex_geometry == true) {
+      this.loadGround();
     }
-  });
 
+    // load models
+    for (var index in this.buildings) {
+      this.load(this.buildings[index], state);
+    }
+  }.bind(this));
 }
 
 Map.prototype.load = function(model_name, init_state) {
@@ -257,14 +235,13 @@ GamePiece = function(map, id, mesh, init_team) {
     sumy += verts[index].y;
     sumz += verts[index].z;
     counter++;
-
-    this.mesh.center = new Array(map.scale * sumx / counter, map.scale * sumy / counter, map.scale * sumz / counter);
-
-    map.buildings[id] = mesh;
-    map.selectable_objects.push(mesh);
   }
-}
+  this.mesh.center = new Array(map.scale * sumx / counter, map.scale * sumy / counter, map.scale * sumz / counter);
 
+  map.buildings[id] = mesh;
+  map.selectable_objects.push(mesh);
+
+}
 // @team_number : int
 GamePiece.prototype.setTeam = function(team_number) {
   if (team_number > world.state_handler.team_count) {

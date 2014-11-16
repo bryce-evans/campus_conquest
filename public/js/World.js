@@ -1,4 +1,5 @@
-World = function() {
+World = function(id) {
+	this.id = id;
   this.map
   this.state_handler
   this.control_panel
@@ -21,24 +22,19 @@ World = function() {
       animated : false,
       shaders : true,
       antialias : true,
+      sortObjects : false,
+      autoClear : false,
+      gammaInput : true,
+      gammaOutput : true,
     }
   };
 
   this.canvas2D = $('#canvas2D');
-  this.renderer2D = new THREE.CanvasRenderer({
-    canvas : canvas2D,
-  });
+  // this.renderer2D = new THREE.CanvasRenderer({
+    // canvas : canvas2D,
+  // });
 
-  this.canvas3D = $('#canvas3D');
-  this.renderer3D = new THREE.WebGLRenderer({
-    antialias : this.options.graphics.antialias,
-    canvas : canvas3D,
-  });
 
-  this.renderer3D.sortObjects = false;
-  this.renderer3D.autoClear = false;
-  this.renderer3D.gammaInput = true;
-  this.renderer3D.gammaOutput = true;
 }
 
 World.prototype.setMap = function(map) {

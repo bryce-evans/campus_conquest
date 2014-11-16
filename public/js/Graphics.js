@@ -14,6 +14,9 @@ Graphics = function() {
 
   this.container
   this.stats
+  
+  this.complex_geometry = false;
+  this.shaders_on = false;
 
   // must be unique to class because of requestAnimationFrame properties
   this.animate = function() {
@@ -35,8 +38,6 @@ Graphics.prototype.init = function() {
   this.camera.position.z = 150;
   this.scene.add(this.camera);
 
-  this.projector = new THREE.Projector();
-
   var light = new THREE.DirectionalLight(0xffffff, 1.3);
   light.position.set(1, 1, 1);
   this.scene.add(light);
@@ -45,15 +46,17 @@ Graphics.prototype.init = function() {
   light.position.set(-1, 1, -1);
   this.scene.add(light);
 
-  world.map.loadBoard();
+  world.map.loadBoard({game_id: world.id});
 
+  this.canvas3D = $('#canvas3D');
   this.renderer = new THREE.WebGLRenderer({
-    antialias : true
+  	canvas : canvas3D,
+    antialias : true,
+    alpha : true,
   });
 
   this.renderer.sortObjects = false;
   this.renderer.autoClear = false;
-
   this.renderer.gammaInput = true;
   this.renderer.gammaOutput = true;
 

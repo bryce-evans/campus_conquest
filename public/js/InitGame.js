@@ -1,4 +1,4 @@
-function initGame() {
+function initGame(id) {
   $('#game-window').show();
   $('#signin-pane').hide();
   $('#game-window').show();
@@ -9,14 +9,17 @@ function initGame() {
     return;
   }
 
-  world = new World();
-  socket = io();
+  world = new World(id);
+  if (id > 0) {
+    socket = io();
+    var socket_listeners = new SocketListeners(socket);
+    socket_listeners.initListeners();
+  }
 
   var map = new Map();
   var state = new StateHandler();
   // var control_panel = new ControlPanel(world);
   var client_listeners = new ClientListeners();
-  var socket_listeners = new SocketListeners(socket);
   var graphics = new Graphics();
   var control_panel_handler = new ControlPanelHandler();
   var window_handler = new WindowHandler();
@@ -32,7 +35,7 @@ function initGame() {
   window_handler.setDimensions();
   control_panel_handler.addListeners();
   client_listeners.addListeners();
-  socket_listeners.initListeners();
+  
   world.graphics.startRender();
 
 }

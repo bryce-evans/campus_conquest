@@ -26,14 +26,20 @@ ClientListeners = function() {
     //document.oncontextmenu = new Function("return false")
 
     //Add Listeners
-    $('#canvas3D').click(this.onMouseDown);
-    document.addEventListener('mousedown', this.zoom, false);
-    document.addEventListener('mousewheel', this.zoom, false);
-    document.addEventListener('keypress', this.getKeyCode, false);
-    document.addEventListener('mousemove', this.onMouseMove, false);
-  }
+    $('#canvas3D').click(function() {
+      onMouseDown();
+    });
 
-  this.zoom = function(event) {
+    //document.addEventListener('mousewheel', zoom(), false);
+    document.addEventListener('mousemove', function() {
+      this.onMouseMove(event);
+    }.bind(this));
+
+    //$('#canvas3D').mousedown(this.zoom);
+    //$('#canvas3D').keypress(getKeyCode);
+
+  }
+  var zoom = function(event) {
     var delta = event.wheelDelta * this.pan_speed;
     var newPos = world.graphics.camera.position.y - delta;
     if (delta && newPos < this.zoom_ceiling && newPos > this.zoom_floor) {
@@ -41,27 +47,40 @@ ClientListeners = function() {
     }
 
     //prevent default scrolling on page
-   // if (event.preventDefault) {
-   //   event.preventDefault();
-   // }
-   // event.returnValue = false;
+    // if (event.preventDefault) {
+    //   event.preventDefault();
+    // }
+    // event.returnValue = false;
   }.bind(this)
 
   // click function, colors buildings for territory grab
-  this.onMouseDown = function(event) {
+  var onMouseDown = function(event) {
 
     //event.preventDefault();
 
     var hit_object = this.getHitObject();
 
-    if (hit_object) {
+    if (hit_object && world.id > 0) {
       // send move
-      socket.emit('building click', [world.state_handler.current.player, hit_object.game_piece.id]);
+      socket.emit('building click', {
+        team : world.state_handler.current.player,
+        piece : hit_object.game_piece.id
+      });
+      // TEMP XXX will fix, copied from socket handlers
+    } else if (hit_object) {
+      var team = data[0];
+      var building_id = data[1];
+      var building = world.map.buildings[building_id];
+      building.material.color = new THREE.Color(world.state_handler.team_colors[team]);
+      building.game_piece.team = team;
+      world.state_handler.nextTurn();
     }
 
   }.bind(this)
 
   this.onMouseMove = function(event) {
+
+    console.log('mousemoving');
     const highlight = new THREE.Color(0xffff00);
 
     //refresh mouse location for use in other functions
@@ -135,17 +154,32 @@ ClientListeners = function() {
 
   this.getHitObject = function() {
     try {
+
+      var vector = new THREE.Vector3();
+      // vector.x = (this.mouseX - 115) / $('#canvas3D').width() * 2 - 1;
+      // vector.y = -((this.mouseY - 1.5 * world.nav.height) / $('#canvas3D').height() ) * 2 + 1;
+
+      vector.x = 2 * (this.mouseX / $('#canvas3D').width()) - 1;
+      vector.y = 1 - 2 * ((this.mouseY / $('#canvas3D').height()));
+      vector.z = 0.5;
+
       console.log(this.mouseX, this.mouseY);
-      var vector = new THREE.Vector3((this.mouseX - 115) / $('#canvas3D').width() * 2 - 1, -((this.mouseY - 1.5 * world.nav.height) / $('#canvas3D').height() ) * 2 + 1, 0.5);
       console.log(vector);
-      world.graphics.projector.unprojectVector(vector, world.graphics.camera);
+      vector.unproject(world.graphics.camera);
 
-      var ray = new THREE.Ray(world.graphics.camera.position, vector.subSelf(world.graphics.camera.position).normalize());
+      var ray = new THREE.Raycaster(world.graphics.camera.position, vector.sub(world.graphics.camera.position).normalize());
 
-      return ray.intersectObjects(world.map.selectable_objects)[0].object;
+      list = ray.intersectObjects(world.graphics.scene.children, true);
+      //world.map.selectable_objects, true);
+      if (list.length > 0) {
+        return list[0].object;
+      } else {
+        return null;
+      }
 
       // clicked on empty space, fail silently
     } catch(err) {
+      console.log(err);
       return null;
     }
   }.bind(this)

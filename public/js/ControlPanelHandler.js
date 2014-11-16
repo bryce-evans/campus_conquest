@@ -1,16 +1,26 @@
 ControlPanelHandler = function() {
   this.width = 260;
 
-  $('#msgs-global').keypress(function(e) {
-    if (e.keyCode == 13) {
-      socket.emit('global message', $('#msgs-global').val());
-      $('#msgs-global').val('');
-    }
-  });
-  socket.on('global message', function(msg) {
-    $('#messages').append($('<li>').text(msg));
-  });
+  if (world.id > 0) {
+    $('#msgs-global').keypress(function(e) {
+      if (e.keyCode == 13) {
+        socket.emit('global message', $('#msgs-global').val());
+        $('#msgs-global').val('');
+      }
+    });
+    socket.on('global message', function(msg) {
+      $('#messages').append($('<li>').text(msg));
+    });
 
+  } else {
+    $('#msgs-global').keypress(function(e) {
+      if (e.keyCode == 13) {
+        $('#messages').append($('<li>').text($('#msgs-global').val()));
+        $('#msgs-global').val('');
+      }
+    });
+
+  }
   this.addListeners = function() {
 
   }

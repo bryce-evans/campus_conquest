@@ -73,4 +73,5 @@ nav > a {
 #canvas2D, #canvas3D {
   position: absolute;
   left: 0;
+  top: 0;
 }
