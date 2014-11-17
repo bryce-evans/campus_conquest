@@ -54,40 +54,52 @@ app.get('/test', function(req, res) {
 this.current_turn = 1;
 this.teams = 7;
 this.clients = [];
-this.nextTurn = function(){
-	this.current_turn = (this.current_turn + 1) % this.teams + 1;
+this.nextTurn = function() {
+  this.current_turn = (this.current_turn + 1) % this.teams + 1;
 }
 
 io.on('connection', function(socket) {
-  this.clients.push(socket);
-  
-  console.log('user ' + socket.id +' connected');
+  console.log('user ' + socket.id + ' connected');
 
-  // handle global messages
-  socket.on('global message', function(msg) {
-    console.log('recieved message:' + msg);
-    io.emit('global message', msg);
+  socket.on('new game', function(game_id) {
+    this.clients[game_id] = new Array();
   });
 
-  // handle selecting buildings
-  socket.on('building click', function(move_data) {
+  socket.on('join game', function(game_id) {
 
-    console.log("update " + move_data.piece + " to team " + move_data.team);
+    if (this.clients[game_id]) {
+      this.clients[game_id].push(socket);
+      socket.emit('join success', true);
 
-    db.query('select exists(select true from "territory_grab"."test" where piece_name=\'' + move_data[1] + '\')', function(err, result) {
+      // handle global messages
+      socket.on('global message', function(msg) {
+        console.log('recieved message:' + msg);
+        io.emit('global message', msg);
+      });
 
-      if (result.rows[0]["?column?"]) {
-        var query_string = 'UPDATE "territory_grab"."test" SET team =\'' + move_data.piece + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
-      } else {
-        var query_string = 'INSERT INTO "territory_grab"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
-      }
+      // handle selecting buildings
+      socket.on('building click', function(move_data) {
 
-      db.query(query_string);
+        console.log("update " + move_data.piece + " to team " + move_data.team);
 
-    });
+        db.query('select exists(select true from "territory_grab"."test" where piece_name=\'' + move_data.piece + '\')', function(err, result) {
 
-    io.emit('building click', move_data);
+          if (result.rows[0]["?column?"]) {
+            var query_string = 'UPDATE "territory_grab"."test" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
+          } else {
+            var query_string = 'INSERT INTO "territory_grab"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
+          }
+
+          db.query(query_string);
+
+        });
+
+        io.emit('building click', move_data);
+      });
+    } else {
+      socket.emit('join success', false);
+    }
   });
-});
+}.bind(this));
 
 server.listen(port);
