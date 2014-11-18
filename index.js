@@ -10,10 +10,11 @@ var app = express();
 var server = http.createServer(app);
 var io = socket.listen(server);
 
-var port = 18099;
+var constants = require('./constants.js');
+var game = require('./game.js');
+var games = {};
 
-var conString = "postgres://ccadmin:ccadmin@web469.webfaction.com:5432/bryce_campus_conquest_db";
-var db = new pg.Client(conString);
+var db = new pg.Client(constants.db_url);
 db.connect();
 //app.use(logger('dev'));
 
@@ -21,16 +22,20 @@ app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
 
-app.get('/state', function(req, res) {
-  db.query('SELECT * FROM "territory_grab"."test"', function(err, result) {
+app.get('/state', function(req, res) {  
+  db.query('SELECT * FROM "state"."'+ req.query.id+'"', function(err, result) {
     //NOTE: error handling not present
-
-    var ret = {};
-    for (var i = 0; i < result.rows.length; i++) {
-      var piece = result.rows[i];
-      ret[piece.piece_name] = {
-        team : piece.team
-      }
+    if(err) {
+      var ret = {status : 404};
+    }else{
+      var ret = {status : 200};
+      ret.state = {};
+      for (var i = 0; i < result.rows.length; i++) {
+        var piece = result.rows[i];
+        ret.state[piece.piece_name] = {
+          team : piece.team
+        }
+      }  
     }
     var json = JSON.stringify(ret);
     res.writeHead(200, {
@@ -54,52 +59,40 @@ app.get('/test', function(req, res) {
 this.current_turn = 1;
 this.teams = 7;
 this.clients = [];
-this.nextTurn = function() {
-  this.current_turn = (this.current_turn + 1) % this.teams + 1;
+this.nextTurn = function(){
+	this.current_turn = (this.current_turn + 1) % this.teams + 1;
 }
 
 io.on('connection', function(socket) {
-  console.log('user ' + socket.id + ' connected');
+  this.clients.push(socket);
+  
+  console.log('user ' + socket.id +' connected');
 
-  socket.on('new game', function(game_id) {
-    this.clients[game_id] = new Array();
+  // handle global messages
+  socket.on('global message', function(msg) {
+    console.log('recieved message:' + msg);
+    io.emit('global message', msg);
   });
 
-  socket.on('join game', function(game_id) {
+  // handle selecting buildings
+  socket.on('building click', function(move_data) {
 
-    if (this.clients[game_id]) {
-      this.clients[game_id].push(socket);
-      socket.emit('join success', true);
+    console.log("update " + move_data.piece + " to team " + move_data.team);
 
-      // handle global messages
-      socket.on('global message', function(msg) {
-        console.log('recieved message:' + msg);
-        io.emit('global message', msg);
-      });
+    db.query('select exists(select true from "state"."test" where piece_name=\'' + move_data.piece + '\')', function(err, result) {
 
-      // handle selecting buildings
-      socket.on('building click', function(move_data) {
+      if (result.rows[0]["?column?"]) {
+        var query_string = 'UPDATE "state"."test" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
+      } else {
+        var query_string = 'INSERT INTO "state"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
+      }
 
-        console.log("update " + move_data.piece + " to team " + move_data.team);
+      db.query(query_string);
 
-        db.query('select exists(select true from "territory_grab"."test" where piece_name=\'' + move_data.piece + '\')', function(err, result) {
+    });
 
-          if (result.rows[0]["?column?"]) {
-            var query_string = 'UPDATE "territory_grab"."test" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
-          } else {
-            var query_string = 'INSERT INTO "territory_grab"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
-          }
-
-          db.query(query_string);
-
-        });
-
-        io.emit('building click', move_data);
-      });
-    } else {
-      socket.emit('join success', false);
-    }
+    io.emit('building click', move_data);
   });
 }.bind(this));
 
-server.listen(port);
+server.listen(constants.port);
