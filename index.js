@@ -11,39 +11,44 @@ var server = http.createServer(app);
 var io = socket.listen(server);
 
 var constants = require('./constants.js');
-var game = require('./game.js');
-var games = {};
 
 var db = new pg.Client(constants.db_url);
 db.connect();
-//app.use(logger('dev'));
+
+var Game = require('./game.js');
+var games = {};
+
+function newGame(id, io, db) {
+  if ( id in games) {
+    return false;
+  } else {
+    games[id] = new Game(id, io, db);
+  }
+}
+
+newGame('test', io, db);
 
 app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
 
-app.get('/state', function(req, res) {  
-  db.query('SELECT * FROM "state"."'+ req.query.id+'"', function(err, result) {
-    //NOTE: error handling not present
-    if(err) {
-      var ret = {status : 404};
-    }else{
-      var ret = {status : 200};
-      ret.state = {};
-      for (var i = 0; i < result.rows.length; i++) {
-        var piece = result.rows[i];
-        ret.state[piece.piece_name] = {
-          team : piece.team
-        }
-      }  
-    }
-    var json = JSON.stringify(ret);
+app.get('/state', function(req, res) {
+  function writeState(state) {
+    var json = JSON.stringify(state);
     res.writeHead(200, {
       'content-type' : 'application/json',
       'content-length' : Buffer.byteLength(json)
     });
     res.end(json);
-  });
+  }
+
+  if (req.query.id in games) {
+    games[req.query.id].getState(writeState);
+  } else {
+    writeState({
+      status : 404
+    });
+  }
 });
 
 app.get('/model', function(req, res) {
@@ -59,14 +64,14 @@ app.get('/test', function(req, res) {
 this.current_turn = 1;
 this.teams = 7;
 this.clients = [];
-this.nextTurn = function(){
-	this.current_turn = (this.current_turn + 1) % this.teams + 1;
+this.nextTurn = function() {
+  this.current_turn = (this.current_turn + 1) % this.teams + 1;
 }
 
 io.on('connection', function(socket) {
   this.clients.push(socket);
-  
-  console.log('user ' + socket.id +' connected');
+
+  console.log('user ' + socket.id + ' connected');
 
   // handle global messages
   socket.on('global message', function(msg) {
