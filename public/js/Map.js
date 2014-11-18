@@ -22,9 +22,10 @@ Map.prototype.getObj = function(id) {
 Map.prototype.loadBoard = function(options) {
   hasGround = options.has_ground || false;
 
-  if (options.game_id > 0) {
+  if (world.id != '') {
     $.ajax({
       url : "/state",
+      data : {id : world.id},
     }).done( function(init_data) {
       this.loadFromState(init_data);
     }.bind(this));
@@ -77,7 +78,7 @@ Map.prototype.loadFromState = function(state) {
 
     // load models
     for (var index in this.buildings) {
-      this.load(this.buildings[index], state);
+      this.load(this.buildings[index], state.state);
     }
   }.bind(this));
 }

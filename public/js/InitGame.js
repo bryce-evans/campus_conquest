@@ -1,4 +1,4 @@
-function initGame(id) {
+function initGame(data) {
   $('#game-window').show();
   $('#signin-pane').hide();
   $('#game-window').show();
@@ -9,11 +9,13 @@ function initGame(id) {
     return;
   }
 
-  world = new World(id);
-  if (id > 0) {
+  world = new World(data.id);
+  if (data.id != "") {
     socket = io();
     var socket_listeners = new SocketListeners(socket);
     socket_listeners.initListeners();
+    // requires id, team
+    socket.emit('join game', data);
   }
 
   var map = new Map();
@@ -35,7 +37,7 @@ function initGame(id) {
   window_handler.setDimensions();
   control_panel_handler.addListeners();
   client_listeners.addListeners();
-  
+
   world.graphics.startRender();
 
 }

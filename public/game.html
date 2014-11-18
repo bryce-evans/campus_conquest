@@ -5,7 +5,7 @@
 
 		<head>
 
-			<title>Model Test</title>
+			<title>Join Game</title>
 
 			<meta charset="utf-8">
 
@@ -17,6 +17,24 @@
 		</head>
 
 		<body>
+			<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+			<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+			<script src="js/lib/Three.js"></script>
+			<script src="js/lib/Detector.js"></script>
+			<script src="js/lib/Stats.js"></script>
+
+			<script src="js/Constants.js"></script>
+			<script src="js/World.js"></script>
+			<script src="js/Map.js"></script>
+			<script src="js/StateHandler.js"></script>
+			<!-- <script src="js/ControlPanel.js"></script> -->
+			<script src="js/ClientListeners.js"></script>
+			<script src="js/SocketListeners.js"></script>
+			<script src="js/Graphics.js"></script>
+			<script src="js/WindowHandler.js"></script>
+			<script src="js/ControlPanelHandler.js"></script>
+			<script src="js/InitGame.js"></script>
+
 			<div id='signin-pane' style="display: block;">
 				<div class='card'>
 					<div class='card-contents'>
@@ -24,7 +42,7 @@
 						<h1> Join Game</h1>
 						<form id="form">
 							<div>
-								Game ID: <span>test</span>
+								Game ID: <span id='join-game-id'>test</span>
 							</div>
 							<div>
 
@@ -33,50 +51,16 @@
 								<input type="text" id="netId" name="netId" class = "field" placeholder="NetID">
 							</div>
 							<div>
-								Team <span id="myteam"> Hotel</span>
-								<ul>
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="Hotel" checked/>
-											<img src="rsc/images/flags/full/hotel.png"> </label>
-									</li>
-
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="Arts & Sciences" />
-											<img src="rsc/images/flags/full/as.png"> </label>
-									</li>
-
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="Archetecture & Arts Planning" />
-											<img src="rsc/images/flags/full/aap.png"> </label>
-									</li>
-
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="CALS" />
-											<img src="rsc/images/flags/full/cals.png"> </label>
-									</li>
-
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="ILR" />
-											<img src="rsc/images/flags/full/ilr.png"> </label>
-									</li>
-
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="Engineering" />
-											<img src="rsc/images/flags/full/eng.png"> </label>
-									</li>
-
-									<li>
-										<label>
-											<input type="radio" name="team-choice" value="Human Ecology" />
-											<img src="rsc/images/flags/full/humec.png"> </label>
-									</li>
-								</ul>
+								Team <span id="myteam"> </span>
+								</script>
+								<ul id='team-list'></ul>
+								<script>
+                  var selected = 'hotel';
+                  $('#myteam').text(TEAM_DATA[selected].name);
+                  for (id in TEAM_DATA) {
+                    $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/full/' + id + '.png"> </label></li>');
+                  }
+								</script>
 							</div>
 							<div>
 								<a href="#" class="button" id="join-button">Join Game</a>
@@ -115,23 +99,6 @@
 					<canvas id="canvas3D"></canvas>
 				</div>
 			</div>
-
-			<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-			<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-			<script src="js/lib/Three.js"></script>
-			<script src="js/lib/Detector.js"></script>
-			<script src="js/lib/Stats.js"></script>
-
-			<script src="js/World.js"></script>
-			<script src="js/Map.js"></script>
-			<script src="js/StateHandler.js"></script>
-			<!-- <script src="js/ControlPanel.js"></script> -->
-			<script src="js/ClientListeners.js"></script>
-			<script src="js/SocketListeners.js"></script>
-			<script src="js/Graphics.js"></script>
-			<script src="js/WindowHandler.js"></script>
-			<script src="js/ControlPanelHandler.js"></script>
-			<script src="js/InitGame.js"></script>
 			<script>
         $(document).ready(function() {
 
@@ -145,13 +112,16 @@
 
           $('#join-button').click(function() {
 
-            initGame(1);
+            initGame({
+              id : $('#join-game-id').text(),
+              team : $('input:radio[name=team-choice]:checked').val(),
+            });
+
           });
 
         });
 
 			</script>
-
 		</body>
 
 	</html>

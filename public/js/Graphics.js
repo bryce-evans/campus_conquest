@@ -46,7 +46,7 @@ Graphics.prototype.init = function() {
   light.position.set(-1, 1, -1);
   this.scene.add(light);
 
-  world.map.loadBoard({game_id: world.id});
+  world.map.loadBoard({has_ground: false});
 
   this.canvas3D = $('#canvas3D');
   this.renderer = new THREE.WebGLRenderer({

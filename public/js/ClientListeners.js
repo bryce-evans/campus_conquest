@@ -60,7 +60,7 @@ ClientListeners = function() {
 
     var hit_object = this.getHitObject();
 
-    if (hit_object && world.id > 0) {
+    if (hit_object && world.id != '') {
       // send move
       socket.emit('building click', {
         team : world.state_handler.current.player,

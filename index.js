@@ -17,6 +17,7 @@ db.connect();
 
 var Game = require('./game.js');
 var games = {};
+var clients = [];
 
 function newGame(id, io, db) {
   if ( id in games) {
@@ -51,53 +52,23 @@ app.get('/state', function(req, res) {
   }
 });
 
-app.get('/model', function(req, res) {
-  res.sendFile(__dirname + '/public/campus.html');
+app.get('/game', function(req, res) {
+  res.sendFile(__dirname + '/public/game.html');
 });
-
-app.get('/test', function(req, res) {
-  res.sendFile(__dirname + '/public/socket-io-test.html');
-});
-
-//var nsp = io.of('/');
-
-this.current_turn = 1;
-this.teams = 7;
-this.clients = [];
-this.nextTurn = function() {
-  this.current_turn = (this.current_turn + 1) % this.teams + 1;
-}
 
 io.on('connection', function(socket) {
-  this.clients.push(socket);
+  clients.push(socket);
 
   console.log('user ' + socket.id + ' connected');
 
-  // handle global messages
-  socket.on('global message', function(msg) {
-    console.log('recieved message:' + msg);
-    io.emit('global message', msg);
+  socket.on('join game', function(data) {
+    if (data.id in games) {
+      games[data.id].addPlayer(socket, data.team);
+    } else {
+      socket.emit('joined', true);
+    }
   });
 
-  // handle selecting buildings
-  socket.on('building click', function(move_data) {
-
-    console.log("update " + move_data.piece + " to team " + move_data.team);
-
-    db.query('select exists(select true from "state"."test" where piece_name=\'' + move_data.piece + '\')', function(err, result) {
-
-      if (result.rows[0]["?column?"]) {
-        var query_string = 'UPDATE "state"."test" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
-      } else {
-        var query_string = 'INSERT INTO "state"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
-      }
-
-      db.query(query_string);
-
-    });
-
-    io.emit('building click', move_data);
-  });
 }.bind(this));
 
 server.listen(constants.port);

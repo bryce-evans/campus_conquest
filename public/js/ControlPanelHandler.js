@@ -1,7 +1,7 @@
 ControlPanelHandler = function() {
   this.width = 260;
 
-  if (world.id > 0) {
+  if (world.id != '') {
     $('#msgs-global').keypress(function(e) {
       if (e.keyCode == 13) {
         socket.emit('global message', $('#msgs-global').val());
