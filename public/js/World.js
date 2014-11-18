@@ -37,6 +37,27 @@ World = function(id) {
 
 }
 
+World.prototype.loadWorld = function(options) {
+  has_ground = options.has_ground || false;
+
+  if (this.id != '') {
+    $.ajax({
+      url : "/state",
+      data : {id : world.id},
+    }).done( function(init_data) {
+      this.map.loadFromState(init_data.state);
+      this.control_panel.updateView(init_data);
+    }.bind(this));
+  } else {
+    $.ajax({
+      url : "/rsc/maps/example_state.json",
+    }).done( function(init_data) {
+      this.map.loadFromState(init_data.state);
+      this.control_panel.updateView(init_data);
+    }.bind(this));
+  }
+}
+
 World.prototype.setMap = function(map) {
   this.map = map;
 }

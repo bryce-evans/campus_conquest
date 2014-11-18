@@ -1,6 +1,4 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-
 	<html lang="en">
 
 		<head>
@@ -42,25 +40,18 @@
 						<h1> Join Game</h1>
 						<form id="form">
 							<div>
-								Game ID: <span id='join-game-id'>test</span>
+								Game ID: <select id='input-game-id'> </select>
 							</div>
 							<div>
 
-								<input type="text" id="netId" name="netId" class = "field" placeholder="Name">
+								<input type="text" id="input-player-name" name="player-name" class = "field" placeholder="Name">
 
-								<input type="text" id="netId" name="netId" class = "field" placeholder="NetID">
+								<input type="text" id="input-player-id" name="player-id" class = "field" placeholder="NetID">
 							</div>
 							<div>
 								Team <span id="myteam"> </span>
 								</script>
-								<ul id='team-list'></ul>
-								<script>
-                  var selected = 'hotel';
-                  $('#myteam').text(TEAM_DATA[selected].name);
-                  for (id in TEAM_DATA) {
-                    $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/full/' + id + '.png"> </label></li>');
-                  }
-								</script>
+								<ul id='team-list'> </ul>
 							</div>
 							<div>
 								<a href="#" class="button" id="join-button">Join Game</a>
@@ -84,7 +75,7 @@
 					<h2 id='my-team'> My Team </h2>
 					<img src="">
 
-					<ul id="messages"></ul>
+					<ul id="messages"> </ul>
 
 					<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
 
@@ -95,15 +86,29 @@
 					</div>
 				</div>
 				<div id = "container">
-					<canvas id="canvas2D"></canvas>
-					<canvas id="canvas3D"></canvas>
+					<canvas id="canvas2D"> </canvas>
+					<canvas id="canvas3D"> </canvas>
 				</div>
 			</div>
 			<script>
         $(document).ready(function() {
 
-          $('input').click(function(e) {
-            console.log(e.target.value)
+          $.ajax({
+            url : "/open-games",
+          }).done(function(data) {
+            for (var i = 0; i < data.length; i++) {
+              var id = data[i].id;
+              $('#input-game-id').append('<option value="' + id + '">' + id + '</option>')
+            }
+          });
+
+          var selected = 'hotel';
+          $('#myteam').text(TEAM_DATA[selected].name);
+          for (id in TEAM_DATA) {
+            $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/full/' + id + '.png"> </label></li>');
+          }
+
+          $('input:radio[name=team-choice]').click(function(e) {
             $('#myteam').text(e.target.value);
           });
           $('img').on('dragstart', function(event) {
@@ -113,13 +118,22 @@
           $('#join-button').click(function() {
 
             initGame({
-              id : $('#join-game-id').text(),
+              player_id : $('#input-player-id').text(),
+              player_name : $('#input-player-name').text(),
+              game_id : $('#input-game-id').text(),
               team : $('input:radio[name=team-choice]:checked').val(),
             });
 
           });
 
         });
+        
+        initGame({
+              player_id : 'bae43',
+              player_name : 'Bryce Evans',
+              game_id : 'test',
+              team_id : 'eng',
+            });
 
 			</script>
 		</body>

@@ -9,8 +9,8 @@ function initGame(data) {
     return;
   }
 
-  world = new World(data.id);
-  if (data.id != "") {
+  world = new World(data.game_id);
+  if (data.game_id != "") {
     socket = io();
     var socket_listeners = new SocketListeners(socket);
     socket_listeners.initListeners();
@@ -38,7 +38,10 @@ function initGame(data) {
   control_panel_handler.addListeners();
   client_listeners.addListeners();
 
-  world.graphics.startRender();
+  
+  world.graphics.init();
+  world.loadWorld({has_ground : false});
+  world.graphics.animate();
 
 }
 

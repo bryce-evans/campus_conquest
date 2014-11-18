@@ -19,24 +19,6 @@ Map.prototype.getObj = function(id) {
   return this.buildings[id];
 }
 
-Map.prototype.loadBoard = function(options) {
-  hasGround = options.has_ground || false;
-
-  if (world.id != '') {
-    $.ajax({
-      url : "/state",
-      data : {id : world.id},
-    }).done( function(init_data) {
-      this.loadFromState(init_data);
-    }.bind(this));
-  } else {
-    $.ajax({
-      url : "/rsc/maps/example_state.json",
-    }).done( function(init_data) {
-      this.loadFromState(init_data);
-    }.bind(this));
-  }
-}
 /**
  * given an object
  * returns string array of connected buildings

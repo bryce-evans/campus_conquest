@@ -25,6 +25,29 @@ ControlPanelHandler = function() {
 
   }
 }
+
+ControlPanel.prototype = {
+	updatePanelFromData : function(data){
+     if(data.player_name){
+     	 $('#panel-player-name').text(data.playplayer_nameer_name);
+     }
+     if(data.player_id){
+     	$('#panel-player-id').text(data.player_id);
+     }
+     if(data.game_id){
+     	$('#panel-game-id').text(data.game_id);
+     }
+     if(data.team_id){
+     	$('#panel-team-name').text(TEAM_DATA[data.team_id].name);
+     }
+     if(data.teams_turn){
+     	$('#panel-player-name').text(data.teams_turn);
+     }
+     if(data.stage){
+     	 $('#panel-current-stage').text(data.stage);
+     }
+	}
+}
 // ControlPanel = function() {
 //
 // this.teams = world.teams;

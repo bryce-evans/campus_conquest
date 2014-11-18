@@ -46,7 +46,7 @@ Graphics.prototype.init = function() {
   light.position.set(-1, 1, -1);
   this.scene.add(light);
 
-  world.map.loadBoard({has_ground: false});
+  //world.loadWorld({has_ground: false});
 
   this.canvas3D = $('#canvas3D');
   this.renderer = new THREE.WebGLRenderer({
@@ -86,14 +86,13 @@ Graphics.prototype.render = function() {
 
 }
 
-Graphics.prototype.startRender = function() {
-
-  //initialize to center to prevent unwanted pan
-  var mouseX = world.window_handler.dimensions.width / 2;
-  var mouseY = world.window_handler.dimensions.height / 2;
-
-  this.init();
-  this.animate();
-
-}
+// Graphics.prototype.startRender = function() {
+// 
+  // //initialize to center to prevent unwanted pan
+  // var mouseX = world.window_handler.dimensions.width / 2;
+  // var mouseY = world.window_handler.dimensions.height / 2;
+// 
+  // this.animate();
+// 
+// }
 
