@@ -4,11 +4,11 @@ ControlPanelHandler = function() {
   if (world.id != '') {
     $('#msgs-global').keypress(function(e) {
       if (e.keyCode == 13) {
-        socket.to(world.id).emit('global message', $('#msgs-global').val());
+        socket.emit('message',{scope: world.id, message: $('#msgs-global').val()});
         $('#msgs-global').val('');
       }
     });
-    socket.on('global message', function(msg) {
+    socket.on('message', function(msg) {
       $('#messages').append($('<li>').text(msg));
     });
 

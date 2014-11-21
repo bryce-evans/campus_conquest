@@ -63,6 +63,7 @@ ClientListeners = function() {
     if (hit_object && world.id != '') {
       // send move
       var move_data = {
+      	scope : world.id,
         team : world.state_handler.current.player,
         piece : hit_object.game_piece.id
       };
