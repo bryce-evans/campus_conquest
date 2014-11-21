@@ -5,6 +5,7 @@ var socket = require('socket.io');
 var express = require('express');
 var http = require('http');
 var pg = require('pg');
+var bodyParser = require('body-parser');
 
 var app = express();
 var server = http.createServer(app);
@@ -24,30 +25,69 @@ var Game = require('./game.js');
 var games = {};
 var clients = [];
 
-function newGame(id, io, db) {
-  if ( id in games) {
-    return false;
-  } else {
-    games[id] = new Game(id, io, db);
-  }
+function initGames(io, db) {
+api.getOpenGames(function(game_data){
+  for(var key in game_data){
+    var game = game_data[key]; 
+    var data = {
+      id : game.id,
+      state : game.state,
+      privacy : game.privacy,
+    };
+    api.getState(game.id,function(state){
+      var data = this;
+      data.stage = state.stage;
+      data.state = state.state;
+      data.turn = state.turn;
+       games[data.id] = new Game(data, io, db);
+    }.bind(data));
 }
 
-newGame('test', io, db);
+});
+}
+
+initGames(io, db);
+
+
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
 
 app.get('/open-games', function(req, res) {
- api.getOpenGames(res);
+ api.getOpenGames(utils.curry(utils.writeData,res));
 });
 
 app.get('/state', function(req, res) {
-  if (req.query.id in games) {
+  if (req.query.id) {
     api.getState(req.query.id, utils.curry(utils.writeData,res));
-  } else {
-    utils.writeData(res, {status : 404});
   }
+});
+
+app.get('/rooms', function(req, res) {
+ console.log(io.sockets.adapter.rooms);
+//utils.writeData(io.sockets.adapter.rooms, res);
+
+});
+
+
+
+
+app.get('/remove-game', function(req, res) {
+    res.sendFile(__dirname + '/public/remove.html');
+});
+
+app.post('/create-game', function(req, res) {
+    api.createGame(req.body);
+});
+
+
+
+app.post('/delete-game', function(req, res) {
+    api.deleteGame(req.body.id);
 });
 
 app.get('/game', function(req, res) {
@@ -59,13 +99,23 @@ io.on('connection', function(socket) {
 
   console.log('user ' + socket.id + ' connected');
 
+     // handle messages
+  socket.on('message', function(msg_data) {
+    console.log('recieved message to ' + msg_data.scope);
+    io.to(msg_data.scope).emit('message', msg_data.message);
+  }.bind(this));
+
   socket.on('join game', function(data){
-    if(data.id in games){
-      games[data.id].addPlayer(socket, data.team);
+    if(data.game_id in games){
+     console.log('joined game ' + data.game_id);
+      games[data.game_id].addPlayer(socket, data.team);
     } else {
+      console.log('failed to join game ' + data.game_id);
       socket.emit('joined',true);
     }
   });
+
+ 
 
 }.bind(this));
 

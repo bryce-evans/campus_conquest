@@ -5,7 +5,13 @@ function Api(io, db) {
 
 Api.prototype = {
 
-  createGame : function(GAME_ID, GAME_DESC, GAME_PRIVACY){
+  createGame : function(data){
+if(data.name == undefined){
+return false;
+}
+var GAME_ID = data.name;
+var GAME_DESC = data.desc || "";
+var GAME_PRIVACY = data.privacy || 2;
 
     var query = "\
 			INSERT INTO \"global\".\"games\" (id, \"desc\", teams, players, privacy) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', 1, 1, "+GAME_PRIVACY+" );\
@@ -83,11 +89,12 @@ Api.prototype = {
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('rockefeller');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('goldwin');\
 			";
-
 		this.db.query(query, function(err, result) {
 		        if (err) {
 		          console.log(err);
-		        }
+		        }else{
+              console.log('created game ' + GAME_ID);
+}
 		});
   },
   deleteGame : function(GAME_ID){
@@ -100,10 +107,12 @@ Api.prototype = {
 		this.db.query(query, function(err, result) {
       if (err) {
         console.log(err);
-      }
+      } else{
+ console.log("Dropped Game " + GAME_ID);
+}
   	});
   },
-getOpenGames : function(res){
+getOpenGames : function(callback){
  this.db.query('SELECT "id","desc","players","privacy" FROM "global"."games"', function(err, result){
     var games = Array(result.rows.length);
     for (var i = 0; i < result.rows.length; i++) {
@@ -116,14 +125,8 @@ getOpenGames : function(res){
 
           games[i] = game;          
       }
+callback(games);
 
- var json = JSON.stringify(games);
-
-  res.writeHead(200, {
-    'content-type' : 'application/json',
-    'content-length' : Buffer.byteLength(json)
-  });
-  res.end(json);
 
   });
 },

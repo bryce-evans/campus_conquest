@@ -1,9 +1,10 @@
-function Game(id, io, db) {
-  this.id = id;
+function Game(data, io, db) {
+
+  this.id = data.id;
   this.io = io;
   this.db = db;
 
-  this.stage = 'start';
+  this.stage = data.stage;
 
   // ordering of teams, e.g. [5,2,7,1]
   this.team_order = [];
@@ -12,7 +13,8 @@ function Game(id, io, db) {
 
   // players[team_id] returns player socket list
   this.teams = {};
- 
+  this.turn = data.turn;
+  this.state = data.state;
 }
 
 Game.prototype = {
@@ -22,6 +24,8 @@ Game.prototype = {
   },
   addPlayer : function(socket, team_id) {
   
+// subscribe the player to updates to the room
+  
   socket.join(this.id);
 
   if(!(team_id in this.teams)){
@@ -29,23 +33,17 @@ Game.prototype = {
   }
   this.teams[team_id].push(socket);
 
-     // handle global messages
-  socket.on('global message', function(msg) {
-    console.log('recieved message:' + msg);
-    this.io.emit('global message', msg);
-  }.bind(this));
-
-  // handle selecting buildings
+ // handle selecting buildings
   socket.on('building click', function(move_data) {
 
-    console.log("update " + move_data.piece + " to team " + move_data.team);
+    console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team);
 
     this.db.query('select exists(select true from "state"."'+this.id+'" where piece_name=\'' + move_data.piece + '\')', function(err, result) {
 
       if (result.rows[0]["?column?"]) {
-        var query_string = 'UPDATE "state"."test" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
+        var query_string = 'UPDATE "state"."'+this.id+'" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
       } else {
-        var query_string = 'INSERT INTO "state"."test"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
+        var query_string = 'INSERT INTO "state"."'+this.id+'"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
       }
 
       this.db.query(query_string);
@@ -65,6 +63,8 @@ Game.prototype = {
     this.turn_index = (this.turn_index + 1) % this.team_count;
     
   },
+
+  
 
 }
 
