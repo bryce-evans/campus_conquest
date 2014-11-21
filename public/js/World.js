@@ -1,12 +1,20 @@
 World = function(id) {
-	this.id = id;
+  this.id = id;
   this.map
   this.state_handler
   this.control_panel_handler
   this.client_listeners
   this.graphics
   this.window_handler
-  this.nav = {height: 50};
+  this.nav = {
+    height : 50
+  };
+
+  this.me = {
+    id : data.player_id,
+    name : data.player_name,
+    team : data.team,
+  };
 
   this.options = {
     display : {
@@ -31,9 +39,8 @@ World = function(id) {
 
   this.canvas2D = $('#canvas2D');
   // this.renderer2D = new THREE.CanvasRenderer({
-    // canvas : canvas2D,
+  // canvas : canvas2D,
   // });
-
 
 }
 
@@ -43,7 +50,9 @@ World.prototype.loadWorld = function(options) {
   if (this.id != '') {
     $.ajax({
       url : "/state",
-      data : {id : world.id},
+      data : {
+        id : world.id
+      },
     }).done( function(init_data) {
       this.map.loadFromState(init_data.state);
       this.control_panel_handler.updatePanelWorldData(init_data);

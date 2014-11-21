@@ -121,6 +121,25 @@
 
 			</div>
 		</div>
+
+		<div class='pane' id='lobby-pane' style="display: none;">
+			<div class='card'>
+				<div class='card-contents'>
+
+					<h1><span id='lobby-game-id'>Lobby</span></h1>
+
+					<table id="lobby-table">
+
+					</table>
+					<div>
+						<a href="#" class="button" id="start-game-button">Start</a>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
 		<div class='pane' id="game-window" style="display: none;">
 			<nav id='top-nav'>
 				<img src="rsc/images/logos/logo_small_inline.png"/>
@@ -193,7 +212,7 @@
         var selected = 'hotel';
         $('#myteam').text(TEAM_DATA[selected].name);
         for (id in TEAM_DATA) {
-          $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/full/' + id + '.png"> </label></li>');
+          $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
         }
 
         $('input:radio[name=team-choice]').click(function(e) {
@@ -204,7 +223,13 @@
         });
 
         $('#join-button').click(function() {
+          $('#signin-pane').hide();
+          $('#lobby-pane').show();
+          $('#lobby-game-id').text($('#input-game-id').val());
+          $('#lobby-table').append('<tr class="team-style ' +  $('input:radio[name=team-choice]:checked').val()  + '"><td class="team-icon small ' + $('input:radio[name=team-choice]:checked').val() + '"></td><td >' + $('#input-player-name').val() + '</td><td class="subtext">' + $('#input-player-id').val() + '</td><td class="team-icon small"></td></tr>');
+        });
 
+        $('#start-game-button').click(function() {
           initGame({
             player_id : $('#input-player-id').val(),
             player_name : $('#input-player-name').val(),

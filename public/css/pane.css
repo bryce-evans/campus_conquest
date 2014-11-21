@@ -97,6 +97,110 @@ input[type=checkbox] {
   opacity: 1;
 }
 
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+#lobby-table {
+  text-align: left;
+  width: 50%;
+  color: white;
+  margin: 20px;
+}
+#lobby-pane tr {
+  border-radius: 5px;
+}
+
+#lobby-pane td:nth-child(1) {
+  border-radius: 50% 0 0 50%;
+}
+
+#lobby-pane td:nth-child(3) {
+  text-align: right;
+}
+#lobby-pane td:nth-child(4) {
+  border-radius: 0 50% 50% 0;
+}
+#lobby-table td {
+  padding: 5px;
+}
+.team-icon.small {
+  height: 22px;
+  width: 22px;
+}
+
+.team-style.hotel {
+  background-color: #7e0a0b;
+}
+.team-style.as {
+  background-color: #d73520;
+}
+.team-style.aap {
+  background-color: #f5a11a;
+}
+.team-style.cals {
+  background-color: #3cb04b;
+}
+.team-style.ilr {
+  background-color: #3cb04b;
+}
+.team-style.eng {
+  background-color: #43346d;
+}
+.team-style.humec {
+  background-color: #bb0677;
+}
+
+.team-style.hotel > .subtext {
+  color: #b21c1d;
+}
+.team-style.as > .subtext {
+  color: #f1592a;
+}
+.team-style.aap > .subtext {
+  color: #ffc010;
+}
+.team-style.cals > .subtext {
+  color: #71bf45;
+}
+.team-style.ilr > .subtext {
+  color: #0184ba;
+}
+.team-style.eng > .subtext {
+  color: #474187;
+}
+.team-style.humec > .subtext {
+  color: #b03c83;
+}
+
+.team-icon.small.hotel {
+  background-image: url(/rsc/images/flags/32/hotel.jpg);
+}
+.team-icon.small.as {
+  background-image: url(/rsc/images/flags/32/as.jpg);
+}
+.team-icon.small.aap {
+  background-image: url(/rsc/images/flags/32/aap.jpg);
+}
+.team-icon.small.cals {
+  background-image: url(/rsc/images/flags/32/cals.jpg);
+}
+
+.team-icon.small.ilr {
+  background-image: url(/rsc/images/flags/32/ilr.jpg);
+}
+
+.team-icon.small.eng {
+  background-image: url(/rsc/images/flags/32/eng.jpg);
+}
+
+.team-icon.small.humec {
+  background-image: url(/rsc/images/flags/32/humec.jpg);
+}
+
+td:first-child {
+  text-align: left;
+}
 ul {
   list-style: none;
   display: block;

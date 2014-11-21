@@ -29,7 +29,7 @@ ControlPanelHandler = function() {
 ControlPanelHandler.prototype = {
   updatePanelPlayerData : function(data) {
     if (data.player_name) {
-      $('#panel-player-name').text(data.playplayer_nameer_name);
+      $('#panel-player-name').text(data.player_name);
     }
     if (data.player_id) {
       $('#panel-player-id').text(data.player_id);
