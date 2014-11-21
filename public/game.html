@@ -10,7 +10,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" href="css/fonts.css" />
 		<link rel="stylesheet" href="css/global.css" />
-		<link rel="stylesheet" href="css/signin.css" />
+		<link rel="stylesheet" href="css/pane.css" />
 		<link rel="stylesheet" href="css/game.css" />
 	</head>
 
@@ -55,25 +55,31 @@
 			</div>
 		</div>
 
-		<div id='create-pane' style="display: block;">
+		<div class='pane' id='create-pane' style="display: none;">
 			<div class='card'>
 				<div class='card-contents'>
-
-					<h1> New Game</h1>
 					<div class = 'button' id = 'new-game-back-button'>
 						Back
+					</div>
+					<div>
+						<h1> New Game</h1>
 					</div>
 
 					<form id="new-game-form">
 						<div>
 							Name:
 							<input type="text" name="name">
-							<br>
+						</div>
+						<div>
 							Description:
 							<input type="text" name="desc">
-							<br>
+						</div>
+						<div>
 							Team Game:
-							<input type="checkbox" name="input-isteam">
+							<div class='checkbox'>
+								<input type="checkbox" name="input-isteam" id='is-team-checkbox'>
+								<label for="is-team-checkbox"></label>
+							</div>
 						</div>
 
 						<div>
@@ -86,7 +92,7 @@
 			</div>
 		</div>
 
-		<div id='signin-pane' style="display: none;">
+		<div class='pane' id='signin-pane' style="display: block;">
 			<div class='card'>
 				<div class='card-contents'>
 
@@ -115,7 +121,7 @@
 
 			</div>
 		</div>
-		<div id="game-window" style="display: none;">
+		<div class='pane' id="game-window" style="display: none;">
 			<nav id='top-nav'>
 				<img src="rsc/images/logos/logo_small_inline.png"/>
 
@@ -200,9 +206,9 @@
         $('#join-button').click(function() {
 
           initGame({
-            player_id : $('#input-player-id').text(),
-            player_name : $('#input-player-name').text(),
-            game_id : $('#input-game-id').text(),
+            player_id : $('#input-player-id').val(),
+            player_name : $('#input-player-name').val(),
+            game_id : $('#input-game-id').val(),
             team : $('input:radio[name=team-choice]:checked').val(),
           });
 

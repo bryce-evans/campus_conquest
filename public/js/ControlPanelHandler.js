@@ -4,7 +4,7 @@ ControlPanelHandler = function() {
   if (world.id != '') {
     $('#msgs-global').keypress(function(e) {
       if (e.keyCode == 13) {
-        socket.emit('global message', $('#msgs-global').val());
+        socket.to(world.id).emit('global message', $('#msgs-global').val());
         $('#msgs-global').val('');
       }
     });

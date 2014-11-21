@@ -66,7 +66,6 @@ ClientListeners = function() {
         team : world.state_handler.current.player,
         piece : hit_object.game_piece.id
       };
-      console.log(move_data);
       socket.emit('building click', move_data);
       // TEMP XXX will fix, copied from socket handlers
     } else if (hit_object) {
@@ -82,7 +81,6 @@ ClientListeners = function() {
 
   this.onMouseMove = function(event) {
 
-    console.log('mousemoving');
     const highlight = new THREE.Color(0xffff00);
 
     //refresh mouse location for use in other functions
@@ -165,8 +163,6 @@ ClientListeners = function() {
       vector.y = 1 - 2 * ((this.mouseY / $('#canvas3D').height()));
       vector.z = 0.5;
 
-      console.log(this.mouseX, this.mouseY);
-      console.log(vector);
       vector.unproject(world.graphics.camera);
 
       var ray = new THREE.Raycaster(world.graphics.camera.position, vector.sub(world.graphics.camera.position).normalize());
