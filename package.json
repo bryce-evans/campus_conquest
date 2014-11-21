@@ -1,0 +1,38 @@
+{
+  "name": "campus-conquest",
+  "version": "1.0.0",
+  "description": "Campus Conquest",
+  "main": "index.js",
+  "dependencies": {
+    "connect": "^3.3.2",
+    "express": "^4.10.1",
+    "morgan": "^1.4.1",
+    "pg": "^3.6.2",
+    "serve-static": "^1.7.1",
+    "socket.io": "^1.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/bae43/campus_conquest.git"
+  },
+  "keywords": [
+    "campus",
+    "conquest",
+    "game",
+    "cornell",
+    "university",
+    "webgl",
+    "3d",
+    "board"
+  ],
+  "author": "Bryce Evans",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bae43/campus_conquest/issues"
+  },
+  "homepage": "https://github.com/bae43/campus_conquest"
+}

@@ -15,6 +15,11 @@ var constants = require('./constants.js');
 var db = new pg.Client(constants.db_url);
 db.connect();
 
+var utils = require('./utils.js');
+var Api = require('./api.js');
+
+var api = new Api(io,db);
+
 var Game = require('./game.js');
 var games = {};
 var clients = [];
@@ -33,22 +38,15 @@ app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
 
-app.get('/state', function(req, res) {
-  function writeState(state) {
-    var json = JSON.stringify(state);
-    res.writeHead(200, {
-      'content-type' : 'application/json',
-      'content-length' : Buffer.byteLength(json)
-    });
-    res.end(json);
-  }
+app.get('/open-games', function(req, res) {
+ api.getOpenGames(res);
+});
 
+app.get('/state', function(req, res) {
   if (req.query.id in games) {
-    games[req.query.id].getState(writeState);
+    api.getState(req.query.id, utils.curry(utils.writeData,res));
   } else {
-    writeState({
-      status : 404
-    });
+    utils.writeData(res, {status : 404});
   }
 });
 
@@ -61,11 +59,11 @@ io.on('connection', function(socket) {
 
   console.log('user ' + socket.id + ' connected');
 
-  socket.on('join game', function(data) {
-    if (data.id in games) {
+  socket.on('join game', function(data){
+    if(data.id in games){
       games[data.id].addPlayer(socket, data.team);
     } else {
-      socket.emit('joined', true);
+      socket.emit('joined',true);
     }
   });
 

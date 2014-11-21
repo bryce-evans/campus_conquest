@@ -134,7 +134,8 @@ getOpenGames : function(res){
     var ret = {
       status : 200
     };
-    this.db.query('SELECT * FROM "global"."games" WHERE id=\'' + this.id + '\'', function(err, result) {
+
+    this.db.query('SELECT * FROM "global"."games" WHERE id=\'' + id + '\'', function(err, result) {
 
       var data = result.rows[0];
       if (err) {
@@ -143,12 +144,13 @@ getOpenGames : function(res){
         });
         return;
       }
+
       ret.id = data.id;
       ret.teams = data.teams;
       ret.stage = data.stage;
       ret.turn = data.turn;
       
-      this.db.query('SELECT * FROM "state"."' + this.id + '"', function(err, result) {
+      this.db.query('SELECT * FROM "state"."' + id + '"', function(err, result) {
         if (err) {
           callback({
             status : 500
@@ -162,8 +164,6 @@ getOpenGames : function(res){
             team : piece.team
           }
         }
-       console.log('MY STATE',ret);
-console.log('CALLBACK', callback);
         callback(ret);
       }.bind(this));
     }.bind(this));
