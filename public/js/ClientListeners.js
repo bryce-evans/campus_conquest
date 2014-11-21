@@ -62,10 +62,12 @@ ClientListeners = function() {
 
     if (hit_object && world.id != '') {
       // send move
-      socket.emit('building click', {
+      var move_data = {
         team : world.state_handler.current.player,
         piece : hit_object.game_piece.id
-      });
+      };
+      console.log(move_data);
+      socket.emit('building click', move_data);
       // TEMP XXX will fix, copied from socket handlers
     } else if (hit_object) {
       var team = data[0];

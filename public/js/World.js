@@ -2,7 +2,7 @@ World = function(id) {
 	this.id = id;
   this.map
   this.state_handler
-  this.control_panel
+  this.control_panel_handler
   this.client_listeners
   this.graphics
   this.window_handler
@@ -46,14 +46,14 @@ World.prototype.loadWorld = function(options) {
       data : {id : world.id},
     }).done( function(init_data) {
       this.map.loadFromState(init_data.state);
-      this.control_panel.updateView(init_data);
+      this.control_panel_handler.updatePanelWorldData(init_data);
     }.bind(this));
   } else {
     $.ajax({
       url : "/rsc/maps/example_state.json",
     }).done( function(init_data) {
       this.map.loadFromState(init_data.state);
-      this.control_panel.updateView(init_data);
+      this.control_panel.updatePanelWorldData(init_data);
     }.bind(this));
   }
 }

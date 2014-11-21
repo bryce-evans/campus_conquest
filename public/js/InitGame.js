@@ -2,7 +2,6 @@ function initGame(data) {
   $('#game-window').show();
   $('#signin-pane').hide();
   $('#game-window').show();
-  $('#my-team').text('Team ' + $('input:radio[name=team-choice]:checked').val());
 
   if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
@@ -20,7 +19,6 @@ function initGame(data) {
 
   var map = new Map();
   var state = new StateHandler();
-  // var control_panel = new ControlPanel(world);
   var client_listeners = new ClientListeners();
   var graphics = new Graphics();
   var control_panel_handler = new ControlPanelHandler();
@@ -28,7 +26,6 @@ function initGame(data) {
 
   world.setMap(map);
   world.setStateHandler(state);
-  // world.setControlPanel(control_panel);
   world.setClientListeners(client_listeners);
   world.setGraphics(graphics);
   world.setWindowHandler(window_handler);
@@ -38,9 +35,9 @@ function initGame(data) {
   control_panel_handler.addListeners();
   client_listeners.addListeners();
 
-  
   world.graphics.init();
   world.loadWorld({has_ground : false});
+  world.control_panel_handler.updatePanelPlayerData(data);
   world.graphics.animate();
 
 }

@@ -1,142 +1,203 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-	<html lang="en">
+<html lang="en">
 
-		<head>
+	<head>
 
-			<title>Join Game</title>
+		<title>Join Game</title>
 
-			<meta charset="utf-8">
+		<meta charset="utf-8">
 
-			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-			<link rel="stylesheet" href="css/fonts.css" />
-			<link rel="stylesheet" href="css/global.css" />
-			<link rel="stylesheet" href="css/signin.css" />
-			<link rel="stylesheet" href="css/game.css" />
-		</head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/fonts.css" />
+		<link rel="stylesheet" href="css/global.css" />
+		<link rel="stylesheet" href="css/signin.css" />
+		<link rel="stylesheet" href="css/game.css" />
+	</head>
 
-		<body>
-			<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-			<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-			<script src="js/lib/Three.js"></script>
-			<script src="js/lib/Detector.js"></script>
-			<script src="js/lib/Stats.js"></script>
+	<body>
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+		<script src="js/lib/Three.js"></script>
+		<script src="js/lib/Detector.js"></script>
+		<script src="js/lib/Stats.js"></script>
 
-			<script src="js/Constants.js"></script>
-			<script src="js/World.js"></script>
-			<script src="js/Map.js"></script>
-			<script src="js/StateHandler.js"></script>
-			<!-- <script src="js/ControlPanel.js"></script> -->
-			<script src="js/ClientListeners.js"></script>
-			<script src="js/SocketListeners.js"></script>
-			<script src="js/Graphics.js"></script>
-			<script src="js/WindowHandler.js"></script>
-			<script src="js/ControlPanelHandler.js"></script>
-			<script src="js/InitGame.js"></script>
+		<script src="js/Constants.js"></script>
+		<script src="js/World.js"></script>
+		<script src="js/Map.js"></script>
+		<script src="js/StateHandler.js"></script>
+		<!-- <script src="js/ControlPanel.js"></script> -->
+		<script src="js/ClientListeners.js"></script>
+		<script src="js/SocketListeners.js"></script>
+		<script src="js/Graphics.js"></script>
+		<script src="js/WindowHandler.js"></script>
+		<script src="js/ControlPanelHandler.js"></script>
+		<script src="js/InitGame.js"></script>
 
-			<div id='signin-pane' style="display: block;">
-				<div class='card'>
-					<div class='card-contents'>
+		<div id='gamelist-pane' style="display: block;">
+			<div class='card'>
+				<div class='card-contents'>
 
-						<h1> Join Game</h1>
-						<form id="form">
-							<div>
-								Game ID: <select id='input-game-id'> </select>
-							</div>
-							<div>
-
-								<input type="text" id="input-player-name" name="player-name" class = "field" placeholder="Name">
-
-								<input type="text" id="input-player-id" name="player-id" class = "field" placeholder="NetID">
-							</div>
-							<div>
-								Team <span id="myteam"> </span>
-								</script>
-								<ul id='team-list'> </ul>
-							</div>
-							<div>
-								<a href="#" class="button" id="join-button">Join Game</a>
-							</div>
-
-						</form>
+					<h1> Open Games</h1>
+					<div class = 'button' id = 'new-game-button'>
+						New Game
 					</div>
+					<table id='open-games' style="width:100%">
+						<tr>
+							<th>Name</th>
+							<th>Description</th>
+							<th>Teams</th>
+						</tr>
 
+					</table>
+
+				</div>
+
+			</div>
+		</div>
+		
+				<div id='create-pane' style="display: block;">
+			<div class='card'>
+				<div class='card-contents'>
+
+					<h1> Create Games</h1>
+					<div class = 'button' id = 'new-game-back-button'>
+						Back
+					</div>
+					
+					<form id="new-game">
+						<div>
+							Name: <input type="text" name="input-name"><br>
+							Description: <input type="text" name="input-name"><br>
+							Team Game: <input type="checkbox" name="input-isteam">
+						</div>
+						
+						<div>
+							<a href="#" class="button" id="create-game-button">Create Game</a>
+						</div>
+
+					</form>
+				</div>
+
+			</div>
+		</div>
+
+		<div id='signin-pane' style="display: block;">
+			<div class='card'>
+				<div class='card-contents'>
+
+					<h1> Join Game</h1>
+					<form id="form">
+						<div>
+							Game ID: <select id='input-game-id'></select>
+						</div>
+						<div>
+
+							<input type="text" id="input-player-name" name="player-name" class = "field" placeholder="Name">
+
+							<input type="text" id="input-player-id" name="player-id" class = "field" placeholder="NetID">
+						</div>
+						<div>
+							Team <span id="myteam"> </span>
+							</script>
+							<ul id='team-list'></ul>
+						</div>
+						<div>
+							<a href="#" class="button" id="join-button">Join Game</a>
+						</div>
+
+					</form>
+				</div>
+
+			</div>
+		</div>
+		<div id="game-window" style="display: none;">
+			<nav id='top-nav'>
+				<img src="rsc/images/logos/logo_small_inline.png"/>
+
+				<a id='nav-name'> Me </a>
+				<a id='nav-options'> Options </a>
+				<a id='nav-menu'> Menu </a>
+
+			</nav>
+			<div id="control-panel">
+				<h2 id='my-team'> My Team </h2>
+				<img src="">
+
+				<ul id="messages"></ul>
+
+				<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
+
+				<div id="info">
+					Model Test-
+
+					<span>&copy; 2014 Campus Conquest</span>
 				</div>
 			</div>
-			<div id="game-window" style="display: none;">
-				<nav id='top-nav'>
-					<img src="rsc/images/logos/logo_small_inline.png"/>
-
-					<a id='nav-name'> Me </a>
-					<a id='nav-options'> Options </a>
-					<a id='nav-menu'> Menu </a>
-
-				</nav>
-				<div id="control-panel">
-					<h2 id='my-team'> My Team </h2>
-					<img src="">
-
-					<ul id="messages"> </ul>
-
-					<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
-
-					<div id="info">
-						Model Test-
-
-						<span>&copy; 2014 Campus Conquest</span>
-					</div>
-				</div>
-				<div id = "container">
-					<canvas id="canvas2D"> </canvas>
-					<canvas id="canvas3D"> </canvas>
-				</div>
+			<div id = "container">
+				<canvas id="canvas2D"></canvas>
+				<canvas id="canvas3D"></canvas>
 			</div>
-			<script>
-        $(document).ready(function() {
+		</div>
+		<script>
+      $(document).ready(function() {
 
-          $.ajax({
-            url : "/open-games",
-          }).done(function(data) {
-            for (var i = 0; i < data.length; i++) {
-              var id = data[i].id;
-              $('#input-game-id').append('<option value="' + id + '">' + id + '</option>')
-            }
-          });
-
-          var selected = 'hotel';
-          $('#myteam').text(TEAM_DATA[selected].name);
-          for (id in TEAM_DATA) {
-            $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/full/' + id + '.png"> </label></li>');
+        $.ajax({
+          url : "/open-games",
+        }).done(function(data) {
+          for (var i = 0; i < data.length; i++) {
+            var id = data[i].id;
+            $('#input-game-id').append('<option value="' + id + '">' + id + '</option>')
           }
+        });
 
-          $('input:radio[name=team-choice]').click(function(e) {
-            $('#myteam').text(e.target.value);
-          });
-          $('img').on('dragstart', function(event) {
-            event.preventDefault();
-          });
+        $.ajax({
+          url : "/open-games",
+        }).done(function(data) {
+          for (var i = 0; i < data.length; i++) {
+            var game = data[i];
+            var row = $('<tr/>');
+            for (key in game) {
+              row.append('<td>' + game[key] + '</td>');
+            }
+            $('#open-games').append(row);
+          }
+        });
 
-          $('#join-button').click(function() {
+        var selected = 'hotel';
+        $('#myteam').text(TEAM_DATA[selected].name);
+        for (id in TEAM_DATA) {
+          $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/full/' + id + '.png"> </label></li>');
+        }
 
-            initGame({
-              player_id : $('#input-player-id').text(),
-              player_name : $('#input-player-name').text(),
-              game_id : $('#input-game-id').text(),
-              team : $('input:radio[name=team-choice]:checked').val(),
-            });
+        $('input:radio[name=team-choice]').click(function(e) {
+          $('#myteam').text(e.target.value);
+        });
+        $('img').on('dragstart', function(event) {
+          event.preventDefault();
+        });
 
+        $('#join-button').click(function() {
+
+          initGame({
+            player_id : $('#input-player-id').text(),
+            player_name : $('#input-player-name').text(),
+            game_id : $('#input-game-id').text(),
+            team : $('input:radio[name=team-choice]:checked').val(),
           });
 
         });
-        
-        initGame({
-              player_id : 'bae43',
-              player_name : 'Bryce Evans',
-              game_id : 'test',
-              team_id : 'eng',
-            });
 
-			</script>
-		</body>
+      });
 
-	</html>
+      initGame({
+        player_id : 'bae43',
+        player_name : 'Bryce Evans',
+        game_id : 'test',
+        team_id : 'eng',
+      });
+
+		</script>
+	</body>
+
+</html>
 

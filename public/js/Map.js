@@ -60,7 +60,7 @@ Map.prototype.loadFromState = function(state) {
 
     // load models
     for (var index in this.buildings) {
-      this.load(this.buildings[index], state.state);
+      this.load(this.buildings[index], state);
     }
   }.bind(this));
 }
