@@ -7,11 +7,11 @@ module.exports = {
     });
     res.end(json);
   },
-curry : function(func) {
-  var applied = Array.prototype.slice.call(arguments, 1);
-  return function() {
-    var args = applied.concat(Array.prototype.slice.call(arguments));
-    return func.apply(this, args);
-  };
-},
+  curry : function(func) {
+    var applied = Array.prototype.slice.call(arguments, 1);
+    return function() {
+      var args = applied.concat(Array.prototype.slice.call(arguments));
+      return func.apply(this, args);
+    };
+  },
 }
