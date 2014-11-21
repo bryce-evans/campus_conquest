@@ -54,26 +54,30 @@
 
 			</div>
 		</div>
-		
-				<div id='create-pane' style="display: block;">
+
+		<div id='create-pane' style="display: block;">
 			<div class='card'>
 				<div class='card-contents'>
 
-					<h1> Create Games</h1>
+					<h1> New Game</h1>
 					<div class = 'button' id = 'new-game-back-button'>
 						Back
 					</div>
-					
-					<form id="new-game" action='/create-game' method='post'>
+
+					<form id="new-game-form">
 						<div>
-							Name: <input type="text" name="input-name"><br>
-							Description: <input type="text" name="input-name"><br>
-							Team Game: <input type="checkbox" name="input-isteam">
+							Name:
+							<input type="text" name="name">
+							<br>
+							Description:
+							<input type="text" name="desc">
+							<br>
+							Team Game:
+							<input type="checkbox" name="input-isteam">
 						</div>
-						
+
 						<div>
-							<a href="#" class="button" id="create-game-button" 
-							  onclick="$('#new-form').submit()">Create Game</a>
+							<a href="#" class="button" id="create-game-button" >Create Game</a>
 						</div>
 
 					</form>
@@ -142,6 +146,22 @@
 		<script>
       $(document).ready(function() {
 
+        $('#new-game-form').submit(function(e) {
+          e.preventDefault();
+          // Prevents the page from refreshing
+          var $this = $(this);
+          // `this` refers to the current form element
+          console.log($this);
+          $.post("/create-game", $(this).serialize(), function(data) {
+            console.log('data', data);
+          }, "json" // The format the response should be in
+          );
+        });
+
+        $("#create-game-button").click(function(e) {
+          $('#new-game-form').submit();
+        });
+
         $.ajax({
           url : "/open-games",
         }).done(function(data) {
@@ -191,10 +211,10 @@
       });
 
       // initGame({
-        // player_id : 'bae43',
-        // player_name : 'Bryce Evans',
-        // game_id : 'test',
-        // team_id : 'eng',
+      // player_id : 'bae43',
+      // player_name : 'Bryce Evans',
+      // game_id : 'test',
+      // team_id : 'eng',
       // });
 
 		</script>
