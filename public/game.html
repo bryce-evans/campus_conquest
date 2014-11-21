@@ -33,7 +33,7 @@
 		<script src="js/ControlPanelHandler.js"></script>
 		<script src="js/InitGame.js"></script>
 
-		<div id='gamelist-pane' style="display: block;">
+		<div id='gamelist-pane' style="display: none;">
 			<div class='card'>
 				<div class='card-contents'>
 
@@ -64,7 +64,7 @@
 						Back
 					</div>
 					
-					<form id="new-game">
+					<form id="new-game" action='/create-game' method='post'>
 						<div>
 							Name: <input type="text" name="input-name"><br>
 							Description: <input type="text" name="input-name"><br>
@@ -72,7 +72,8 @@
 						</div>
 						
 						<div>
-							<a href="#" class="button" id="create-game-button">Create Game</a>
+							<a href="#" class="button" id="create-game-button" 
+							  onclick="$('#new-form').submit()">Create Game</a>
 						</div>
 
 					</form>
@@ -81,7 +82,7 @@
 			</div>
 		</div>
 
-		<div id='signin-pane' style="display: block;">
+		<div id='signin-pane' style="display: none;">
 			<div class='card'>
 				<div class='card-contents'>
 
@@ -189,12 +190,12 @@
 
       });
 
-      initGame({
-        player_id : 'bae43',
-        player_name : 'Bryce Evans',
-        game_id : 'test',
-        team_id : 'eng',
-      });
+      // initGame({
+        // player_id : 'bae43',
+        // player_name : 'Bryce Evans',
+        // game_id : 'test',
+        // team_id : 'eng',
+      // });
 
 		</script>
 	</body>
