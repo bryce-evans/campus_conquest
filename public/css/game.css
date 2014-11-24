@@ -1,4 +1,4 @@
-body {
+#game-window {
   background: #000;
   color: #fff;
   padding: 0;
@@ -73,5 +73,6 @@ nav > a {
 #canvas2D, #canvas3D {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 50px;
+  background-color: #000;
 }

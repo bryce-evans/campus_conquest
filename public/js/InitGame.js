@@ -1,7 +1,35 @@
 function initGame(data) {
+  $('.pane').hide();
   $('#game-window').show();
-  $('#signin-pane').hide();
-  $('#game-window').show();
+
+  // global ME object
+  Me = {
+    id : data.player.id,
+    name : data.player.name,
+    team : data.player.team,
+
+    options : {
+      display : {
+        stats : true,
+        menu : false,
+      },
+      sound : {
+        on : true,
+        volume : 100,
+      },
+      graphics : {
+        ground : true,
+        animated : false,
+        shaders : true,
+        antialias : true,
+        sortObjects : false,
+        autoClear : false,
+        gammaInput : true,
+        gammaOutput : true,
+
+      }
+    }
+  };
 
   if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
@@ -36,7 +64,9 @@ function initGame(data) {
   client_listeners.addListeners();
 
   world.graphics.init();
-  world.loadWorld({has_ground : false});
+  world.loadWorld({
+    has_ground : false
+  });
   world.control_panel_handler.updatePanelPlayerData(data);
   world.graphics.animate();
 

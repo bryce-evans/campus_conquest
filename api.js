@@ -6,15 +6,15 @@ function Api(io, db) {
 Api.prototype = {
 
   createGame : function(data){
-if(data.name == undefined){
+if(data.id == undefined){
 return false;
 }
-var GAME_ID = data.name;
+var GAME_ID = data.id;
 var GAME_DESC = data.desc || "";
-var GAME_PRIVACY = data.privacy || 2;
+var GAME_PRIVACY = 2; //data.privacy
 
     var query = "\
-			INSERT INTO \"global\".\"games\" (id, \"desc\", teams, players, privacy) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', 1, 1, "+GAME_PRIVACY+" );\
+			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+" );\
 			\
 			SET search_path = teams, pg_catalog;\
 			\
@@ -30,7 +30,8 @@ var GAME_PRIVACY = data.privacy || 2;
 			\
 			CREATE TABLE \""+GAME_ID+"\"(\
 			    piece_name text NOT NULL,\
-			    team smallint DEFAULT 0,\
+			    team smallint DEFAULT -1,\
+			    units smallint DEFAULT 0 NOT NULL,\
 			    player text DEFAULT '',\
 			    \"timestamp\" timestamp with time zone DEFAULT now() NOT NULL\
 			);\
@@ -91,7 +92,8 @@ var GAME_PRIVACY = data.privacy || 2;
 			";
 		this.db.query(query, function(err, result) {
 		        if (err) {
-		          console.log(err);
+		          console.log(query);
+              console.log(err);
 		        }else{
               console.log('created game ' + GAME_ID);
 }
@@ -113,21 +115,8 @@ var GAME_PRIVACY = data.privacy || 2;
   	});
   },
 getOpenGames : function(callback){
- this.db.query('SELECT "id","desc","players","privacy" FROM "global"."games"', function(err, result){
-    var games = Array(result.rows.length);
-    for (var i = 0; i < result.rows.length; i++) {
-          var data = result.rows[i];
-          var game = {};
-          game.id = data.id;
-          game.desc = data.desc;
-          game.players = data.players;
-          game.privacy = data.privacy;
-
-          games[i] = game;          
-      }
-callback(games);
-
-
+ this.db.query('SELECT "id","desc" FROM "global"."games"', function(err, result){
+    callback(result.rows);
   });
 },
 
@@ -149,9 +138,10 @@ callback(games);
       }
 
       ret.id = data.id;
-      ret.teams = data.teams;
       ret.stage = data.stage;
       ret.turn = data.turn;
+      ret.team_order = {};
+      ret.current_team = data.cur_team;
       
       this.db.query('SELECT * FROM "state"."' + id + '"', function(err, result) {
         if (err) {
@@ -164,14 +154,28 @@ callback(games);
         for (var i = 0; i < result.rows.length; i++) {
           var piece = result.rows[i];
           ret.state[piece.piece_name] = {
-            team : piece.team
+            team : piece.team,
+            units : piece.units,            
           }
         }
-        callback(ret);
+        this.db.query('SELECT * FROM "teams"."' + id + '"', function(err, result) {
+	        if (err) {
+	          callback({
+	            status : 500
+	          });
+	          return;
+	        }
+	        ret.team_order = [];
+	        var order = ret.team_order;
+	        for (var i = 0; i < result.rows.length; i++) {
+	          order[result.rows[i].index] = result.rows[i].id;
+	          console.log(result.rows[i]);
+	        }
+	        callback(ret);
+	      }.bind(this));
       }.bind(this));
     }.bind(this));
   },
-
 }
 
 module.exports = Api;

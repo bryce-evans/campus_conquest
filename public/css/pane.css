@@ -12,6 +12,9 @@ h1 {
   border-bottom: 2px solid black;
   font-family: Goudy Trajan Regular;
   color: black;
+  width: 50%;
+  min-width: 400px;
+  float: left;
 }
 
 form > div {
@@ -151,27 +154,10 @@ table {
   background-color: #bb0677;
 }
 
-.team-style.hotel > .subtext {
-  color: #b21c1d;
+.faded-text {
+	color: rgba(255,255,255,.6);
 }
-.team-style.as > .subtext {
-  color: #f1592a;
-}
-.team-style.aap > .subtext {
-  color: #ffc010;
-}
-.team-style.cals > .subtext {
-  color: #71bf45;
-}
-.team-style.ilr > .subtext {
-  color: #0184ba;
-}
-.team-style.eng > .subtext {
-  color: #474187;
-}
-.team-style.humec > .subtext {
-  color: #b03c83;
-}
+
 
 .team-icon.small.hotel {
   background-image: url(/rsc/images/flags/32/hotel.jpg);
@@ -207,7 +193,44 @@ ul {
   text-align: center;
   margin: 10px 0 60px 0;
 }
+#new-game-button {
+  float: right;
+}
 
+#open-games {
+  width: 100%;
+  text-align: left;
+  padding: 30px;
+}
+#open-games tr {
+  height: 35px;
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
+}
+#open-games td:nth-child(3), #open-games td:nth-child(4), #open-games td:nth-child(5), #open-games th:nth-child(3), #open-games th:nth-child(4), #open-games th:nth-child(5) {
+  text-align: center;
+}
+
+#open-games tr:first-child {
+  border-bottom: 1px solid #aaa;
+  height: 20px;
+  padding-bottom: 0;
+}
+#open-games tr:not(:first-child):hover {
+  background-color: #cceeff;
+  cursor: pointer;
+}
+#open-games th:hover {
+  background-color: none;
+}
+.card-header {
+ display: inline-block;
+ width: 100%;
+ padding-bottom: 2em;
+}
+.button.right{
+	float: right;
+}
 /* HIDE RADIO BUTTON*/
 label > input {
   display: none;

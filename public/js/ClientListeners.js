@@ -57,7 +57,7 @@ ClientListeners = function() {
   var onMouseDown = function(event) {
 
     // nat cho move yet son
-		if(world.me.team != world.state_handler.current.player){
+		if(Me.team != world.state_handler.getCurrent().team){
 			return;
 		}
 		
@@ -67,7 +67,8 @@ ClientListeners = function() {
       // send move
       var move_data = {
       	scope : world.id,
-        team : world.me.team,
+      	team_index : world.state_handler.getCurrent().team_index,
+        team_id : Me.team,
         piece : hit_object.game_piece.id,
       };
       socket.emit('building click', move_data);
@@ -77,7 +78,7 @@ ClientListeners = function() {
       var team = data[0];
       var building_id = data[1];
       var building = world.map.buildings[building_id];
-      building.material.color = new THREE.Color(world.state_handler.team_colors[team]);
+      building.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
       building.game_piece.team = team;
       world.state_handler.nextTurn();
     }
@@ -90,7 +91,7 @@ ClientListeners = function() {
 
     //refresh mouse location for use in other functions
     this.mouseX = event.x;
-    this.mouseY = event.y;
+    this.mouseY = event.y - 50;
 
     //*****highlights hovered
     this.cur_obj = this.getHitObject();
@@ -104,7 +105,7 @@ ClientListeners = function() {
 
       //set old obj mat back
       if (this.old_obj) {
-        this.old_obj.material.color = new THREE.Color(world.state_handler.team_colors[this.old_obj.game_piece.team]);
+        this.old_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.old_obj.game_piece.team));
       }
 
       //set new obj to highlight
@@ -120,7 +121,7 @@ ClientListeners = function() {
     //undoes highlight if no obj hovered over
     else if (!this.cur_obj) {
       if (this.old_obj) {
-        this.old_obj.material.color = new THREE.Color(world.state_handler.team_colors[this.old_obj.game_piece.team]);
+        this.old_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.old_obj.game_piece.team));
         this.old_obj = null;
       }
     }

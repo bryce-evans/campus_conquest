@@ -1,7 +1,9 @@
 html{
 	font-family: Goudy Trajan Regular;
 }
-
+body {
+	margin: 0;
+}
 
 .card {
   box-shadow: 2px 5px 10px rgba(0,0,0,.3);
@@ -17,7 +19,6 @@ html{
 .card-contents {
   padding: 30px;
 }
-
 .button {
 	-moz-box-shadow:inset 0px 1px 0px 0px #debab6;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #debab6;

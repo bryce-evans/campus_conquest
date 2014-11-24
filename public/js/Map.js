@@ -231,7 +231,7 @@ GamePiece.prototype.setTeam = function(team_number) {
     console.error("set piece to invalid team");
   }
   var new_material = this.mesh.material;
-  var new_color = world.state_handler.team_colors[team_number];
+  var new_color = world.state_handler.getTeamColorFromIndex(team_number);
   new_material.color = new THREE.Color(new_color);
   this.mesh.material = new_material;
   this.team = team_number;
