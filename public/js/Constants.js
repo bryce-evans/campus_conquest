@@ -49,3 +49,7 @@ TEAM_DATA = {
     },
   },
 }
+
+KEYS = {
+	ENTER : 13
+}

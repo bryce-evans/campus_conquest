@@ -55,26 +55,14 @@ ClientListeners = function() {
 
   // click function, colors buildings for territory grab
   var onMouseDown = function(event) {
-
-    // nat cho move yet son
-		if(Me.team != world.state_handler.getCurrent().team){
-			return;
-		}
 		
     var hit_object = this.getHitObject();
-
-    if (hit_object && world.id != '') {
-      // send move
-      var move_data = {
-      	scope : world.id,
-      	team_index : world.state_handler.getCurrent().team_index,
-        team_id : Me.team,
-        piece : hit_object.game_piece.id,
-      };
-      socket.emit('building click', move_data);
+    if(!hit_object){return;}
+    if (world.id != '') {
+      world.state_handler.move(hit_object);
       
       // TEMP XXX will fix, copied from socket handlers
-    } else if (hit_object) {
+    } else {
       var team = data[0];
       var building_id = data[1];
       var building = world.map.buildings[building_id];

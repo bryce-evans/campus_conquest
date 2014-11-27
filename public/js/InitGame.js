@@ -1,9 +1,14 @@
+/*
+ * Globals:
+ * World, Socket, Me, constants.js data
+ *
+ */
+
 function initGame(data) {
   $('.pane').hide();
   $('#game-window').show();
 
-  // global ME object
-  Me = {
+  me = {
     id : data.player.id,
     name : data.player.name,
     team : data.player.team,
@@ -37,13 +42,6 @@ function initGame(data) {
   }
 
   world = new World(data.game_id);
-  if (data.game_id != "") {
-    socket = io();
-    var socket_listeners = new SocketListeners(socket);
-    socket_listeners.initListeners();
-    // requires id, team
-    socket.emit('join game', data);
-  }
 
   var map = new Map();
   var state = new StateHandler();
@@ -60,7 +58,10 @@ function initGame(data) {
   world.setControlPanelHandler(control_panel_handler);
 
   window_handler.setDimensions();
-  control_panel_handler.addListeners();
+
+  var socket = io();
+  world.connectToSocket(socket,data);
+
   client_listeners.addListeners();
 
   world.graphics.init();

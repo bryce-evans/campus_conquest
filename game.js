@@ -8,8 +8,7 @@ function Game(data, io, db) {
 
   // ordering of teams, e.g. [5,2,7,1]
   this.team_order = [];
-  this.turn_index = 0;
-  this.team_count = 0;  
+  this.current_team_index = 0;
 
   // players[team_id] returns player socket list
   this.teams = {};
@@ -19,53 +18,55 @@ function Game(data, io, db) {
 
 Game.prototype = {
   addTeam : function(id) {
-      this.team_count += 1;
-      this.teams[id] = [];
+    this.team_count += 1;
+    this.teams[id] = [];
   },
   addPlayer : function(socket, team_id) {
-  
-// subscribe the player to updates to the room
-  
-  socket.join(this.id);
 
-  if(!(team_id in this.teams)){
-    this.addTeam(team_id);
-  }
-  this.teams[team_id].push(socket);
+    // subscribe the player to updates to the room
 
- // handle selecting buildings
-  socket.on('building click', function(move_data) {
 
-    console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team);
+    socket.join(this.id);
+    console.log('joined game ' + this.id);
 
-    this.db.query('select exists(select true from "state"."'+this.id+'" where piece_name=\'' + move_data.piece + '\')', function(err, result) {
+    if (!( team_id in this.teams)) {
+      this.addTeam(team_id);
+    }
+    
+    this.teams[team_id].push(socket);
 
-      if (result.rows[0]["?column?"]) {
-        var query_string = 'UPDATE "state"."'+this.id+'" SET team =\'' + move_data.team + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
-      } else {
-        var query_string = 'INSERT INTO "state"."'+this.id+'"(piece_name, team, player) VALUES (\'' + move_data.piece + '\',' + move_data.team + ',\'Bryce\')';
+    // handle selecting buildings
+    socket.on('building click', function(move_data) {
+
+      if (this.current_team_index != move_data.team_index) {
+        return false;
       }
+
+      console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team_id);
+
+      this.nextTeamIndex();
+      this.turn++;
+
+      var query_string = 'UPDATE "state"."' + this.id + '" SET team =\'' + move_data.team_index + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
+
+      this.db.query(query_string);
+      var query_string = 'UPDATE global.games SET turn = ' + this.turn + ', cur_team = 1 WHERE id = \'test\'';
 
       this.db.query(query_string);
 
+      move_data.current_team = this.current_team_index;
+      move_data.turn = this.turn;
+      move_data.stage = this.stage;
+
+      this.io.to(this.id).emit('building click', move_data);
+
     }.bind(this));
 
-    this.io.to(this.id).emit('building click', move_data);
-  }.bind(this));
-
   },
-  move : function(data) {
-    var team = data.team;
-    var piece = data.piece;
-    if(this.team_order[this.turn_index] != team){
-      return false;
-    } 
-    this.turn_index = (this.turn_index + 1) % this.team_count;
-    
+  nextTeamIndex : function() {
+    this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
+    return this.current_team_index;
   },
-
-  
-
 }
 
 module.exports = Game;

@@ -106,7 +106,6 @@ io.on('connection', function(socket) {
 
   socket.on('join game', function(data){
     if(data.game_id in games){
-     console.log('joined game ' + data.game_id);
       games[data.game_id].addPlayer(socket, data.team);
     } else {
       console.log('failed to join game ' + data.game_id);

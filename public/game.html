@@ -8,10 +8,10 @@
 		<meta charset="utf-8">
 
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link rel="stylesheet" href="css/fonts.css" />
-		<link rel="stylesheet" href="css/global.css" />
-		<link rel="stylesheet" href="css/pane.css" />
-		<link rel="stylesheet" href="css/game.css" />
+		<link rel="stylesheet" href="/css/fonts.css" />
+		<link rel="stylesheet" href="/css/global.css" />
+		<link rel="stylesheet" href="/css/pane.css" />
+		<link rel="stylesheet" href="/css/game.css" />
 	</head>
 
 	<body>
@@ -208,19 +208,12 @@
         $.ajax({
           url : "/open-games",
         }).done(function(data) {
+
           for (var i = 0; i < data.length; i++) {
             var game = data[i];
             var row = $('<tr/>');
             row.append('<td>' + game.id + '</td>');
             row.append('<td>' + game.desc + '</td>');
-
-            $(row).click(function() {
-              $('.pane').hide();
-              $('#signin-pane').show();
-              var game_id = row[0].children[0].innerText
-              $('#join-game-header').text(game_id);
-              init_data.game_id = game_id;
-            })
 
             $.ajax({
               url : "/state",
@@ -236,6 +229,13 @@
             }.bind(row));
 
           }
+          $('#open-games').on('click', 'tr', function() {
+            $('.pane').hide();
+            $('#signin-pane').show();
+            var game_id = this.children[0].innerText
+            $('#join-game-header').text(game_id);
+            init_data.game_id = game_id;
+          });
         });
 
         var selected = 'hotel';
@@ -252,19 +252,22 @@
         });
 
         $('#join-button').click(function() {
-          $('#signin-pane').hide();
-          $('#lobby-pane').show();
-          $('#lobby-game-id').text($('#input-game-id').val());
-          $('#lobby-table').append('<tr class="team-style ' + $('input:radio[name=team-choice]:checked').val() + '"><td class="team-icon small ' + $('input:radio[name=team-choice]:checked').val() + '"></td><td >' + $('#input-player-name').val() + '</td><td class="faded-text">' + $('#input-player-id').val() + '</td><td class="team-icon small"></td></tr>');
-        });
 
-        $('#start-game-button').click(function() {
           init_data.player = {};
           init_data.player.id = $('#input-player-id').val();
           init_data.player.name = $('#input-player-name').val();
           init_data.player.team = $('input:radio[name=team-choice]:checked').val();
 
           initGame(init_data);
+
+          //$('#signin-pane').hide();
+          //$('#lobby-pane').show();
+          //$('#lobby-game-id').text($('#input-game-id').val());
+          //$('#lobby-table').append('<tr class="team-style ' + $('input:radio[name=team-choice]:checked').val() + '"><td class="team-icon small ' + $('input:radio[name=team-choice]:checked').val() + '"></td><td >' + $('#input-player-name').val() + '</td><td class="faded-text">' + $('#input-player-id').val() + '</td><td class="team-icon small"></td></tr>');
+        });
+
+        $('#start-game-button').click(function() {
+
         });
 
       });

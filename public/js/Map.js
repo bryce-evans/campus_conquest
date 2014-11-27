@@ -43,6 +43,7 @@ Map.prototype.getConnectedById = function(id) {
  */
 
 Map.prototype.loadFromState = function(state) {
+	
   $.ajax({
     url : "/rsc/maps/cornell_basic.json",
   }).done( function(data) {
@@ -202,7 +203,7 @@ GamePiece = function(map, id, mesh, init_team) {
   mesh.game_piece = this;
 
   this.connected = map.map_territories[id];
-  this.setTeam(init_team || 0);
+  this.setTeam(init_team);
 
   mesh.scale.set(map.scale, map.scale, map.scale);
   mesh.position.y = 0;
@@ -227,7 +228,7 @@ GamePiece = function(map, id, mesh, init_team) {
 }
 // @team_number : int
 GamePiece.prototype.setTeam = function(team_number) {
-  if (team_number > world.state_handler.team_count) {
+  if (team_number > world.state_handler.team_order.length) {
     console.error("set piece to invalid team");
   }
   var new_material = this.mesh.material;

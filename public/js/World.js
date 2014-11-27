@@ -18,6 +18,11 @@ World = function(id) {
 }
 
 World.prototype = {
+  connectToSocket : function(socket, client_data) {
+    this.state_handler.connectToSocket(socket);
+    this.control_panel_handler.connectToSocket(socket);
+    socket.emit('join game', client_data);
+  },
   loadWorld : function(options) {
     has_ground = options.has_ground || false;
 
@@ -28,6 +33,7 @@ World.prototype = {
           id : world.id
         },
       }).done( function(init_data) {
+        this.state_handler.setState(init_data);
         this.map.loadFromState(init_data.state);
         this.control_panel_handler.updatePanelWorldData(init_data);
       }.bind(this));
@@ -40,9 +46,9 @@ World.prototype = {
       }.bind(this));
     }
   },
-  setMe : function(data){
-  	this.me = data;
-  	this.control_panel_handler.updatePanelPlayerData(data);
+  setMe : function(data) {
+    this.me = data;
+    this.control_panel_handler.updatePanelPlayerData(data);
   },
   setMap : function(map) {
     this.map = map;

@@ -1,32 +1,34 @@
 ControlPanelHandler = function() {
+  this.socket
   this.width = 260;
-
-  if (world.id != '') {
-    $('#msgs-global').keypress(function(e) {
-      if (e.keyCode == 13) {
-        socket.emit('message',{scope: world.id, message: $('#msgs-global').val()});
-        $('#msgs-global').val('');
-      }
-    });
-    socket.on('message', function(msg) {
-      $('#messages').append($('<li>').text(msg));
-    });
-
-  } else {
-    $('#msgs-global').keypress(function(e) {
-      if (e.keyCode == 13) {
-        $('#messages').append($('<li>').text($('#msgs-global').val()));
-        $('#msgs-global').val('');
-      }
-    });
-
-  }
-  this.addListeners = function() {
-
-  }
 }
 
 ControlPanelHandler.prototype = {
+  connectToSocket : function(socket) {
+    this.socket = socket;
+    if (world.id != '') {
+      $('#msgs-global').keypress(function(e) {
+        if (e.keyCode == KEYS.ENTER) {
+          this.socket.emit('message', {
+            scope : world.id,
+            message : $('#msgs-global').val()
+          });
+          $('#msgs-global').val('');
+        }
+      }.bind(this));
+      this.socket.on('message', function(msg) {
+        $('#messages').append($('<li>').text(msg));
+      });
+
+    } else {
+      $('#msgs-global').keypress(function(e) {
+        if (e.keyCode == KEYS.ENTER) {
+          $('#messages').append($('<li>').text($('#msgs-global').val()));
+          $('#msgs-global').val('');
+        }
+      });
+    }
+  },
   updatePanelPlayerData : function(data) {
     if (data.player_name) {
       $('#panel-player-name').text(data.player_name);
