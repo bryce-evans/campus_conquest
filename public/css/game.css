@@ -71,6 +71,7 @@ nav > a {
   font-family: sans,arial;
 }
 #canvas2D, #canvas3D {
+	cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
   position: absolute;
   left: 0;
   top: 50px;

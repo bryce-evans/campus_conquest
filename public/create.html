@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+
+	<head>
+
+		<title>Remove Game</title>
+
+		<meta charset="utf-8">
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/fonts.css" />
+		<link rel="stylesheet" href="css/global.css" />
+		<link rel="stylesheet" href="css/pane.css" />
+
+	</head>
+
+	<body>
+
+		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+
+		<div id='removal-pane' style="display: block;">
+			<div class='card'>
+				<div class='card-contents'>
+
+					<h1> Create Game</h1>
+					<form id="create-game-form" style='margin-top: 5em;'>
+						<div>
+							ID:
+							<input type="text" name="id" >
+						</div>
+						<div>
+							Description:
+							<input type="text" name="desc" >
+						</div>
+						<div>
+							Public <div class='checkbox'>
+								<input type="checkbox" name="privacy" id='is-public-checkbox'>
+								<label for="is-public-checkbox"></label>
+							</div>
+						</div>
+						<div style="display:none;">
+							Privacy (Currently will always be public)
+
+							<select name="privacy">
+								<option value=0>Private</option>
+								<option value=1>Public</option>
+							</select>
+						</div>
+
+						<div>
+							<a href="#" class="button" id="create-game-button" >Create Game</a>
+						</div>
+					</form>
+				</div>
+
+			</div>
+		</div>
+
+		<script>
+      $(document).ready(function() {
+
+
+       $('#create-game-form').submit(function(e) {
+          e.preventDefault();
+          // Prevents the page from refreshing
+          var $this = $(this);
+          // `this` refers to the current form element
+          console.log($this);
+          $.post("/create-game", $(this).serialize(), function(data) {
+            console.log('data', data);
+          }, "json" // The format the response should be in
+          );
+        });
+
+        $("#create-game-button").click(function(e) {
+          $('#create-game-form').submit();
+        });
+
+      });
+
+		</script>
+	</body>
+
+</html>
+
