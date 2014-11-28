@@ -25,6 +25,33 @@ nav > a {
   padding: 15px;
   margin-top: 2px;
 }
+
+nav a ul {
+  display: none;
+  position: absolute;
+  text-align: left;
+  padding: 0;
+  z-index: 11;
+}
+nav a:hover ul {
+  display: block;
+}
+nav a ul li {
+  padding: 10px 10px;
+  background-color: #222222;
+}
+
+nav a ul li:hover {
+  background-color: #222222;
+}
+#panel-wheel{
+	padding: 10px;
+}
+#panel-wheel div {
+  height: 3px;
+  float: left;
+}
+
 #control-panel {
   position: absolute;
   right: 0;
@@ -33,6 +60,7 @@ nav > a {
   height: 100%;
   padding: 20px;
   z-index: 10;
+  top: 50px;
 }
 #info {
   position: absolute;
@@ -47,17 +75,17 @@ nav > a {
   right: -8px;
 }
 #messages {
-	padding: 10px;
+  padding: 10px;
   width: 90%;
   height: 200px;
   background: #0a0a0a;
   border-radius: 10px;
-  font-family: sans,arial;
+  font-family: sans, arial;
   overflow-y: scroll;
   margin: 0;
 }
 #messages > li {
-	text-align: left;
+  text-align: left;
 }
 
 #msgs-global {
@@ -68,10 +96,10 @@ nav > a {
   margin-top: 6px;
   width: 230px;
   font-size: 16px;
-  font-family: sans,arial;
+  font-family: sans, arial;
 }
 #canvas2D, #canvas3D {
-	cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
+  cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
   position: absolute;
   left: 0;
   top: 50px;

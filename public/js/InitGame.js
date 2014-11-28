@@ -4,6 +4,21 @@
  *
  */
 
+function doHashCheck() {
+  if (UI.navPages[tab]) {
+    if (UI.device) {
+      // only show on drop down
+      $('#mobile-menu').text(tab);
+    }
+    UI.showDisplayFromMenuId(UI.navPages[tab]);
+  } else {
+    // main entry page
+    UI.highlightTab('#tab-featured');
+    swapDisplayTo('#stage');
+    displaySet(sets.featured50);
+  }
+}
+
 function initGame(data) {
   $('.pane').hide();
   $('#game-window').show();
@@ -60,7 +75,7 @@ function initGame(data) {
   window_handler.setDimensions();
 
   var socket = io();
-  world.connectToSocket(socket,data);
+  world.connectToSocket(socket, data);
 
   client_listeners.addListeners();
 
@@ -68,7 +83,12 @@ function initGame(data) {
   world.loadWorld({
     has_ground : false
   });
-  world.control_panel_handler.updatePanelPlayerData(data);
+  world.control_panel_handler.updateTextFields({
+    game_id : data.game_id,
+    player_id : data.player.id,
+    player_name : data.player.name,
+    team_name : TEAM_DATA[data.player.team].name
+  });
   world.graphics.animate();
 
 }

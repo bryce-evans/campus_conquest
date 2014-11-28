@@ -7,7 +7,7 @@ ControlPanelHandler.prototype = {
   connectToSocket : function(socket) {
     this.socket = socket;
     if (world.id != '') {
-      $('#msgs-global').keypress(function(e) {
+      $('#msgs-global').keypress( function(e) {
         if (e.keyCode == KEYS.ENTER) {
           this.socket.emit('message', {
             scope : world.id,
@@ -29,30 +29,22 @@ ControlPanelHandler.prototype = {
       });
     }
   },
-  updatePanelPlayerData : function(data) {
-    if (data.player_name) {
-      $('#panel-player-name').text(data.player_name);
-    }
-    if (data.player_id) {
-      $('#panel-player-id').text(data.player_id);
-    }
-    if (data.team_id) {
-      $('#panel-team-name').text(TEAM_DATA[data.team_id].name);
+  // goes to data keys and sets text of #panel-<KEY> to value
+  updateTextFields : function(data) {
+    for (var key in data) {
+      if (data.hasOwnProperty(key)) {
+        $('.' + key).text(data[key]);
+      }
     }
   },
-  updatePanelWorldData : function(data) {
-    if (data.id) {
-      $('#panel-game-id').text(data.game_id);
+  initWheel : function(teams, start) {
+    for (var i = start; i < start + teams.length; i++) {
+      jQuery('<div/>').css("background-color", '#' + ("000000" + TEAM_DATA[teams[i % teams.length]].colors.primary.toString(16)).slice(-6)).appendTo('#panel-wheel');
     }
-    if (data.team_id) {
-      $('#panel-team-name').text(TEAM_DATA[data.team_id].name);
-    }
-    if (data.teams_turn) {
-      $('#panel-player-name').text(data.teams_turn);
-    }
-    if (data.stage) {
-      $('#panel-current-stage').text(data.stage);
-    }
+    $('#panel-wheel div').css("width", (100 / teams.length) + "%");
+  },
+  updateWheelToNext : function() {
+    $($('#panel-wheel').children()[0]).appendTo('#panel-wheel');
   }
 }
 // ControlPanel = function() {

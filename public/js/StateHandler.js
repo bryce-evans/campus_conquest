@@ -14,6 +14,7 @@ StateHandler.prototype = {
       var building = world.map.buildings[building_id];
       building.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
       building.game_piece.team = team;
+      world.control_panel_handler.updateWheelToNext();
       this.updateState(data);
     }.bind(this));
 
@@ -35,6 +36,7 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
     this.team_order = state.team_order;
+    world.control_panel_handler.initWheel(state.team_order,state.current_team);
   },
   // for single move updates
   updateState : function(state) {

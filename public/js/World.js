@@ -35,20 +35,20 @@ World.prototype = {
       }).done( function(init_data) {
         this.state_handler.setState(init_data);
         this.map.loadFromState(init_data.state);
-        this.control_panel_handler.updatePanelWorldData(init_data);
+        //this.control_panel_handler.updateTextFields(init_data);
       }.bind(this));
     } else {
       $.ajax({
         url : "/rsc/maps/example_state.json",
       }).done( function(init_data) {
         this.map.loadFromState(init_data.state);
-        this.control_panel.updatePanelWorldData(init_data);
+        this.control_panel.updateTextFields(init_data);
       }.bind(this));
     }
   },
   setMe : function(data) {
     this.me = data;
-    this.control_panel_handler.updatePanelPlayerData(data);
+    this.control_panel_handler.updateTextFields(data);
   },
   setMap : function(map) {
     this.map = map;

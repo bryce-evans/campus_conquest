@@ -149,26 +149,40 @@
 		</div>
 
 		<div id="game-window" style="display: none;">
-			<nav id='top-nav'>
+			<nav>
 				<img src="rsc/images/logos/logo_small_inline.png"/>
 
-				<a id='nav-name'> Me </a>
-				<a id='nav-options'> Options </a>
-				<a id='nav-menu'> Menu </a>
+				<a id='nav-name' > Me
+				<ul>
+					<li class="player_name"></li>
+					<li>
+						Stats
+					</li>
+					<li>
+						Log Out
+					</li>
+				</ul></a>
+				<a id='nav-options' > Options
+				<ul>
+					<li>
+						Graphics
+					</li>
+					<li>
+						Sound
+					</li>
+				</ul></a>
+				<a id='nav-menu' > Menu </a>
 
 			</nav>
 			<div id="control-panel">
-				<h2 id='panel-team-name'> My Team </h2>
-				<img src="">
-
+				<h2 id='panel-team_name' class="team_name"> My Team </h2>
+				<div id="panel-wheel"></div>
 				<ul id="messages"></ul>
 
 				<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
 
 				<div id="info">
-					Model Test-
-
-					<span>&copy; 2014 Campus Conquest</span>
+					&copy; 2014 Campus Conquest
 				</div>
 			</div>
 			<div id = "container">
@@ -199,8 +213,17 @@
         $.ajax({
           url : "/open-games",
         }).done(function(data) {
+          var join_game_id = window.location.hash.replace(/^#/, '');
+
           for (var i = 0; i < data.length; i++) {
             var id = data[i].id;
+            if (join_game_id == id) {
+              init_data.game_id = join_game_id;
+              $('#join-game-header').text(join_game_id);
+              $('.pane').hide();
+              $('#signin-pane').show();
+              break;
+            }
             $('#input-game-id').append('<option value="' + id + '">' + id + '</option>')
           }
         });
