@@ -21,7 +21,7 @@ ClientListeners = function() {
   this.mouseY
 
   // must use this.fn for listeners to bind this obj to this instead of window or the event
-  this.addListeners = function() {
+  this.initListeners = function() {
     //disable right click
     //document.oncontextmenu = new Function("return false")
 
@@ -94,6 +94,7 @@ ClientListeners = function() {
       //set old obj mat back
       if (this.old_obj) {
         this.old_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.old_obj.game_piece.team));
+        //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green.png)');
       }
 
       //set new obj to highlight
@@ -102,7 +103,7 @@ ClientListeners = function() {
       //***SOLID HIGHLIGHT
       //cur_obj.object.material["color"] = highlight;
       var current_material = this.blend(this.cur_obj.material.color, highlight);
-
+       //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green-dot-red.png)');
       this.old_obj = this.cur_obj;
     }
 

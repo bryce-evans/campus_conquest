@@ -73,11 +73,11 @@ function initGame(data) {
   world.setControlPanelHandler(control_panel_handler);
 
   window_handler.setDimensions();
+  
+  client_listeners.initListeners(state.stage);
 
   var socket = io();
   world.connectToSocket(socket, data);
-
-  client_listeners.addListeners();
 
   world.graphics.init();
   world.loadWorld({

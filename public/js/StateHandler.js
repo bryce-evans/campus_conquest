@@ -2,13 +2,29 @@ StateHandler = function() {
   this.socket = undefined;
   this.current = {};
   this.team_order = [];
+  this.moves_left = 0;
+  this.move_data = {};
 }
 
 StateHandler.prototype = {
   connectToSocket : function(socket) {
     this.socket = socket;
+
+    this.socket.on('stage update', function(data) {
+      this.stage = data.stage;
+      switch(data.stage) {
+        case 'reinforcement':
+          this.moves_left = data.reinforcements;
+          console.log('changed to REINFORCEMENT stage');
+          break;
+        case 'orders':
+        break;
+        
+      }
+    }.bind(this));
+
     // recieve moves
-    this.socket.on('building click', function(data) {
+    this.socket.on('grab update', function(data) {
       var team = data.team_index;
       var building_id = data.piece;
       var building = world.map.buildings[building_id];
@@ -16,6 +32,18 @@ StateHandler.prototype = {
       building.game_piece.team = team;
       world.control_panel_handler.updateWheelToNext();
       this.updateState(data);
+    }.bind(this));
+
+    this.socket.on('reinforcement update', function(data) {
+      console.log('received reinforcement update', data);
+    }.bind(this));
+
+    this.socket.on('orders update', function(data) {
+      console.log('received orders update', data);
+    }.bind(this));
+
+    this.socket.on('battle update', function(data) {
+      console.log('received battle` update', data);
     }.bind(this));
 
   },
@@ -36,7 +64,7 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
     this.team_order = state.team_order;
-    world.control_panel_handler.initWheel(state.team_order,state.current_team);
+    world.control_panel_handler.initWheel(state.team_order, state.current_team);
   },
   // for single move updates
   updateState : function(state) {
@@ -45,21 +73,45 @@ StateHandler.prototype = {
     this.current.turn_number = state.turn;
   },
   move : function(piece) {
-    // nat cho move yet son
-    if (me.team != world.state_handler.getCurrent().team) {
-      console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
-      return;
-    }
+    switch(this.current.stage) {
+      case 'start':
+        this.moveGrab(piece);
+        break;
+      case 'grab':
+        this.moveGrab(piece);
+        // nat cho move yet son
+        if (me.team != this.getCurrent().team) {
+          console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
+          return;
+        }
+        var move_data = {
+          scope : world.id,
+          team_index : world.state_handler.getCurrent().team_index,
+          team_id : me.team,
+          piece : piece.game_piece.id,
+        };
+        this.socket.emit('grab move', move_data);
+        break;
+      case 'reinforcement':
+        if (this.moves_left > 1) {
+        	if(this.move_data[piece.game_piece.id]){
+        		this.move_data[piece.game_piece.id]++;
+        	}
+          this.moves_left--;
 
-    // send move
-    var move_data = {
-      scope : world.id,
-      team_index : world.state_handler.getCurrent().team_index,
-      team_id : me.team,
-      piece : piece.game_piece.id,
-    };
-    this.socket.emit('building click', move_data);
+          console.log('moves left', this.moves_left);
+        } else {
+          console.log('sending reinforcement data', this.move_data);
+          this.socket.emit('reinforcement move', this.move_data);
+          this.move_data = {};
+        }
+        break;
+      case 'orders':
+        console.log('doing orders move for ', piece);
+        break;
+    }
   },
+
   getTeamColorFromIndex : function(index) {
     if (index < 0) {
       return 0xffffff;
