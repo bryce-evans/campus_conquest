@@ -107,6 +107,7 @@ Map.prototype.loadGround = function() {
     }
   }.bind(this));
 }
+
 Map.prototype.overlayText = function() {
   ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
 

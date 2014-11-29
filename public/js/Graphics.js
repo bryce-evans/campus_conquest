@@ -50,7 +50,7 @@ Graphics.prototype.init = function() {
 
   this.canvas3D = $('#canvas3D');
   this.renderer = new THREE.WebGLRenderer({
-  	canvas : canvas3D,
+  	canvas : this.canvas3D[0],
     antialias : true,
     alpha : true,
   });
