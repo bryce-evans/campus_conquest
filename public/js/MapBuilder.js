@@ -312,6 +312,9 @@ MapBuilder.prototype = {
       alert("Exported to Console \n [Ctrl + Shift + I]");
     }
   },
+  exportMap : function(){
+  	console.log(JSON.stringify(jsonobj));
+  },
   load : function(model) {
 
     this.loader.load(this.dir + model + "/" + model + ".js", function(geometry) {
