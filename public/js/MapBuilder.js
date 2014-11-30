@@ -8,7 +8,7 @@ MapBuilder = function() {
   this.models = ["sage", "mcgraw_uris", "uris", "ad_white_house", "alumni", "appel", "bailey", "baker_olin", "balch", "barnes", "barton", "bio_tech", "bradfield", "caldwell", "carpenter", "ccc", "ckb", "comstock", "day", "dickson", "donlon", "duffield_phillips", "friedmen", "goldwin", "h_newman", "hollister", "hoy", "hr5", "ives", "jameson", "johnson", "kane", "ktb", "low_rises", "lr_conference", "malott", "mann", "morill", "morris", "mudd_corson", "newman", "observatory", "olive_taiden", "plant_sci", "psb_clarke", "rand", "roberts_kennedy", "rockefeller", "sage_chapel", "schoellkopf", "snee", "statler", "stimson", "teagle", "townhouses", "upson", "van_ren", "warren", "white", "willard_straight"];
   this.mesh_lookup = {};
   this.mesh_list = [];
-  
+
   this.map = {
     area : 'Cornell',
     continents : {},
@@ -17,7 +17,7 @@ MapBuilder = function() {
 
   this.colors = {
     current : 0xffc038,
-    connected : 0x544aaaa,
+    connected : 0x18cd00,
     included : 0x544aaaa,
     excluded : 0xcc6666,
     edge : 0x00ff33,
@@ -33,6 +33,25 @@ MapBuilder = function() {
     requestAnimationFrame(this.animate);
     this.render();
   }.bind(this);
+
+  this.initListeners = function() {
+    //disable right click
+    //document.oncontextmenu = new Function("return false")
+
+    //Add Listeners
+    $('#canvas3D').mouseup( function() {
+      this.onMouseDown();
+    }.bind(this));
+
+    //document.addEventListener('mousewheel', zoom(), false);
+    $(document).mousemove( function() {
+      this.onMouseMove(event);
+    }.bind(this));
+
+    //$('#canvas3D').mousedown(this.zoom);
+    //$('#canvas3D').keypress(getKeyCode);
+
+  }
 }
 
 MapBuilder.prototype = {
@@ -54,9 +73,7 @@ MapBuilder.prototype = {
     //  event.preventDefault();
     //event.returnValue = false;
   },
-  /**
-   *click function, colors buildings for territory grab
-   */
+
   onMouseDown : function(event) {
 
     //event.preventDefault();
@@ -65,43 +82,47 @@ MapBuilder.prototype = {
 
     if (hitobj) {
 
-      console.log(hitobj);
-
       //select building
-      if (!cur_building) {
+      if (!this.cur_building) {
 
         hitobj.material = new THREE.MeshLambertMaterial({
           color : this.colors.current
         });
 
+        this.prev_mat = new THREE.Color(this.colors.current);
+
         this.cur_building = hitobj.game_piece;
 
-        if (!this.map.pieces.contains(this.cur_building.game_piece.id)) {
-          this.map.pieces[cur_building.id] = []
+        // new addition to map
+        if (!this.map.pieces.contains(this.cur_building.id)) {
+          this.map.pieces[this.cur_building.id] = []
           this.cur_building.included = true;
 
+          // already exists in map
         } else {
 
-          for (connected in this.map.pieces[cur_building.id]) {
-            this.objLookup(this.map.pieces[cur_building.id][connected]).material = new THREE.MeshLambertMaterial({
+          //change color of all connected
+          for (var i = 0; i < this.map.pieces[this.cur_building.id].length; i++) {
+            this.mesh_lookup[this.map.pieces[this.cur_building.id][i]].material = new THREE.MeshLambertMaterial({
               color : this.colors.connected
             });
-
           }
         }
 
       } else {
 
         //deselect current building
-        if (hitobj == this.cur_building) {
+        if (hitobj == this.cur_building.mesh) {
 
-          this.cur_building.material = new THREE.MeshLambertMaterial({
+          //change back color of all connected
+          this.cur_building.mesh.material = new THREE.MeshLambertMaterial({
             color : this.colors.included
           });
 
-          for (connected in this.map.pieces[this.cur_building.id]) {
-            console.log(this.map.pieces[this.cur_building.id][connected]);
-            this.objLookup(this.map.pieces[this.cur_building.id][connected]).material = new THREE.MeshLambertMaterial({
+          this.prev_mat = new THREE.Color(this.colors.included);
+
+          for (var i = 0; i < this.map.pieces[this.cur_building.id].length; i++) {
+            this.mesh_lookup[this.map.pieces[this.cur_building.id][i]].material = new THREE.MeshLambertMaterial({
               color : this.colors.included
             });
           }
@@ -109,36 +130,40 @@ MapBuilder.prototype = {
           this.cur_building = null;
 
           //add connected to current building
-        } else if (!this.map.pieces[this.cur_building.id].contains(hitobj.id)) {
+        } else if (!this.map.pieces[this.cur_building.id].contains(hitobj.game_piece.id)) {
 
           hitobj.material = new THREE.MeshLambertMaterial({
             color : this.colors.connected
           });
 
-          this.map.pieces[this.cur_building.id].push(hitobj.id);
-          hitobj.included = true;
+          this.prev_mat = new THREE.Color(this.colors.connected);
+
+          this.map.pieces[this.cur_building.id].push(hitobj.game_piece.id);
+          hitobj.game_piece.included = true;
+          hitobj.game_piece.connected = true;
 
           // create non-directed graph
 
           //add connected to main list
-          if (!this.map.pieces.contains(hitobj.id)) {
-            this.map.pieces[hitobj.id] = [];
+          if (!this.map.pieces.contains(hitobj.game_piece.id)) {
+            this.map.pieces[hitobj.game_piece.id] = [];
           }
 
           //append the cur_buildinging to list of connected of this building
-          this.map.pieces[hitobj.id].push(this.cur_building.id);
+          this.map.pieces[hitobj.game_piece.id].push(this.cur_building.id);
 
           //add line
 
           var geo = new THREE.Geometry();
           geo.vertices.push(new THREE.Vector3(hitobj.center[0], 2 * hitobj.center[1] + 5, hitobj.center[2]));
-          geo.vertices.push(new THREE.Vector3(this.cur_building.center[0], 2 * this.cur_building.center[1] + 5, this.cur_building.center[2]));
+          geo.vertices.push(new THREE.Vector3(this.cur_building.mesh.center[0], 2 * this.cur_building.mesh.center[1] + 5, this.cur_building.mesh.center[2]));
 
           var mat = new THREE.LineBasicMaterial({
             color : this.colors.edge,
           });
 
           var line = new THREE.Line(geo, mat);
+
           this.scene.add(line);
 
           //removes from connected if connected already (deselect)
@@ -146,11 +171,12 @@ MapBuilder.prototype = {
           hitobj.material = new THREE.MeshLambertMaterial({
             color : this.colors.included
           });
+          this.prev_mat = new THREE.Color(this.colors.included);
 
-          this.map.pieces[this.cur_building.id].pop(hitobj.id);
+          this.map.pieces[this.cur_building.id].pop(hitobj.game_piece.id);
 
           // maintain non-directed graph
-          this.map.pieces[hitobj.id].pop(this.cur_building.id);
+          this.map.pieces[hitobj.game_piece.id].pop(this.cur_building.id);
         }
       }
     }
@@ -164,72 +190,55 @@ MapBuilder.prototype = {
     this.mouseY = event.y;
 
     //*****highlights hovered
-    this.cur_obj = this.getHitObject();
+    var cur_obj = this.getHitObject();
 
-    // if mouse is over a new object than last frame
+    // mouse is over a new object
     // make sure you:
     // have a current object
     // either don't have an old one (was over nothing previously)
     // or the old object isnt the same as the current
-    if (this.cur_obj && (!this.old_obj || (this.cur_obj !== this.old_obj))) {
+    if (cur_obj && cur_obj !== this.prev_obj) {
 
-      if (this.old_obj) {
-        if (this.old_obj.included == true) {
-          if (this.old_obj == cur_building) {
-            this.old_obj.material["color"] = new THREE.Color(this.colors.current);
-          } else {
-            this.old_obj.material["color"] = new THREE.Color(this.colors.included);
-          }
-        } else {
-          this.old_obj.material["color"] = new THREE.Color(this.colors.excluded);
-        }
-
+      if (this.prev_obj) {
+        this.prev_obj.material.color = this.prev_mat;
       }
 
-      //set new obj to highlight
-      mat = this.cur_obj.material;
+      this.prev_obj = cur_obj;
 
-      curmat = this.blend(this.cur_obj.material["color"], highlight);
+      var c = cur_obj.material.color;
+      this.prev_mat = new THREE.Color(c.r, c.g, c.b);
 
-      this.old_obj = this.cur_obj;
+      this.blend(cur_obj.material.color, highlight);
+
     }
 
     //undoes highlight if no obj hovered over
-    else if (!this.cur_obj) {
-      if (this.old_obj) {
-        if (this.old_obj.included == true) {
-          if (this.old_obj == this.cur_building) {
-            this.old_obj.material["color"] = new THREE.Color(this.colors.included);
-          } else {
-            this.old_obj.material["color"] = new THREE.Color(this.colors.included);
-          }
-        } else {
-          this.old_obj.material["color"] = new THREE.Color(this.colors.excluded);
-        }
+    else if (!cur_obj && this.prev_obj) {
+      this.prev_obj.material.color = this.prev_mat;
 
-        this.old_obj = null;
-      }
+      this.prev_mat = null;
+      this.prev_obj = null;
     }
   },
 
   panAuto : function(x, y) {
 
     if (x > (1 - this.border) * window.innerWidth) {
-      this.camera.position.x += scroll_sensitivity;
-      this.camera.target.x += scroll_sensitivity;
+      this.camera.position.x += this.scroll_sensitivity;
+      this.camera.target.x += this.scroll_sensitivity;
 
     } else if (x < this.border * window.innerWidth) {
-      this.camera.position.x -= scroll_sensitivity;
-      this.camera.target.x -= scroll_sensitivity;
+      this.camera.position.x -= this.scroll_sensitivity;
+      this.camera.target.x -= this.scroll_sensitivity;
     }
 
     if (y > (1 - this.border) * window.innerHeight) {
-      this.camera.position.z += scroll_sensitivity;
-      this.camera.target.z += scroll_sensitivity;
+      this.camera.position.z += this.scroll_sensitivity;
+      this.camera.target.z += this.scroll_sensitivity;
 
     } else if (y < this.border * window.innerHeight) {
-      this.camera.position.z -= scroll_sensitivity;
-      this.camera.target.z -= scroll_sensitivity;
+      this.camera.position.z -= this.scroll_sensitivity;
+      this.camera.target.z -= this.scroll_sensitivity;
     }
 
   },
@@ -262,9 +271,15 @@ MapBuilder.prototype = {
       console.log(err);
       return null;
     }
-  }.bind(this),
+  },
 
+  // has side effects!!
+  // adds 50% of mat2 into mat1
   blend : function(mat1, mat2) {
+    if (!mat1 || !mat2) {
+      return;
+
+    }
     mat1.r = (mat1.r + mat2.r) / 2;
     mat1.g = (mat1.g + mat2.g) / 2;
     mat1.b = (mat1.b + mat2.b) / 2;
@@ -319,6 +334,7 @@ MapBuilder.prototype = {
       mesh.position.y = 0;
       mesh.team = 0;
       this.mesh_list.push(mesh);
+
       this.scene.add(mesh);
 
     });
@@ -351,19 +367,21 @@ MapBuilder.prototype = {
       var counter = 0;
       var verts = mesh.geometry.vertices;
       var center = new Array(3);
-      for (index in verts) {
-        sumx += verts[index].x;
-        sumy += verts[index].y;
-        sumz += verts[index].z;
-        counter++;
+      for (var i = 0; i < verts.length; i++) {
+        sumx += verts[i].x;
+        sumy += verts[i].y;
+        sumz += verts[i].z;
       }
 
-      mesh.center = new Array(this.scale * sumx / counter, this.scale * sumy / counter, this.scale * sumz / counter);
+      mesh.center = new Array(this.scale * sumx / i, this.scale * sumy / i, this.scale * sumz / i);
 
       ///////////////////////////////////////////
       mesh.id = model;
       this.mesh_lookup[model] = mesh;
       this.mesh_list.push(mesh);
+
+      var game_piece = new GamePiece(this, model, mesh);
+
       this.scene.add(mesh);
     }.bind(this));
   },
@@ -422,9 +440,6 @@ MapBuilder.prototype = {
 
   initRender : function() {
 
-    this.container = document.createElement('page');
-    document.body.appendChild(this.container);
-
     this.camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 2000);
     this.camera.position.set(0, 600, 0);
     this.camera.target = new THREE.Vector3(0, 0, 0);
@@ -440,12 +455,13 @@ MapBuilder.prototype = {
     light.position.set(-1, 1, -1);
     this.scene.add(light);
 
+    this.container = $('#container');
     this.canvas3D = $('#canvas3D');
 
     this.renderer = new THREE.WebGLRenderer({
       canvas : this.canvas3D[0],
       antialias : true,
-      alpha : true,
+      alpha : false,
     });
 
     this.renderer.sortObjects = false;
@@ -455,21 +471,40 @@ MapBuilder.prototype = {
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.container.appendChild(this.renderer.domElement);
+    this.container.append(this.renderer.domElement);
 
     this.loadBoard();
 
   },
 
   render : function() {
-    this.panAuto(this.mouseX, this.mouseY);
+    //this.panAuto(this.mouseX, this.mouseY);
     this.camera.lookAt(this.camera.target);
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
   }
 }
 
-Array.prototype.contains = function(key) {
+GamePiece = function(map, id, mesh) {
+
+  this.id = id;
+  this.mesh = mesh;
+
+  this.isIncluded = false;
+  this.isConnected = false;
+
+  mesh.game_piece = this;
+
+  this.connected = map_builder.map.pieces[id];
+
+}
+GamePiece.prototype = {
+  connectTo : function(piece) {
+
+  },
+}
+
+Object.prototype.contains = function(key) {
 
   var ret = false;
   jQuery.each(this, function(testkey, value) {
