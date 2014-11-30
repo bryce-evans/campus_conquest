@@ -8,6 +8,7 @@ MapBuilder = function() {
   this.models = ["sage", "mcgraw_uris", "uris", "ad_white_house", "alumni", "appel", "bailey", "baker_olin", "balch", "barnes", "barton", "bio_tech", "bradfield", "caldwell", "carpenter", "ccc", "ckb", "comstock", "day", "dickson", "donlon", "duffield_phillips", "friedmen", "goldwin", "h_newman", "hollister", "hoy", "hr5", "ives", "jameson", "johnson", "kane", "ktb", "low_rises", "lr_conference", "malott", "mann", "morill", "morris", "mudd_corson", "newman", "observatory", "olive_taiden", "plant_sci", "psb_clarke", "rand", "roberts_kennedy", "rockefeller", "sage_chapel", "schoellkopf", "snee", "statler", "stimson", "teagle", "townhouses", "upson", "van_ren", "warren", "white", "willard_straight"];
   this.mesh_lookup = {};
   this.mesh_list = [];
+  this.edges = {};
 
   this.map = {
     area : 'Cornell',
@@ -28,6 +29,8 @@ MapBuilder = function() {
   this.border = .08;
 
   this.scale = 15
+
+  this.allowPanning = true;
 
   this.animate = function() {
     requestAnimationFrame(this.animate);
@@ -74,6 +77,27 @@ MapBuilder.prototype = {
     //event.returnValue = false;
   },
 
+  addEdge : function(mesh1, mesh2) {
+    var geo = new THREE.Geometry();
+    geo.vertices.push(new THREE.Vector3(mesh2.center[0], 2 * mesh2.center[1] + 5, mesh2.center[2]));
+    geo.vertices.push(new THREE.Vector3(mesh1.center[0], 2 * mesh1.center[1] + 5, mesh1.center[2]));
+
+    var mat = new THREE.LineBasicMaterial({
+      color : this.colors.edge,
+    });
+
+    var line = new THREE.Line(geo, mat);
+    var sorted = [mesh1.game_piece.id, mesh2.game_piece.id].sort();
+    this.edges[sorted[0] + sorted[1]] = line;
+
+    this.scene.add(line);
+  },
+  removeEdge : function(id1, id2) {
+    var sorted = [id1, id2].sort();
+    var line = this.edges[sorted[0] + sorted[1]];
+    this.scene.remove(line);
+  },
+
   onMouseDown : function(event) {
 
     //event.preventDefault();
@@ -115,23 +139,32 @@ MapBuilder.prototype = {
         if (hitobj == this.cur_building.mesh) {
 
           //change back color of all connected
-          this.cur_building.mesh.material = new THREE.MeshLambertMaterial({
-            color : this.colors.included
-          });
-
-          this.prev_mat = new THREE.Color(this.colors.included);
-
           for (var i = 0; i < this.map.pieces[this.cur_building.id].length; i++) {
             this.mesh_lookup[this.map.pieces[this.cur_building.id][i]].material = new THREE.MeshLambertMaterial({
               color : this.colors.included
             });
           }
 
+          // remove from map entirely if not connected to anything
+          if (this.map.pieces[hitobj.game_piece.id].length == 0) {
+            var new_color = this.colors.excluded;
+            delete this.map.pieces[hitobj.game_piece.id];
+          } else {
+            var new_color = this.colors.included;
+          }
+
+          this.cur_building.mesh.material = new THREE.MeshLambertMaterial({
+            color : new_color
+          });
+
+          this.prev_mat = new THREE.Color(new_color);
+
           this.cur_building = null;
 
           //add connected to current building
-        } else if (!this.map.pieces[this.cur_building.id].contains(hitobj.game_piece.id)) {
+        } else if ($.inArray(hitobj.game_piece.id, this.map.pieces[this.cur_building.id]) == -1) {
 
+          // TODO RESUME remove connected building to current
           hitobj.material = new THREE.MeshLambertMaterial({
             color : this.colors.connected
           });
@@ -153,30 +186,30 @@ MapBuilder.prototype = {
           this.map.pieces[hitobj.game_piece.id].push(this.cur_building.id);
 
           //add line
+          this.addEdge(this.cur_building.mesh, hitobj);
 
-          var geo = new THREE.Geometry();
-          geo.vertices.push(new THREE.Vector3(hitobj.center[0], 2 * hitobj.center[1] + 5, hitobj.center[2]));
-          geo.vertices.push(new THREE.Vector3(this.cur_building.mesh.center[0], 2 * this.cur_building.mesh.center[1] + 5, this.cur_building.mesh.center[2]));
-
-          var mat = new THREE.LineBasicMaterial({
-            color : this.colors.edge,
-          });
-
-          var line = new THREE.Line(geo, mat);
-
-          this.scene.add(line);
-
-          //removes from connected if connected already (deselect)
+          // deselect connected
         } else {
-          hitobj.material = new THREE.MeshLambertMaterial({
-            color : this.colors.included
-          });
-          this.prev_mat = new THREE.Color(this.colors.included);
+          this.map.pieces[this.cur_building.id].remove(hitobj.game_piece.id);
+          this.map.pieces[hitobj.game_piece.id].remove(this.cur_building.id);
 
-          this.map.pieces[this.cur_building.id].pop(hitobj.game_piece.id);
+          this.removeEdge(this.cur_building.id, hitobj.game_piece.id);
 
-          // maintain non-directed graph
-          this.map.pieces[hitobj.game_piece.id].pop(this.cur_building.id);
+          // remove from map entirely
+          if (this.map.pieces[hitobj.game_piece.id].length == 0) {
+            hitobj.material = new THREE.MeshLambertMaterial({
+              color : this.colors.excluded
+            });
+            this.prev_mat = new THREE.Color(this.colors.excluded);
+            delete this.map.pieces[hitobj.game_piece.id];
+
+          } else {
+            hitobj.material = new THREE.MeshLambertMaterial({
+              color : this.colors.included
+            });
+            this.prev_mat = new THREE.Color(this.colors.included);
+          }
+
         }
       }
     }
@@ -258,7 +291,7 @@ MapBuilder.prototype = {
 
       var ray = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize());
 
-      var list = ray.intersectObjects(this.scene.children, true);
+      var list = ray.intersectObjects(this.mesh_list);
       //world.map.selectable_objects, true);
       if (list.length > 0) {
         return list[0].object;
@@ -312,8 +345,8 @@ MapBuilder.prototype = {
       alert("Exported to Console \n [Ctrl + Shift + I]");
     }
   },
-  exportMap : function(){
-  	console.log(JSON.stringify(jsonobj));
+  getExportedMap : function() {
+    return JSON.stringify(this.map);
   },
   load : function(model) {
 
@@ -481,7 +514,9 @@ MapBuilder.prototype = {
   },
 
   render : function() {
-    //this.panAuto(this.mouseX, this.mouseY);
+    if (this.allowPanning) {
+      this.panAuto(this.mouseX, this.mouseY);
+    }
     this.camera.lookAt(this.camera.target);
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
@@ -518,4 +553,14 @@ Object.prototype.contains = function(key) {
   }.bind(this));
 
   return ret;
+}
+
+Array.prototype.remove = function(e) {
+  for (var b in this) {
+    if (this[b] === e) {
+      this.splice(b, 1);
+      break;
+    }
+  }
+  return this;
 }
