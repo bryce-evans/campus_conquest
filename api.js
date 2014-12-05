@@ -20,8 +20,11 @@ var GAME_PRIVACY = 2; //data.privacy
 			\
 			CREATE TABLE \""+GAME_ID+"\"(\
 			index smallint NOT NULL,\
+			id public.cc_team DEFAULT 'none'::public.cc_team,\
+      reinforcements smallint DEFAULT 20,\
+      waiting_on boolean DEFAULT false,\
 			player_count integer DEFAULT 0 NOT NULL,\
-			id public.cc_team DEFAULT 'none'::public.cc_team\
+      password text DEFAULT '':text\
 			);\
 			\
 			ALTER TABLE teams.\""+GAME_ID+"\" OWNER TO ccadmin;\
@@ -138,11 +141,12 @@ getOpenGames : function(callback){
       }
 
       ret.id = data.id;
+      ret.map = data.map;
       ret.stage = data.stage;
       ret.turn = data.turn;
       ret.team_order = {};
       ret.current_team = data.cur_team;
-      
+      ret.waiting_on = []; 
       this.db.query('SELECT * FROM "state"."' + id + '"', function(err, result) {
         if (err) {
           callback({
@@ -168,9 +172,11 @@ getOpenGames : function(callback){
 	        ret.team_order = [];
 	        var order = ret.team_order;
 	        for (var i = 0; i < result.rows.length; i++) {
-	          order[result.rows[i].index] = result.rows[i].id;
-	          console.log(result.rows[i]);
+            var r = result.rows[i];
+            if(r.waiting_on) {ret.waiting_on.push(r.index);}
+            order[r.index] = r.id;
 	        }
+
 	        callback(ret);
 	      }.bind(this));
       }.bind(this));

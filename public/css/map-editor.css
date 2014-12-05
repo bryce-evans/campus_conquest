@@ -1,0 +1,26 @@
+#export-window-container {
+
+  position: absolute;
+  z-index: 2;
+  background-color: rgba(0,0,0,.5);
+  text-align: center;
+  width: 100%;
+}
+
+#export-window {
+  width: 800px;
+  height: 400px;
+  text-align: center;
+  background-color: #181818;
+  margin: 100px auto;
+  border-radius: 10px;
+  text-align: left;
+}
+#export-content {
+  font-family: consolas;
+  color: #FFFFFF;
+  padding: 20px;
+}
+#cancel-button{
+	padding: 10px;
+}

@@ -34,7 +34,7 @@ api.getOpenGames(function(game_data){
       data.stage = state.stage;
       data.state = state.state;
       data.turn = state.turn;
-       games[data.id] = new Game(data, io, db);
+       games[data.id] = new Game(state, io, db);
     }.bind(data));
 }
 
@@ -64,12 +64,26 @@ app.get('/state', function(req, res) {
 
 app.get('/rooms', function(req, res) {
  console.log(io.sockets.adapter.rooms);
-//utils.writeData(io.sockets.adapter.rooms, res);
+res.end('wrote data to console');
+});
 
+app.get('/about', function(req, res) {
+    res.sendFile(__dirname + '/public/about.html');
+});
+
+app.get('/mcgraw', function(req, res) {
+    res.sendFile(__dirname + '/public/mcgraw.html');
 });
 
 
+app.get('/barton', function(req, res) {
+    res.sendFile(__dirname + '/public/snow_cloth.html');
+});
 
+
+app.get('/map-editor', function(req, res) {
+    res.sendFile(__dirname + '/public/map_builder.html');
+});
 
 app.get('/new-game', function(req, res) {
     res.sendFile(__dirname + '/public/create.html');

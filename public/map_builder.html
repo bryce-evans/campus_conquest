@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+	<html lang="en">
+
+		<head>
+
+			<title>Model Test</title>
+
+			<meta charset="utf-8">
+			<link rel="stylesheet" href="css/fonts.css" />
+			<link rel="stylesheet" href="css/global.css" />
+			<link rel="stylesheet" href="css/game.css" />
+			<link rel="stylesheet" href="css/map-editor.css" />
+
+		</head>
+
+		<body>
+			<div id="info" style="display: none;">
+				Map Builder Test-
+				<span>&copy; 2014 Campus Conquest</span>
+			</div>
+
+			<div id="controls" style="display: none;">
+				Controls
+
+				<!-- 				<form>
+				<input id="terr_b" type="button" onclick="onclick();" value="Edit Territories" />
+
+				<br />
+				<input id="cont_b" type="button" onclick="onclick();" value="Edit Continents" />
+				<br />
+				<input id="export_b" type="button" onclick="onclick();" value="Export" />
+
+				</form> -->
+
+			</div>
+
+			<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+			<script src="js/lib/Three.js"></script>
+			<script src="js/lib/Detector.js"></script>
+			<script src="js/MapBuilder.js"></script>
+
+			<!-- 			<script type="text/javascript">
+			// window.onload = maxWindow;
+
+			function onclick() {
+			console.log("clicked!");
+			}
+
+			function maxWindow() {
+			window.moveTo(0, 0);
+
+			if (document.all) {
+			top.window.resizeTo(screen.availWidth, screen.availHeight);
+			} else if (document.layers || document.getElementById) {
+			if (top.window.outerHeight < screen.availHeight || top.window.outerWidth < screen.availWidth) {
+			top.window.outerHeight = screen.availHeight;
+			top.window.outerWidth = screen.availWidth;
+			}
+			}
+			}
+
+			</script> -->
+			<script type="text/javascript">
+        $(document).ready(function() {
+          map_builder = new MapBuilder();
+          map_builder.initRender();
+          map_builder.initListeners();
+          //
+
+          // $('#canvas3D').click(function() {
+          // map_builder.onMouseDown();
+          // });
+          //document.addEventListener('mousewheel', zoom(), false);
+          // $(document).mousemove( function() {
+          // console.log('mouse moving');
+          ////map_builder.onMouseMove(event);
+          // });
+
+          map_builder.animate();
+
+          $('#export-button').click(function() {
+            $('#export-window-container').show();
+            $('#export-content').text(map_builder.getExportedMap());
+            map_builder.allowPanning = false;
+          });
+           $('#cancel-button').click(function() {
+            $('#export-window-container').hide();
+            $('#export-content').text('');
+            
+            map_builder.allowPanning = true;
+          });
+        });
+			</script>
+			<nav>
+				<img src="rsc/images/logos/logo_small_inline.png"/>
+				<span style='color: #ECBC00;
+				font-size: 20pt;
+				padding: 10px;
+				position: absolute;
+				margin-left: 15px;'>Map Editor</span>
+				<div id='export-button' class='button' style='float: right;
+				margin: 5px;'>
+					Export
+				</div>
+
+			</nav>
+			<div id='export-window-container'  style='display: none;'>
+				<div id='export-window'>
+					<div id='cancel-button' class='button'>Back</div>
+					<div id='export-content'></div>
+				</div>
+			</div>
+			<div id="container">
+				<canvas id="canvas3D" style="top:0px;"></canvas>
+				<canvas id="canvas2D"></canvas>
+			</div>
+		</body>
+
+	</html>
+

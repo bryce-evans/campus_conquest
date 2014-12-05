@@ -4,6 +4,9 @@ StateHandler = function() {
   this.team_order = [];
   this.moves_left = 0;
   this.move_data = {};
+  
+  // temp
+  this.move_data.commands = [];
 }
 
 StateHandler.prototype = {
@@ -18,8 +21,8 @@ StateHandler.prototype = {
           console.log('changed to REINFORCEMENT stage');
           break;
         case 'orders':
-        break;
-        
+          break;
+
       }
     }.bind(this));
 
@@ -75,10 +78,20 @@ StateHandler.prototype = {
   move : function(piece) {
     switch(this.current.stage) {
       case 'start':
-        this.moveGrab(piece);
+        // nat cho move yet son
+        if (me.team != this.getCurrent().team) {
+          console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
+          return;
+        }
+        var move_data = {
+          scope : world.id,
+          team_index : world.state_handler.getCurrent().team_index,
+          team_id : me.team,
+          piece : piece.game_piece.id,
+        };
+        this.socket.emit('grab move', move_data);
         break;
       case 'grab':
-        this.moveGrab(piece);
         // nat cho move yet son
         if (me.team != this.getCurrent().team) {
           console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
@@ -94,9 +107,9 @@ StateHandler.prototype = {
         break;
       case 'reinforcement':
         if (this.moves_left > 1) {
-        	if(this.move_data[piece.game_piece.id]){
-        		this.move_data[piece.game_piece.id]++;
-        	}
+          if (this.move_data[piece.game_piece.id]) {
+            this.move_data[piece.game_piece.id]++;
+          }
           this.moves_left--;
 
           console.log('moves left', this.moves_left);
@@ -107,6 +120,8 @@ StateHandler.prototype = {
         }
         break;
       case 'orders':
+        this.move_data.commands = [];
+        world.map.arrow_meshes = [];
         console.log('doing orders move for ', piece);
         break;
     }
