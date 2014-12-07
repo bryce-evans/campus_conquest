@@ -14,7 +14,6 @@ Map = function() {
   this.selectable_objects = new Array();
   this.scale = 15;
 
-  // this.ctx2d = world.renderer2D.domElement.getContext('2d');
 }
 Map.prototype = {
   getObj : function(id) {
@@ -107,101 +106,16 @@ Map.prototype = {
         console.log(err.stack);
       }
     }.bind(this));
-  },
-
-  overlayText : function() {
-    ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-    const ceil = 800;
-    const floor = 50;
-
-    const min_font = 18;
-    const max_font = 40;
-
-    var height = camera.position.y;
-
-    var size = (min_font - max_font) * (height - floor) / (ceil - floor) + max_font;
-    var font = " Goudy Trajan Regular";
-    ctx2d.font = "18px" + font;
-
-    ctx2d.fillStyle = "#0088ff";
-    ctx2d.shadowOffsetX = 1;
-    ctx2d.shadowOffsetY = 1;
-    ctx2d.shadowBlur = 2;
-    ctx2d.shadowColor = "#000000";
-    ctx2d.textAlign = 'center';
-
-    for (building in buildings) {
-
-      var obj = getObj(building);
-      var pos = new THREE.Vector3(obj.center[0], obj.center[1], obj.center[2]);
-
-      coord = toScreenXY(pos);
-      // ctx2d.fillText(obj.id, coord.x, coord.y);
-
-      if (obj.troops > 0) {
-
-        //size = 3*(coord.z + 1917) + 5;
-        //ctx2d.font = size + "px helvetica";
-        ctx2d.font = (size + 2) + "px" + font;
-        // ctx2d.font = "20px helvetica";
-
-        ctx2d.fillStyle = "#0088ff";
-        ctx2d.fillText(obj.troops, coord.x, coord.y);
-
-        ctx2d.font = "14px" + font;
-        ctx2d.fillStyle = "#4466aa";
-        ctx2d.fillText(obj.id, coord.x, coord.y + 15);
-
-      } else {
-        ctx2d.fillText(obj.id, coord.x, coord.y);
-      }
-
-    }
-
-    ctx2d.font = "22px" + font;
-    //ctx2d.font = coord.z + "px helvetica";
-    ctx2d.fillStyle = "#ff8800";
-    ctx2d.shadowOffsetX = 1;
-    ctx2d.shadowOffsetY = 1;
-    ctx2d.shadowBlur = 2;
-    ctx2d.shadowColor = "#ffffff";
-    ctx2d.textAlign = 'center';
-
-    if ( typeof arrows !== 'undefined') {
-      for (index in arrows) {
-        var arr = arrows[index];
-        if (arr.midpt) {
-          var pos = new THREE.Vector3(arr.midpt[0], arr.midpt[1], arr.midpt[2]);
-
-          coord = toScreenXY(pos);
-          // ctx2d.fillText(obj.id, coord.x, coord.y);
-
-          ctx2d.fillText(arr.strength, coord.x, coord.y);
-        }
-      }
-    }
-
-  },
-
-  toScreenXY : function(pos) {
-
-    var projScreenMat = new THREE.Matrix4();
-    projScreenMat.multiply(camera.projectionMatrix, camera.matrixWorldInverse);
-    projScreenMat.multiplyVector3(pos);
-
-    return {
-      x : (pos.x + 1 ) * renderer3D.domElement.width / 2,
-      y : (-pos.y + 1) * renderer3D.domElement.height / 2,
-    };
-
   }
 }
+
+
 GamePiece = function(map, id, mesh, init_team) {
 
   this.id = id;
   this.mesh = mesh;
-  this.team
+  this.team = undefined;
+  this.units = 0;
 
   mesh.game_piece = this;
 
@@ -262,7 +176,8 @@ Arrow = function(id1, id2) {
 
   this.start = id1;
   this.end = id2;
-  this.strength = 100;// start_mesh.game_piece.troops - 1;
+  this.strength = 100;
+  // start_mesh.game_piece.troops - 1;
   this.command = {
     start : id1,
     end : id2,
@@ -274,7 +189,7 @@ Arrow = function(id1, id2) {
   var p1 = start_mesh.center;
   var p2 = end_mesh.center;
 
-var scale = 15;
+  var scale = 15;
 
   // find arrow polar coords
   var mag = Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.z - p1.z), 2));
@@ -286,9 +201,8 @@ var scale = 15;
   }
 
   //get mesh object
-  var loader = new THREE.JSONLoader();
   var x, z;
-  loader.load("../rsc/models/map/arrow/arrow.js", function(geometry) {
+  this.loader.load("../rsc/models/map/arrow/arrow.js", function(geometry) {
 
     geometry.computeMorphNormals();
 
@@ -298,7 +212,7 @@ var scale = 15;
     });
 
     var mesh = new THREE.Mesh(geometry, material);
-    
+
     mesh.scale.set(mag - .5 * (scale), .1 * mag, .03 * this.strength * scale + .5);
 
     mesh.position.x = start_mesh.center.x;
@@ -310,7 +224,7 @@ var scale = 15;
     z = mesh.position.z;
 
     this.mesh = mesh;
-    this.midpt = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
+    this.center = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
 
     world.map.arrow_meshes.push(mesh);
 

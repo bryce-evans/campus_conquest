@@ -4,7 +4,11 @@ StateHandler = function() {
   this.team_order = [];
   this.moves_left = 0;
   this.move_data = {};
-  
+
+  this.move_data.commands = [];
+
+  this.current_selected = undefined;
+
   // temp
   this.move_data.commands = [];
 }
@@ -120,9 +124,26 @@ StateHandler.prototype = {
         }
         break;
       case 'orders':
-        this.move_data.commands = [];
-        world.map.arrow_meshes = [];
-        console.log('doing orders move for ', piece);
+
+        if (!this.current_selected) {
+          this.current_selected = piece;
+        } else {
+          var start_id = this.current_selected.game_piece.id;
+          var end_id = piece.game_piece.id;
+          var arrow = new Arrow(start_id, end_id);
+          this.move_data.commands.push({
+            start : start_id,
+            end : end_id
+          });
+
+          var move_data = {
+            scope : world.id,
+            team_index : world.state_handler.getCurrent().team_index,
+            team_id : me.team,
+            commands : this.commands,
+          };
+          this.socket.emit('orders move', move_data);
+        }
         break;
     }
   },

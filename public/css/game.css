@@ -106,5 +106,11 @@ nav a ul li:hover {
   position: absolute;
   left: 0;
   top: 50px;
+}
+
+#canvas2D {
+  z-index: 2;
+}
+#canvas3D {
   background-color: #000;
 }

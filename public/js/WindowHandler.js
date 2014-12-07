@@ -9,8 +9,8 @@ WindowHandler.prototype.setDimensions = function() {
   };
   this.aspect_ratio = this.dimensions.width / this.dimensions.height;
   
-  $('#canvas2D, #canvas3D').width(this.dimensions.width);// - world.control_panel_handler.width);
-  $('#canvas2D, #canvas3D').height(this.dimensions.height);// - world.nav.height);
+  $('#canvas2D, #canvas3D').attr('width',this.dimensions.width);// - world.control_panel_handler.width);
+  $('#canvas2D, #canvas3D').attr('height',this.dimensions.height);// - world.nav.height);
   
 }
 

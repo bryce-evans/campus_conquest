@@ -162,7 +162,7 @@ ClientListeners = function() {
 
       var ray = new THREE.Raycaster(world.graphics.camera.position, vector.sub(world.graphics.camera.position).normalize());
 
-      list = ray.intersectObjects(world.graphics.scene.children, true);
+      list = ray.intersectObjects(world.map.selectable_objects, true);
       //world.map.selectable_objects, true);
       if (list.length > 0) {
         return list[0].object;
