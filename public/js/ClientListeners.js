@@ -26,7 +26,7 @@ ClientListeners = function() {
     //document.oncontextmenu = new Function("return false")
 
     //Add Listeners
-    $('#canvas3D').click(function() {
+    $('#canvas2D').click(function() {
       onMouseDown();
     });
 

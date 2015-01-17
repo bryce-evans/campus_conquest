@@ -1,3 +1,15 @@
+/**
+ * StateHandler.js
+ * Keeps track of local state and keeping insync with server
+ * 
+ * 
+ * Always use temp_move_data before sending move_data
+ * Always send 'xxxxx move' and recieve 'xxxxx update' (not the same emit and recieve id) 
+ *  
+ */
+
+
+
 StateHandler = function() {
   this.socket = undefined;
   this.current = {};
@@ -6,6 +18,9 @@ StateHandler = function() {
   this.move_data = {};
 
   this.move_data.commands = [];
+
+  // used to temporarily store data before finally packaging into move_data
+  this.temp_move_data = {};
 
   this.current_selected = undefined;
 
@@ -41,6 +56,7 @@ StateHandler.prototype = {
       this.updateState(data);
     }.bind(this));
 
+    //
     this.socket.on('reinforcement update', function(data) {
       console.log('received reinforcement update', data);
     }.bind(this));
@@ -69,9 +85,31 @@ StateHandler.prototype = {
   setState : function(state) {
     this.current.team_index = state.current_team;
     this.current.stage = state.stage;
+    this.current.state = state.state;
     this.current.turn_number = state.turn;
     this.team_order = state.team_order;
     world.control_panel_handler.initWheel(state.team_order, state.current_team);
+
+    switch(state.stage) {
+      case "start":
+        break;
+      case "grab":
+        break;
+      case "reinforcement":
+        $('#panel-reinforcement-info').show();
+        $.ajax({
+          url : '/reinforcements',
+          data : {
+            id : world.id,
+            team : me.team
+          }
+        }).done( function(res) {
+          console.log('reinfocements', res);
+          this.moves_left = res.reinforcements;
+          $('#reinforcements-remaining').text(res.reinforcements);
+        }.bind(this));
+
+    }
   },
   // for single move updates
   updateState : function(state) {
@@ -79,6 +117,9 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
   },
+
+  // takes a clicked piece and handles the change in state on the client only until turn is over
+  // does not always take a full turn if multiple pieces are needed to handle the turn
   move : function(piece) {
     switch(this.current.stage) {
       case 'start':
@@ -110,17 +151,31 @@ StateHandler.prototype = {
         this.socket.emit('grab move', move_data);
         break;
       case 'reinforcement':
-        if (this.moves_left > 1) {
-          if (this.move_data[piece.game_piece.id]) {
-            this.move_data[piece.game_piece.id]++;
+        if (this.moves_left >= 1) {
+          if (this.temp_move_data[piece.game_piece.id]) {
+            this.temp_move_data[piece.game_piece.id]++;
+          } else {
+            this.temp_move_data[piece.game_piece.id] = 1;
           }
           this.moves_left--;
+          $('#reinforcements-remaining').text(this.moves_left);
 
-          console.log('moves left', this.moves_left);
-        } else {
-          console.log('sending reinforcement data', this.move_data);
-          this.socket.emit('reinforcement move', this.move_data);
-          this.move_data = {};
+          if (this.moves_left == 0) {
+            for (var key in this.temp_move_data) {
+              if (this.temp_move_data.hasOwnProperty(key)) {
+                this.move_data.commands.push({
+                  id : key,
+                  units : this.temp_move_data[key]
+                });
+              }
+
+            }
+            console.log('sending reinforcement data', this.move_data);
+            this.socket.emit('reinforcement move', this.move_data);
+            this.temp_move_data = {};
+            this.move_data = {};
+            $('#reinforcements-remaining').hide();
+          }
         }
         break;
       case 'orders':
@@ -156,6 +211,10 @@ StateHandler.prototype = {
   },
   getTeamColorFromId : function(id) {
     return TEAM_DATA[id].colors.primary;
+  },
+
+  getTeamIndex : function() {
+    return this.team_order.indexOf(me.team);
   }
 }
 

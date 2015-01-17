@@ -1,6 +1,6 @@
 /*
-Requires a Game was already created with api.js and records exist in DB
-*/
+ Requires a Game was already created with api.js and records exist in DB
+ */
 function Game(state, io, db) {
 
   this.id = state.id;
@@ -9,7 +9,7 @@ function Game(state, io, db) {
 
   this.stage = state.stage;
 
-  // ordering of teams, e.g. [5,2,7,1]
+  // ordering of teams, e.g. ["eng","ilr", ...]
   this.team_order = state.team_order;
   this.current_team_index = state.current_team;
 
@@ -29,22 +29,35 @@ Game.prototype = {
 
     // subscribe the player to updates to the room
 
-
     socket.join(this.id);
-    console.log('joined game ' + this.id);
+    console.log('player joined game ' + this.id);
 
     if (!( team_id in this.teams)) {
       this.addTeam(team_id);
     }
-    
+
     this.teams[team_id].push(socket);
 
+    switch(this.stage) {
+      case 'grab':
+        this.addGrabListeners(socket, team_id);
+        break;
+      case 'reinforcement':
+        this.addReinforcementListeners(socket, team_id);
+        break;
+      case 'orders':
+        this.addOrdersListeners(socket, team_id);
+        break;
+    }
+  },
+
+  addGrabListeners : function(socket, team_id) {
     // handle selecting buildings
     socket.on('grab move', function(move_data) {
 
       if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
-console.log('invalid move data',move_data);
-return false;
+        console.log('invalid move data', move_data);
+        return false;
       }
 
       console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team_id);
@@ -54,39 +67,45 @@ return false;
 
       var query_string = 'UPDATE "state"."' + this.id + '" SET team =\'' + move_data.team_index + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
 
-// update local state
-this.state[move_data.piece].team = move_data.team_index;
+      // update server  state
+      this.state[move_data.piece].team = move_data.team_index;
 
       this.db.query(query_string);
-      var query_string = 'UPDATE global.games SET turn = ' + this.turn 
-        + ', cur_team = '+this.current_team_index+' WHERE id = \''+this.id+'\'';
+      var query_string = 'UPDATE global.games SET turn = ' + this.turn + ', cur_team = ' + this.current_team_index + ' WHERE id = \'' + this.id + '\'';
 
       this.db.query(query_string);
-console.log('putting in packet',this.current_team_index);
       move_data.current_team = this.current_team_index;
       move_data.turn = this.turn;
       move_data.stage = this.stage;
 
       this.io.to(this.id).emit('grab update', move_data);
-this.db.query('SELECT NOT EXISTS(SELECT 1 FROM state.' +this.id+' WHERE -1=team)',function(err,result){
+      this.db.query('SELECT EXISTS(SELECT 1 FROM state.' + this.id + ' WHERE -1=team)', function(err, result) {
 
-// END OF STAGE
-if(result){
-      var query_string = 'UPDATE global.games SET stage = reinforcement WHERE id = \''+this.id+'\'';
+        // END OF STAGE
+        if (!result) {
+          console.log(result);
+          var query_string = 'UPDATE global.games SET stage = \'reinforcement\'WHERE id = \'' + this.id + '\'';
 
-      this.db.query(query_string);
-this.io.to(this.id).emit('stage update',{stage: 'reinforcement', reinforcements : 20});
-}
-
-}.bind(this));
-
+          this.db.query(query_string);
+          this.io.to(this.id).emit('stage update', {
+            stage : 'reinforcement',
+            reinforcements : 20
+          });
+        }
+      }.bind(this));
     }.bind(this));
-
+  },
+  addReinforcementListners : function(socket, team_id) {
+    socket.on('reinforcement move', function(move_data) {
+      console.log('received reinforcement move', move_data);
+      this.io.to(this.id).emit('reinforcement update', move_data);
+    }.bind(this));
+  },
+  addOrdersListners : function(socket, team_id) {
+    console.log('TODO implement addOrdersListeners');
   },
   nextTeamIndex : function() {
-    console.log('nextTeamIndex before', this.current_team_index);
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
-    console.log('returning',this.current_team_index);
     return this.current_team_index;
   },
 }

@@ -202,7 +202,7 @@ Arrow = function(id1, id2) {
 
   //get mesh object
   var x, z;
-  this.loader.load("../rsc/models/map/arrow/arrow.js", function(geometry) {
+  world.map.loader.load("../rsc/models/map/arrow/arrow.js", function(geometry) {
 
     geometry.computeMorphNormals();
 
