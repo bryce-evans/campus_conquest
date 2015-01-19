@@ -127,60 +127,111 @@ table {
 #lobby-table td {
   padding: 5px;
 }
-.team-icon.small {
-  height: 22px;
-  width: 22px;
-}
 
-.team-style.hotel {
+.centered-game-message {
+  margin: 0 auto;
+  width: 100%;
+  height: 300px;
+  background: rgba(0,0,0,.5);
+  z-index: 5;
+  position: absolute;
+}
+.centered-game-message > .container {
+  margin: 60px auto;
+  width: 400px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 4px;
+  background: rgba(0,0,0,.8);
+}
+.centered-game-message > .container > h1 {
+  padding-bottom: 10px;
+  color: white;
+  font-size: 21px;
+}
+.team-li.hotel {
   background-color: #7e0a0b;
 }
-.team-style.as {
+.team-li.as {
   background-color: #d73520;
 }
-.team-style.aap {
+.team-li.aap {
   background-color: #f5a11a;
 }
-.team-style.cals {
+.team-li.cals {
   background-color: #3cb04b;
 }
-.team-style.ilr {
+.team-li.ilr {
   background-color: #3cb04b;
 }
-.team-style.eng {
+.team-li.eng {
   background-color: #43346d;
 }
-.team-style.humec {
+.team-li.humec {
   background-color: #bb0677;
 }
 
+.team-li.hotel > .team-li-name:after {
+  content: "Hotel"
+}
+.team-li.as > .team-li-name:after {
+  content: "Arts and Sciences"
+}
+.team-li.aap > .team-li-name:after {
+  content: "AAP"
+}
+.team-li.cals > .team-li-name:after {
+  content: "Cals"
+}
+.team-li.ilr > .team-li-name:after {
+  content: "ILR"
+}
+.team-li.eng > .team-li-name:after {
+  content: "Engineering"
+}
+.team-li.humec > .team-li-name:after {
+  content: "Human Ecology"
+}
 .faded-text {
-	color: rgba(255,255,255,.6);
+  color: rgba(255,255,255,.6);
+}
+.team-li-icon {
+  border-radius: 50% 0 0 50%;
+  background-position: center;
+  padding: 4px;
+  width: 22px;
+  height: 22px;
+}
+.team-li-name {
+  padding: 0 20px 0 20px;
+}
+.team-li-end {
+  width: 30px;
+  border-radius: 0 50% 50% 0;
 }
 
-
-.team-icon.small.hotel {
+.hotel > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/hotel.jpg);
 }
-.team-icon.small.as {
+.as > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/as.jpg);
 }
-.team-icon.small.aap {
+.aap > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/aap.jpg);
 }
-.team-icon.small.cals {
+.cals > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/cals.jpg);
 }
 
-.team-icon.small.ilr {
+.ilr > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/ilr.jpg);
 }
 
-.team-icon.small.eng {
+.eng > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/eng.jpg);
 }
 
-.team-icon.small.humec {
+.humec > .team-li-icon.small {
   background-image: url(/rsc/images/flags/32/humec.jpg);
 }
 
@@ -224,12 +275,12 @@ ul {
   background-color: none;
 }
 .card-header {
- display: inline-block;
- width: 100%;
- padding-bottom: 2em;
+  display: inline-block;
+  width: 100%;
+  padding-bottom: 2em;
 }
-.button.right{
-	float: right;
+.button.right {
+  float: right;
 }
 /* HIDE RADIO BUTTON*/
 label > input {

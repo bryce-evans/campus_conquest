@@ -11,7 +11,7 @@ Map = function() {
   this.buildings = new Array();
 
   // mesh[]
-  this.selectable_objects = new Array();
+  this.selectable_objects = [];
   this.scale = 15;
 
 }
@@ -82,7 +82,7 @@ Map.prototype = {
         piece_owner = init_state[model_name].team;
       }
 
-      var game_piece = new GamePiece(this, model_name, mesh, piece_owner);
+      var game_piece = new GamePiece(this, model_name, mesh, piece_owner, init_state[model_name].units);
       world.graphics.scene.add(mesh);
 
     }.bind(this));
@@ -109,13 +109,12 @@ Map.prototype = {
   }
 }
 
-
-GamePiece = function(map, id, mesh, init_team) {
+GamePiece = function(map, id, mesh, init_team, init_units) {
 
   this.id = id;
   this.mesh = mesh;
   this.team = undefined;
-  this.units = 0;
+  this.units = init_units || 0;
 
   mesh.game_piece = this;
 

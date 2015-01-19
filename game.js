@@ -1,6 +1,8 @@
 /*
  Requires a Game was already created with api.js and records exist in DB
  */
+
+var api = require('./api.js');
 function Game(state, io, db) {
 
   this.id = state.id;
@@ -18,6 +20,9 @@ function Game(state, io, db) {
   this.turn = state.turn;
   this.state = state.state;
 
+  // all move data for this turn
+  // gets built as players contribute their moves
+  this.all_move_data = [];
 }
 
 Game.prototype = {
@@ -95,15 +100,67 @@ Game.prototype = {
       }.bind(this));
     }.bind(this));
   },
-  addReinforcementListners : function(socket, team_id) {
+  addReinforcementListeners : function(socket, team_id) {
+
+    // copy all teams
+
     socket.on('reinforcement move', function(move_data) {
       console.log('received reinforcement move', move_data);
-      this.io.to(this.id).emit('reinforcement update', move_data);
+      var team = move_data.meta.team_index;
+      var coms = move_data.commands;
+
+      //var reinforcements_remaining = api.getReinforcementsFromState(this.state,team);
+      // XXX TODO remove later,only temp
+      var reinforcements_remaining = 3;
+
+      for (var i = 0; i < coms.length; i++) {
+        var com = coms[i];
+        var piece = this.state[com.id];
+
+        // make sure you own the piece and have enough to add
+        if (piece.team === team && reinforcements_remaining - com.units >= 0) {
+          console.log('flag 1');
+          piece.units += com.units;
+          reinforcements_remaining -= com.units;
+
+          this.db.query('UPDATE state."' + this.id + '" SET units=' + piece.units + ' WHERE piece_name=\'' + coms[i].id + '\'', function(err, result) {
+            if (err) {
+              console.error('ERR GAME.JS 134');
+            }
+          });
+        }
+      }
+      this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.meta.team + '\'', function(err, result) {
+
+        if (err) {
+          console.error('ERR GAME.JS UPDATING WAITING_ON');
+        }
+
+        console.log('flag 1');
+        // check if any more teams to wait on
+        this.db.query('SELECT index FROM teams."' + this.id + '" WHERE waiting_on=TRUE', function(err, result) {
+          if (err) {
+            console.error('ERROR: query checking teams still waiting on returned error')
+          }
+          console.log('result', result.rows);
+          this.all_move_data.concat(move_data.commands);
+          console.log('all move data', this.all_move_data);
+          this.io.to(this.id).emit('waiting-on update', result.rows);
+        }.bind(this));
+        this.db.query('IF NOT EXISTS (SELECT 1 FROM teams."' + this.id + '" WHERE waiting_on=TRUE)', function(err, result) {
+
+          console.log('no rows returned, sending all move_data');
+
+          this.io.to(this.id).emit('reinforcement update', this.all_move_data);
+
+        }.bind(this));
+      }.bind(this));
     }.bind(this));
   },
   addOrdersListners : function(socket, team_id) {
     console.log('TODO implement addOrdersListeners');
   },
+
   nextTeamIndex : function() {
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
     return this.current_team_index;
