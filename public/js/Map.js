@@ -161,6 +161,7 @@ GamePiece.prototype = {
     this.teams[this.team].troops += newTroops - oldTroops;
   },
   highlight : function() {
+    $('#current-selection').text(this.id);
 
     // this.mesh.material.color.copy(new THREE.Color(1,1,1));
     // return;
@@ -188,13 +189,11 @@ GamePiece.prototype = {
     });
     var outlineMesh = new THREE.Mesh(this.mesh.geometry, outlineMaterial);
     this.highlighted_mesh = outlineMesh;
-    
-    
+
     // push the center so scaling keeps mesh centered on building
     // only needed because geometry center is not world center
     var distance = outlineMesh.position.distanceTo(this.mesh.center);
     outlineMesh.position.copy(this.mesh.center).multiplyScalar(-outline_amount);
-
 
     outlineMesh.scale.multiplyScalar(world.map.scale * (1 + outline_amount));
     world.graphics.scene.add(outlineMesh);
@@ -202,7 +201,8 @@ GamePiece.prototype = {
   },
 
   unhighlight : function() {
-  	world.graphics.scene.remove(this.highlighted_mesh);
+    $('#current-selection').text('');
+    world.graphics.scene.remove(this.highlighted_mesh);
     return;
 
     this.mesh.material.color.copy(TEAM_DATA[world.state_handler.team_order[this.team]].colors.primary);

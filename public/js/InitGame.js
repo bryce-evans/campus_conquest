@@ -87,8 +87,10 @@ function initGame(data) {
     game_id : data.game_id,
     player_id : data.player.id,
     player_name : data.player.name,
-    team_name : TEAM_DATA[data.player.team].name
   });
+  
+  world.control_panel_handler.setTeam(data.player.team);
+  
   world.graphics.animate();
 
 }

@@ -316,7 +316,8 @@ StateHandler.prototype = {
     $('#waiting-on').show();
     $('#waiting-on-list').empty();
     for (var i = 0; i < waiting_on.length; i++) {
-      $('#waiting-on-list').append('<tr class="team-li ' + this.team_order[waiting_on[i]] + '">	<td class="team-li-icon small"></td><td class="team-li-name" ></td><td class="team-li-end"></td>						</tr>')
+      var team_id = this.team_order[waiting_on[i]];
+      $('#waiting-on-list').append('<tr class="team-li team colored ' + team_id + '">	<td class="team icon ' + team_id + ' small"></td><td class="team name ' + team_id + '" ></td><td class="endpiece"></td>						</tr>')
     }
   },
 

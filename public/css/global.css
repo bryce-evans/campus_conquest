@@ -5,6 +5,111 @@ body {
   margin: 0;
 }
 
+header > h2.team.name {
+  margin: 0;
+  padding: 0;
+  line-height: 60px;
+}
+/*adds icon inline with title*/
+header > .team.icon {
+  display: inline-block;
+  float: left;
+  margin: 5px 12px 5px 5px;
+}
+.icon {
+  background-position: center;
+  background-size: cover;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.icon.tiny {
+  width: 16px;
+  height: 16px;
+}
+.icon.small {
+  width: 32px;
+  height: 32px;
+}
+.icon.medium {
+  width: 64px;
+  height: 64px;
+}
+.icon.large {
+  width: 96px;
+  height: 96px;
+}
+.icon.huge {
+  width: 128px;
+  height: 128px;
+}
+.team.icon.hotel {
+  background-image: url(/rsc/images/flags/128/hotel.jpg);
+}
+.team.icon.as {
+  background-image: url(/rsc/images/flags/128/as.jpg);
+}
+.team.icon.aap {
+  background-image: url(/rsc/images/flags/128/aap.jpg);
+}
+.team.icon.cals {
+  background-image: url(/rsc/images/flags/128/cals.jpg);
+}
+.team.icon.ilr {
+  background-image: url(/rsc/images/flags/128/ilr.jpg);
+}
+.team.icon.eng {
+  background-image: url(/rsc/images/flags/128/eng.jpg);
+}
+.team.icon.humec {
+  background-image: url(/rsc/images/flags/128/humec.jpg);
+}
+
+.team.name.hotel:after {
+  content: "Hotel"
+}
+.team.name.as:after {
+  content: "Arts & Sciences"
+}
+.team.name.aap:after {
+  content: "Archetecture and Arts"
+}
+.team.name.cals:after {
+  content: "CALS"
+}
+.team.name.eng:after {
+  content: "Engineering"
+}
+.team.name.ilr:after {
+  content: "ILR"
+}
+.team.name.humec:after {
+  content: "Human Ecology"
+}
+
+.team.colored.hotel {
+  background-color: #7e0a0b;
+}
+.team.colored.as {
+  background-color: #d73520;
+}
+.team.colored.aap {
+  background-color: #f5a11a;
+}
+.team.colored.cals {
+  background-color: #3cb04b;
+}
+.team.colored.ilr {
+  background-color: #3cb04b;
+}
+.team.colored.eng {
+  background-color: #43346d;
+}
+.team.colored.humec {
+  background-color: #bb0677;
+}
+
 .card {
   box-shadow: 2px 5px 10px rgba(0,0,0,.3);
   max-width: 920px;

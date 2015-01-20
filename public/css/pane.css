@@ -104,6 +104,7 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
+
 #lobby-table {
   text-align: left;
   width: 50%;
@@ -128,6 +129,12 @@ table {
   padding: 5px;
 }
 
+#current-selection {
+  line-height: 30px;
+  padding: 10px;
+  min-height: 30px;
+}
+
 .centered-game-message {
   margin: 0 auto;
   width: 100%;
@@ -149,90 +156,23 @@ table {
   color: white;
   font-size: 21px;
 }
-.team-li.hotel {
-  background-color: #7e0a0b;
-}
-.team-li.as {
-  background-color: #d73520;
-}
-.team-li.aap {
-  background-color: #f5a11a;
-}
-.team-li.cals {
-  background-color: #3cb04b;
-}
-.team-li.ilr {
-  background-color: #3cb04b;
-}
-.team-li.eng {
-  background-color: #43346d;
-}
-.team-li.humec {
-  background-color: #bb0677;
-}
 
-.team-li.hotel > .team-li-name:after {
-  content: "Hotel"
-}
-.team-li.as > .team-li-name:after {
-  content: "Arts and Sciences"
-}
-.team-li.aap > .team-li-name:after {
-  content: "AAP"
-}
-.team-li.cals > .team-li-name:after {
-  content: "Cals"
-}
-.team-li.ilr > .team-li-name:after {
-  content: "ILR"
-}
-.team-li.eng > .team-li-name:after {
-  content: "Engineering"
-}
-.team-li.humec > .team-li-name:after {
-  content: "Human Ecology"
-}
 .faded-text {
   color: rgba(255,255,255,.6);
 }
-.team-li-icon {
+.team-li>.icon {
   border-radius: 50% 0 0 50%;
   background-position: center;
   padding: 4px;
   width: 22px;
   height: 22px;
 }
-.team-li-name {
+.team-li>.name {
   padding: 0 20px 0 20px;
 }
-.team-li-end {
+.team-li>.endpiece {
   width: 30px;
   border-radius: 0 50% 50% 0;
-}
-
-.hotel > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/hotel.jpg);
-}
-.as > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/as.jpg);
-}
-.aap > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/aap.jpg);
-}
-.cals > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/cals.jpg);
-}
-
-.ilr > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/ilr.jpg);
-}
-
-.eng > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/eng.jpg);
-}
-
-.humec > .team-li-icon.small {
-  background-image: url(/rsc/images/flags/32/humec.jpg);
 }
 
 td:first-child {
