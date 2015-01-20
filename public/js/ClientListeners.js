@@ -97,7 +97,7 @@ ClientListeners = function() {
       //set prev obj mat back
       if (this.prev_obj) {
         //this.prev_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.prev_obj.game_piece.team));
-        this.prev_obj.material.color = this.prev_obj_color;
+        this.prev_obj.material.color.copy(this.prev_obj_color);
         //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green.png)');
       }
 
