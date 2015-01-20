@@ -123,6 +123,10 @@ header > .team.icon {
 .card-contents {
   padding: 30px;
 }
+.microtext {
+  font-family: verdana;
+  font-size: 11px;
+}
 .button {
   -moz-box-shadow: inset 0px 1px 0px 0px #debab6;
   -webkit-box-shadow: inset 0px 1px 0px 0px #debab6;

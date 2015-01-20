@@ -101,12 +101,6 @@ nav a ul li:hover {
   font-size: 16px;
   font-family: sans, arial;
 }
-#canvas2D, #canvas3D {
-  cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
-  position: absolute;
-  left: 0;
-  top: 50px;
-}
 
 .centered-window {
   margin: 0 auto;
@@ -116,7 +110,7 @@ nav a ul li:hover {
   z-index: 5;
   position: absolute;
 }
-.centered-window  > .container {
+.centered-window > .container {
   margin: 60px auto;
   width: 400px;
   padding: 20px;
@@ -124,42 +118,69 @@ nav a ul li:hover {
   border-radius: 4px;
   background: rgba(0,0,0,.8);
 }
-.centered-window  > .container > h1 {
+.centered-window > .container > h1 {
   padding-bottom: 10px;
   color: white;
   font-size: 21px;
 }
-.centered-window>.button-set{
-	float: right;
+.centered-window > .button-set {
+  float: right;
 }
 
-#attack-panel{
-	
-}
-#attack-slider{
-	
-}
-#attack-slider>.line{
-	
-}
+#attack-panel {
 
-#attack-slider>.chevron {
+}
+#attack-panel > .button-set {
+  margin: 40px 0 0 200px;
+}
+#attack-slider {
+  height: 20px;
   position: relative;
-  top: 100px;
-    left: 100px;
-  text-align: center;
+  width: 300px;
+  margin: 20px;
+}
+
+#attack-slider > #attack-slider-inner-line {
+  background-color: rgba(200,200,255,.2);
+  width: 100%;
+}
+
+#attack-slider > div {
+  height: 2px;
+  left: 10px;
+  margin-top: 11px;
+  position: absolute;
+  background-color: rgba(255,96,64,.7);
+}
+
+/* styles for chevron slider */
+#attack-slider > span {
+  width: 20px;
+  position: absolute;
   padding: 0px;
   margin-bottom: 6px;
-  height: 40px;
-  width: 20px;
+  height: 20px;
   -webkit-transform: rotate(-90deg);
   -moz-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
-  -o-transform: rotate(90deg);
   transform: rotate(-90deg);
 }
 
-#attack-slider>.chevron:before {
+@-webkit-keyframes AnimationName {
+0%{background-position:0% 51%}
+100%{background-position:100% 50%}
+}
+@-moz-keyframes AnimationName {
+0%{background-position:0% 51%}
+50%{background-position:100% 50%}
+100%{background-position:0% 51%}
+}
+@keyframes AnimationName {
+0%{background-position:0% 51%}
+100%{background-position:100% 50%}
+}
+
+#attack-slider > span:before {
   content: '';
   position: absolute;
   top: 0;
@@ -167,16 +188,28 @@ nav a ul li:hover {
   height: 100%;
   width: 51%;
   background-color: #1176b0;
-    border: solid 2px black;
-    border-right: none;
-  -webkit-transform: skew(0deg, 30deg);
-  -moz-transform: skew(0deg, 6deg);
-  -ms-transform: skew(0deg, 6deg);
-  -o-transform: skew(0deg, 6deg);
+  border: solid 2px black;
+  border-right: none;
+  -webkit-transform: skew(0deg, 45deg) translate(-4px,4px);
+  -moz-transform: skew(0deg, 45deg) translate(-4px,4px);
+  -ms-transform: skew(0deg, 45deg) translate(-4px,4px);
+  -o-transform: skew(0deg, 45deg) translate(-4px,4px);
   transform: skew(0deg, 45deg) translate(-4px,4px);
+  /****/
+  background: rgb(232,46,46); /* Old browsers */
+  background: -moz-linear-gradient(45deg, rgba(232,46,46,1) 21%, rgba(232,46,46,1) 21%, rgba(232,46,46,1) 44%, rgba(232,46,46,1) 44%, rgba(255,211,211,1) 51%, rgba(226,45,45,1) 57%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left bottom, right top, color-stop(21%,rgba(232,46,46,1)), color-stop(21%,rgba(232,46,46,1)), color-stop(44%,rgba(232,46,46,1)), color-stop(44%,rgba(232,46,46,1)), color-stop(51%,rgba(255,211,211,1)), color-stop(57%,rgba(226,45,45,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* IE10+ */
+  background-size: 1200% 1200%;
+  -webkit-animation: AnimationName 1s ease infinite;
+  -moz-animation: AnimationName 1s ease infinite;
+  animation: AnimationName 1s ease infinite;
 }
-#attack-slider>.chevron:after {
-  content: '';
+
+#attack-slider > span:after {
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
@@ -184,13 +217,40 @@ nav a ul li:hover {
   width: 50%;
   background: #24a5ef;
   border: solid 2px black;
-    border-left:none;
-  -webkit-transform: skew(0deg, -30deg);
-  -moz-transform: skew(0deg, -30deg);
-  -ms-transform: skew(0deg, -30deg);
-  -o-transform: skew(0deg, -30deg);
+  border-left: none;
+  -webkit-transform: skew(0deg, -45deg);
+  -moz-transform: skew(0deg, -45deg);
+  -ms-transform: skew(0deg, -45deg);
+  -o-transform: skew(0deg, -45deg);
   transform: skew(0deg, -45deg);
-}​
+  /****/
+  background: rgb(232,46,46); /* Old browsers */
+  background: -moz-linear-gradient(45deg, rgba(232,46,46,1) 21%, rgba(232,46,46,1) 21%, rgba(232,46,46,1) 44%, rgba(232,46,46,1) 44%, rgba(255,211,211,1) 51%, rgba(226,45,45,1) 57%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left bottom, right top, color-stop(21%,rgba(232,46,46,1)), color-stop(21%,rgba(232,46,46,1)), color-stop(44%,rgba(232,46,46,1)), color-stop(44%,rgba(232,46,46,1)), color-stop(51%,rgba(255,211,211,1)), color-stop(57%,rgba(226,45,45,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* IE10+ */
+  background-size: 1200% 1200%;
+  -webkit-animation: AnimationName 1s ease infinite;
+  -moz-animation: AnimationName 1s ease infinite;
+  animation: AnimationName 1s ease infinite;
+}
+
+#attack-slider > span:active:before, #attack-slider > span:hover:before {
+  box-shadow: 0 0 10px rgba(255,255,255,.7);
+}
+#attack-slider > span:active:after, #attack-slider > span:hover:after {
+  box-shadow: 2px 0 7px rgba(255,255,255,.55);
+}
+#attack-slider > span:focus {
+  outline: none;
+}
+#canvas2D, #canvas3D {
+  cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
+  position: absolute;
+  left: 0;
+  top: 50px;
+}
 
 #canvas2D {
   z-index: 2;

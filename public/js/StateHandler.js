@@ -76,7 +76,7 @@ StateHandler.prototype = {
       $('#button-continue').show();
       $('#button-continue').click( function() {
         this.combineUnits();
-        this.setupOrdersStage();
+        this.initOrdersStage();
       }.bind(this));
     }.bind(this));
 
@@ -84,7 +84,7 @@ StateHandler.prototype = {
       console.log('received orders update', data);
       $('#button-continue').show();
       $('#button-continue').click(function() {
-        this.setupReinforcementStage();
+        this.initReinforcementStage();
       });
     }.bind(this));
 
@@ -135,7 +135,7 @@ StateHandler.prototype = {
         if (state.waiting_on.indexOf(me.team_index) == -1) {
           this.showWaitingOnWindow(state.waiting_on);
         } else {
-          this.setupReinforcementStage();
+          this.initReinforcementStage();
         }
 
         break;
@@ -144,7 +144,7 @@ StateHandler.prototype = {
         if (state.waiting_on.indexOf(me.team_index) == -1) {
           this.showWaitingOnWindow(state.waiting_on);
         } else {
-          this.setupOrdersStage();
+          this.initOrdersStage();
         }
         break;
     }
@@ -155,7 +155,7 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
   },
-  setupReinforcementStage : function() {
+  initReinforcementStage : function() {
     $('#panel-reinforcement-info').show();
     $.ajax({
       url : '/reinforcements',
@@ -169,9 +169,24 @@ StateHandler.prototype = {
       $('#reinforcements-remaining').text(res.reinforcements);
     }.bind(this));
   },
-  setupOrdersStage : function() {
+  initOrdersStage : function() {
     this.current.stage = 'orders';
 
+    // manages the attack panel slider
+    $(function() {
+      $("#attack-slider").slider({
+        range : "min",
+        value : 8,
+        min : 1,
+        max : 10,
+        slide : function(event, ui) {
+          $("#attack-unit-count").text('units: ' + ui.value);
+        }
+      });
+      $("#attack-unit-count").val("$" + $("#attack-slider").slider("value"));
+    });
+
+    // done button to submit all orders
     $('#button-done').click( function() {
       var commands = [];
 
@@ -303,6 +318,10 @@ StateHandler.prototype = {
           $('#attack-panel .from').text(start_id);
           $('#attack-panel .to').text(end_id);
 
+          $("#attack-slider").slider('option', 'value', piece.units - 1);
+          $("#attack-slider").slider('option', 'max', piece.units - 1);
+          $("#attack-unit-count").text('units: ' + (piece.units - 1));
+
           $('#attack-panel').show();
 
           $('#attack-panel>.button.okay').click( function() {
@@ -312,6 +331,10 @@ StateHandler.prototype = {
 
             // allow to finish round (not required, can add more moves)
             $('#button-done').show();
+          }.bind(this));
+
+          $('#attack-panel .button.cancel').click( function() {
+            $('#attack-panel').hide();
           }.bind(this));
 
         }
