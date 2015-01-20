@@ -1,11 +1,11 @@
 World = function(id) {
   this.id = id;
-  this.map
-  this.state_handler
-  this.control_panel_handler
-  this.client_listeners
-  this.graphics
-  this.window_handler
+  this.map = undefined;
+  this.state_handler = undefined;
+  this.control_panel_handler = undefined;
+  this.client_listeners = undefined;
+  this.graphics = undefined;
+  this.window_handler = undefined;
   this.nav = {
     height : 50
   };

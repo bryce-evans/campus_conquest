@@ -17,6 +17,8 @@ StateHandler = function() {
 
   this.move_data.commands = [];
 
+  this.pieces_with_added_units = [];
+
   // used to temporarily store data before finally packaging into move_data
   this.temp_move_data = {};
 
@@ -45,7 +47,7 @@ StateHandler.prototype = {
       var team = data.team_index;
       var building_id = data.piece;
       var building = world.map.buildings[building_id];
-      building.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
+      building.material.color.copy(new THREE.Color(world.state_handler.getTeamColorFromIndex(team)));
       building.game_piece.team = team;
       world.control_panel_handler.updateWheelToNext();
       this.updateState(data);
@@ -60,32 +62,46 @@ StateHandler.prototype = {
         return;
       }
 
-      // show only after getting data from server
-      // prevents window from flashing when no waiting-on left
-      $('#waiting-on').show();
-      $('#waiting-on-list').empty();
-      for (var i = 0; i < data.length; i++) {
-        $('#waiting-on-list').append('<tr class="team-li ' + this.team_order[data[i]] + '">	<td class="team-li-icon small"></td><td class="team-li-name" ></td><td class="team-li-end"></td>						</tr>')
-      }
+      this.showWaitingOnWindow(data);
 
     }.bind(this));
 
     this.socket.on('reinforcement update', function(data) {
       console.log('received reinforcement update', data);
-      $('#waiting-on').hide();
+      this.hideWaitingOnWindow();
       for (var i = 0; i < data.length; i++) {
         world.map.getObj(data[i].id).game_piece.units_added = data[i].units;
+        this.pieces_with_added_units.push(world.map.getObj(data[i].id).game_piece);
       }
+      $('#button-continue').show();
+      $('#button-continue').click( function() {
+        this.combineUnits();
+        this.setupOrdersStage();
+      }.bind(this));
     }.bind(this));
 
     this.socket.on('orders update', function(data) {
       console.log('received orders update', data);
+      $('#button-continue').show();
+      $('#button-continue').click(function() {
+        this.setupReinforcementStage();
+      });
     }.bind(this));
 
     this.socket.on('battle update', function(data) {
       console.log('received battle` update', data);
     }.bind(this));
 
+  },
+
+  // takes a list of pieces with units added, adds those units and resets added to 0
+  combineUnits : function() {
+    var pieces = this.pieces_with_units_added;
+    for (var i = 0; i < pieces.length; i++) {
+      pieces.units += pieces.units_added;
+      pieces.units_added = 0;
+    }
+    pieces = [];
   },
 
   addTeam : function(team) {
@@ -114,19 +130,23 @@ StateHandler.prototype = {
       case "grab":
         break;
       case "reinforcement":
-        $('#panel-reinforcement-info').show();
-        $.ajax({
-          url : '/reinforcements',
-          data : {
-            id : world.id,
-            team : me.team
-          }
-        }).done( function(res) {
-          console.log('reinfocements', res);
-          this.moves_left = res.reinforcements;
-          $('#reinforcements-remaining').text(res.reinforcements);
-        }.bind(this));
 
+        // you have already moved
+        if (state.waiting_on.indexOf(me.team_index) == -1) {
+          this.showWaitingOnWindow(state.waiting_on);
+        } else {
+          this.setupReinforcementStage();
+        }
+
+        break;
+      case "orders":
+        // you have already moved
+        if (state.waiting_on.indexOf(me.team_index) == -1) {
+          this.showWaitingOnWindow(state.waiting_on);
+        } else {
+          this.setupOrdersStage();
+        }
+        break;
     }
   },
   // for single move updates
@@ -135,7 +155,23 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
   },
-
+  setupReinforcementStage : function() {
+    $('#panel-reinforcement-info').show();
+    $.ajax({
+      url : '/reinforcements',
+      data : {
+        id : world.id,
+        team : me.team
+      }
+    }).done( function(res) {
+      console.log('reinfocements', res);
+      this.moves_left = res.reinforcements;
+      $('#reinforcements-remaining').text(res.reinforcements);
+    }.bind(this));
+  },
+  setupOrdersStage : function() {
+    this.current.stage = 'orders';
+  },
   // takes a clicked piece and handles the change in state on the client only until turn is over
   // does not always take a full turn if multiple pieces are needed to handle the turn
   move : function(piece) {
@@ -206,28 +242,87 @@ StateHandler.prototype = {
         }
         break;
       case 'orders':
+        var mesh = piece;
+        var piece = mesh.game_piece;
 
-        if (!this.current_selected) {
+        // make sure its your piece
+        if (piece.team === me.team_index) {
+
+          // undo highlight
+          if (this.current_selected) {
+            this.current_selected.unhighlight();
+
+            //undo selection
+            if (this.current_selected === piece) {
+              this.current_selected = undefined;
+              return;
+            }
+          }
+
           this.current_selected = piece;
-        } else {
-          var start_id = this.current_selected.game_piece.id;
-          var end_id = piece.game_piece.id;
-          var arrow = new Arrow(start_id, end_id);
-          this.move_data.commands.push({
-            start : start_id,
-            end : end_id
-          });
+          this.current_selected.highlight();
 
-          var move_data = {
-            scope : world.id,
-            team_index : world.state_handler.getCurrent().team_index,
-            team_id : me.team,
-            commands : this.commands,
-          };
-          this.socket.emit('orders move', move_data);
+          // issue attack
+        } else {
+          var start_id = this.current_selected.id;
+          var end_id = piece.id;
+          var units = 1;
+          var arrow = new Arrow(start_id, end_id, units);
+
+          // initialize map
+          if (!this.temp_move_data[this.current_selected.id]) {
+            this.temp_move_data[this.current_selected.id] = {};
+          }
+          this.temp_move_data[this.current_selected.id][piece.id] = units;
+
+          // undo selection
+          this.current_selected.unhighlight();
+          this.current_selected = undefined;
+
+          // allow to finish round (not required, can add more moves)
+          $('#button-done').show();
+          $('#button-done').click( function() {
+            var commands = [];
+
+            // format for sending
+            for (var start in this.temp_move_data) {
+              for (var end in this.temp_move_data[start]) {
+                commands.push({
+                  start : key,
+                  end : key2,
+                  units : this.temp_move_data[start][end],
+                });
+              }
+            }
+            var move_data = {
+              meta : {
+                scope : world.id,
+                team_index : me.team_index,
+                team_id : me.team,
+              },
+              commands : commands,
+            };
+            this.socket.emit('orders move', move_data);
+            this.temp_move_data = {};
+          }.bind(this));
+
         }
         break;
     }
+  },
+  showWaitingOnWindow : function(waiting_on) {
+    // show only after getting data from server
+    // prevents window from flashing when no waiting-on left
+    $('#waiting-on').show();
+    $('#waiting-on-list').empty();
+    for (var i = 0; i < waiting_on.length; i++) {
+      $('#waiting-on-list').append('<tr class="team-li ' + this.team_order[waiting_on[i]] + '">	<td class="team-li-icon small"></td><td class="team-li-name" ></td><td class="team-li-end"></td>						</tr>')
+    }
+  },
+
+  hideWaitingOnWindow : function() {
+    $('#waiting-on').hide();
+    $('#waiting-on-list').empty();
   },
 
   getTeamColorFromIndex : function(index) {

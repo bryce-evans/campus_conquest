@@ -19,6 +19,7 @@ Map.prototype = {
   getObj : function(id) {
     return this.buildings[id];
   },
+
   /**
    * given an object
    * returns string array of connected buildings
@@ -149,7 +150,7 @@ GamePiece.prototype = {
     }
     var new_material = this.mesh.material;
     var new_color = world.state_handler.getTeamColorFromIndex(team_number);
-    new_material.color = new THREE.Color(new_color);
+    new_material.color.copy(new THREE.Color(new_color));
     this.mesh.material = new_material;
     this.team = team_number;
   },
@@ -158,6 +159,66 @@ GamePiece.prototype = {
     var oldTroops = mesh.troops;
     this.troops = newTroops;
     this.teams[this.team].troops += newTroops - oldTroops;
+  },
+  highlight : function() {
+
+    // this.mesh.material.color.copy(new THREE.Color(1,1,1));
+    // return;
+    //
+    // this.mesh.material.color.r = (this.mesh.material.color.r + 1) / 2;
+    // this.mesh.material.color.g = (this.mesh.material.color.g + 1) / 2;
+    // this.mesh.material.color.b = (this.mesh.material.color.b + 1) / 2;
+    //
+    // // keep color after moving mouse off of piece
+    //
+    // return;
+    //
+    // this.mesh.material.color.r ^=1;
+    // this.mesh.material.color.g ^=1;
+    // this.mesh.material.color.b ^=1;
+    // return;
+
+    var outline_amount = 0.1;
+
+    var color = TEAM_DATA[world.state_handler.team_order[this.team]].colors.secondary;
+
+    var outlineMaterial = new THREE.MeshBasicMaterial({
+      color : color ^ 0xffffff,
+      side : THREE.BackSide
+    });
+    var outlineMesh = new THREE.Mesh(this.mesh.geometry, outlineMaterial);
+    this.highlighted_mesh = outlineMesh;
+    
+    
+    // push the center so scaling keeps mesh centered on building
+    // only needed because geometry center is not world center
+    var distance = outlineMesh.position.distanceTo(this.mesh.center);
+    outlineMesh.position.copy(this.mesh.center).multiplyScalar(-outline_amount);
+
+
+    outlineMesh.scale.multiplyScalar(world.map.scale * (1 + outline_amount));
+    world.graphics.scene.add(outlineMesh);
+
+  },
+
+  unhighlight : function() {
+  	world.graphics.scene.remove(this.highlighted_mesh);
+    return;
+
+    this.mesh.material.color.copy(TEAM_DATA[world.state_handler.team_order[this.team]].colors.primary);
+    return;
+    this.mesh.material.color.r = (this.mesh.material.color.r * 2) - 1;
+    this.mesh.material.color.g = (this.mesh.material.color.g * 2) - 1;
+    this.mesh.material.color.b = (this.mesh.material.color.b * 2) - 1;
+    return;
+
+    this.mesh.material.color.r ^=1;
+    this.mesh.material.color.g ^=1;
+    this.mesh.material.color.b ^=1;
+    return;
+
+    world.graphics.scene.remove(this.highlightedMesh);
+
   }
 }
 
@@ -177,13 +238,6 @@ Arrow = function(id1, id2) {
   this.end = id2;
   this.strength = 100;
   // start_mesh.game_piece.troops - 1;
-  this.command = {
-    start : id1,
-    end : id2,
-    strength : this.strength
-  };
-
-  world.state_handler.move_data.commands.push(this.command);
 
   var p1 = start_mesh.center;
   var p2 = end_mesh.center;

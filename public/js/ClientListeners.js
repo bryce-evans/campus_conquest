@@ -13,12 +13,13 @@ ClientListeners = function() {
   // weight of highlight colors vs texture
   this.weight = .8;
 
-  this.old_obj
-  this.cur_obj
-  this.mat
+  this.prev_obj = undefined;
+  this.prev_obj_color = new THREE.Color();
+  this.cur_obj = undefined;
+  this.mat = undefined;
 
-  this.mouseX
-  this.mouseY
+  this.mouseX = undefined;
+  this.mouseY = undefined;
 
   // must use this.fn for listeners to bind this obj to this instead of window or the event
   this.initListeners = function() {
@@ -55,18 +56,20 @@ ClientListeners = function() {
 
   // click function, colors buildings for territory grab
   var onMouseDown = function(event) {
-		
+
     var hit_object = this.getHitObject();
-    if(!hit_object){return;}
+    if (!hit_object) {
+      return;
+    }
     if (world.id != '') {
       world.state_handler.move(hit_object);
-      
+
       // TEMP XXX will fix, copied from socket handlers
     } else {
       var team = data[0];
       var building_id = data[1];
       var building = world.map.buildings[building_id];
-      building.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
+      building.material.color.copy(new THREE.Color(world.state_handler.getTeamColorFromIndex(team)));
       building.game_piece.team = team;
       world.state_handler.nextTurn();
     }
@@ -87,13 +90,14 @@ ClientListeners = function() {
     // CASE: mouse is over a new object than last frame
     // make sure:
     // have a current object
-    // either don't have an old one (was over nothing previously)
-    //or the old object isnt the same as the current
-    if (this.cur_obj && (!this.old_obj || (this.cur_obj !== this.old_obj))) {
+    // either don't have an  one (was over nothing previously)
+    //or the prev object isnt the same as the current
+    if (this.cur_obj && (!this.prev_obj || (this.cur_obj !== this.prev_obj))) {
 
-      //set old obj mat back
-      if (this.old_obj) {
-        this.old_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.old_obj.game_piece.team));
+      //set prev obj mat back
+      if (this.prev_obj) {
+        //this.prev_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.prev_obj.game_piece.team));
+        this.prev_obj.material.color = this.prev_obj_color;
         //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green.png)');
       }
 
@@ -102,16 +106,18 @@ ClientListeners = function() {
 
       //***SOLID HIGHLIGHT
       //cur_obj.object.material["color"] = highlight;
-      var current_material = this.blend(this.cur_obj.material.color, highlight);
-       //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green-dot-red.png)');
-      this.old_obj = this.cur_obj;
+      this.prev_obj_color.copy(this.cur_obj.material.color); 
+      this.blend(this.cur_obj.material.color, highlight);
+      this.prev_obj = this.cur_obj;
+
+      //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green-dot-red.png)');
     }
 
     //undoes highlight if no obj hovered over
     else if (!this.cur_obj) {
-      if (this.old_obj) {
-        this.old_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.old_obj.game_piece.team));
-        this.old_obj = null;
+      if (this.prev_obj) {
+        this.prev_obj.material.color.copy(this.prev_obj_color);
+        this.prev_obj = null;
       }
     }
 
