@@ -108,6 +108,90 @@ nav a ul li:hover {
   top: 50px;
 }
 
+.centered-window {
+  margin: 0 auto;
+  width: 100%;
+  height: 300px;
+  background: rgba(0,0,0,.5);
+  z-index: 5;
+  position: absolute;
+}
+.centered-window  > .container {
+  margin: 60px auto;
+  width: 400px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 4px;
+  background: rgba(0,0,0,.8);
+}
+.centered-window  > .container > h1 {
+  padding-bottom: 10px;
+  color: white;
+  font-size: 21px;
+}
+.centered-window>.button-set{
+	float: right;
+}
+
+#attack-panel{
+	
+}
+#attack-slider{
+	
+}
+#attack-slider>.line{
+	
+}
+
+#attack-slider>.chevron {
+  position: relative;
+  top: 100px;
+    left: 100px;
+  text-align: center;
+  padding: 0px;
+  margin-bottom: 6px;
+  height: 40px;
+  width: 20px;
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(-90deg);
+}
+
+#attack-slider>.chevron:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 51%;
+  background-color: #1176b0;
+    border: solid 2px black;
+    border-right: none;
+  -webkit-transform: skew(0deg, 30deg);
+  -moz-transform: skew(0deg, 6deg);
+  -ms-transform: skew(0deg, 6deg);
+  -o-transform: skew(0deg, 6deg);
+  transform: skew(0deg, 45deg) translate(-4px,4px);
+}
+#attack-slider>.chevron:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 50%;
+  background: #24a5ef;
+  border: solid 2px black;
+    border-left:none;
+  -webkit-transform: skew(0deg, -30deg);
+  -moz-transform: skew(0deg, -30deg);
+  -ms-transform: skew(0deg, -30deg);
+  -o-transform: skew(0deg, -30deg);
+  transform: skew(0deg, -45deg);
+}​
+
 #canvas2D {
   z-index: 2;
 }

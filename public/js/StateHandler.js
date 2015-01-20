@@ -171,6 +171,31 @@ StateHandler.prototype = {
   },
   setupOrdersStage : function() {
     this.current.stage = 'orders';
+
+    $('#button-done').click( function() {
+      var commands = [];
+
+      // format for sending
+      for (var start in this.temp_move_data) {
+        for (var end in this.temp_move_data[start]) {
+          commands.push({
+            start : key,
+            end : key2,
+            units : this.temp_move_data[start][end],
+          });
+        }
+      }
+      var move_data = {
+        meta : {
+          scope : world.id,
+          team_index : me.team_index,
+          team_id : me.team,
+        },
+        commands : commands,
+      };
+      this.socket.emit('orders move', move_data);
+      this.temp_move_data = {};
+    }.bind(this));
   },
   // takes a clicked piece and handles the change in state on the client only until turn is over
   // does not always take a full turn if multiple pieces are needed to handle the turn
@@ -269,41 +294,24 @@ StateHandler.prototype = {
           var units = 1;
           var arrow = new Arrow(start_id, end_id, units);
 
-          // initialize map
+          // initialize move data map [<from> : <to>]
           if (!this.temp_move_data[this.current_selected.id]) {
             this.temp_move_data[this.current_selected.id] = {};
           }
           this.temp_move_data[this.current_selected.id][piece.id] = units;
 
-          // undo selection
-          this.current_selected.unhighlight();
-          this.current_selected = undefined;
+          $('#attack-panel .from').text(start_id);
+          $('#attack-panel .to').text(end_id);
 
-          // allow to finish round (not required, can add more moves)
-          $('#button-done').show();
-          $('#button-done').click( function() {
-            var commands = [];
+          $('#attack-panel').show();
 
-            // format for sending
-            for (var start in this.temp_move_data) {
-              for (var end in this.temp_move_data[start]) {
-                commands.push({
-                  start : key,
-                  end : key2,
-                  units : this.temp_move_data[start][end],
-                });
-              }
-            }
-            var move_data = {
-              meta : {
-                scope : world.id,
-                team_index : me.team_index,
-                team_id : me.team,
-              },
-              commands : commands,
-            };
-            this.socket.emit('orders move', move_data);
-            this.temp_move_data = {};
+          $('#attack-panel>.button.okay').click( function() {
+            // undo selection
+            this.current_selected.unhighlight();
+            this.current_selected = undefined;
+
+            // allow to finish round (not required, can add more moves)
+            $('#button-done').show();
           }.bind(this));
 
         }
