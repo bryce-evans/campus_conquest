@@ -173,17 +173,15 @@ StateHandler.prototype = {
     this.current.stage = 'orders';
 
     // manages the attack panel slider
-    $(function() {
-      $("#attack-slider").slider({
-        range : "min",
-        value : 8,
-        min : 1,
-        max : 10,
-        slide : function(event, ui) {
-          $("#attack-unit-count").text('units: ' + ui.value);
-        }
-      });
-      $("#attack-unit-count").val("$" + $("#attack-slider").slider("value"));
+
+    $("#attack-slider").slider({
+      range : "min",
+      value : 8,
+      min : 0,
+      max : 10,
+      slide : function(event, ui) {
+        $("#attack-unit-count").text('units: ' + ui.value);
+      }
     });
 
     // done button to submit all orders
@@ -306,25 +304,48 @@ StateHandler.prototype = {
         } else {
           var start_id = this.current_selected.id;
           var end_id = piece.id;
-          var units = 1;
-          var arrow = new Arrow(start_id, end_id, units);
 
-          // initialize move data map [<from> : <to>]
-          if (!this.temp_move_data[this.current_selected.id]) {
-            this.temp_move_data[this.current_selected.id] = {};
-          }
-          this.temp_move_data[this.current_selected.id][piece.id] = units;
+          var arrow = world.map.getArrow(start_id, end_id);
+          var prev_arrow_units = arrow.units;
+
+          var max_force = this.current_selected.units - 1;
+          var init_slider_force = prev_arrow_units > 0 ? prev_arrow_units : max_force;
 
           $('#attack-panel .from').text(start_id);
           $('#attack-panel .to').text(end_id);
 
-          $("#attack-slider").slider('option', 'value', piece.units - 1);
-          $("#attack-slider").slider('option', 'max', piece.units - 1);
-          $("#attack-unit-count").text('units: ' + (piece.units - 1));
+          $("#attack-slider").slider("destroy");
+          $("#attack-slider").slider({
+            range : "min",
+            value : init_slider_force,
+            min : 0,
+            max : max_force,
+            slide : function(event, ui) {
+              $("#attack-unit-count").text('units: ' + ui.value);
+              arrow.setUnits(ui.value);
+            }
+          });
+
+          // $("#attack-slider").slider('option', 'value', piece.units - 1);
+          // $("#attack-slider").slider('option', 'max', piece.units - 1);
+          // $("#attack-slider").slider({
+          // slide : function(e, ui) {
+          // $("#attack-unit-count").text('units: ' + ui.value);
+          // arrow.setStrength(ui.value);
+          // }
+          // });
+          $("#attack-unit-count").text('units: ' + (init_slider_force));
+          arrow.setUnits(init_slider_force);
 
           $('#attack-panel').show();
 
           $('#attack-panel>.button.okay').click( function() {
+            // initialize move data map [<from> : <to>]
+            if (!this.temp_move_data[this.current_selected.id]) {
+              this.temp_move_data[this.current_selected.id] = {};
+            }
+            this.temp_move_data[this.current_selected.id][piece.id] = $("#attack-slider").slider('option', 'value');
+
             // undo selection
             this.current_selected.unhighlight();
             this.current_selected = undefined;
@@ -333,9 +354,19 @@ StateHandler.prototype = {
             $('#button-done').show();
           }.bind(this));
 
+					// remove old listener so canceling doesnt clear everything!
+          $('#attack-panel .button.cancel').unbind('click');
+
           $('#attack-panel .button.cancel').click( function() {
+            arrow.setUnits(this.prev_arrow_units);
             $('#attack-panel').hide();
-          }.bind(this));
+          }.bind({
+            prev_arrow_units : prev_arrow_units
+          }));
+
+          $('#attack-panel .button.okay').click(function() {
+            $('#attack-panel').hide();
+          });
 
         }
         break;

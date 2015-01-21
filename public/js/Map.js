@@ -5,10 +5,14 @@ Map = function() {
 
   this.map = {};
   this.map_territories = {};
-  this.arrow_meshes = [];
 
   // map: string id -> connected (string[] ids)
   this.buildings = new Array();
+
+  this.arrow_meshes = [];
+
+  // Arrow lookup map- <string> start-id : {<string> end-id : Arrow}
+  this.arrow_map = {};
 
   // mesh[]
   this.selectable_objects = [];
@@ -107,6 +111,13 @@ Map.prototype = {
         console.log(err.stack);
       }
     }.bind(this));
+  },
+  getArrow : function(start_id, end_id) {
+    if (this.arrow_map[start_id] && this.arrow_map[start_id][end_id]) {
+      return this.arrow_map[start_id][end_id];
+    } else {
+      return new Arrow(start_id, end_id);
+    }
   }
 }
 
@@ -154,12 +165,7 @@ GamePiece.prototype = {
     this.mesh.material = new_material;
     this.team = team_number;
   },
-  // also updates team data
-  setTroops : function(newTroops) {
-    var oldTroops = mesh.troops;
-    this.troops = newTroops;
-    this.teams[this.team].troops += newTroops - oldTroops;
-  },
+
   highlight : function() {
     $('#current-selection').text(this.id);
 
@@ -234,15 +240,24 @@ Arrow = function(id1, id2) {
   var start_mesh = world.map.getObj(id1);
   var end_mesh = world.map.getObj(id2);
 
+  // the id of the piece the arrow originates
   this.start = id1;
+
+  // id of piece ends at
   this.end = id2;
-  this.strength = 100;
-  // start_mesh.game_piece.troops - 1;
+
+  if (!world.map.arrow_map[id1]) {
+    world.map.arrow_map[id1] = {};
+  }
+  world.map.arrow_map[id1][id2] = this;
+
+  // units this arrow represents
+  this.units = 0;
 
   var p1 = start_mesh.center;
   var p2 = end_mesh.center;
 
-  var scale = 15;
+  var scale = world.map.scale;
 
   // find arrow polar coords
   var mag = Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.z - p1.z), 2));
@@ -266,7 +281,7 @@ Arrow = function(id1, id2) {
 
     var mesh = new THREE.Mesh(geometry, material);
 
-    mesh.scale.set(mag - .5 * (scale), .1 * mag, .03 * this.strength * scale + .5);
+    mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
 
     mesh.position.x = start_mesh.center.x;
     mesh.position.z = start_mesh.center.z;
@@ -277,19 +292,38 @@ Arrow = function(id1, id2) {
     z = mesh.position.z;
 
     this.mesh = mesh;
+
     this.center = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
 
     world.map.arrow_meshes.push(mesh);
 
-    world.graphics.scene.add(mesh);
+    // don't add to scene until units > 0
+    if (this.units !== 0) {
+      this.mesh.scale.z = this.units * world.map.scale + .5;
+      world.graphics.scene.add(this.mesh);
+    }
 
   }.bind(this));
+}
+Arrow.prototype = {
+  setUnits : function(u) {
+    var prev_units = this.units;
+    this.units = u;
 
-  function setStrength(s) {
-    this.strength = s;
-    this.command.strength = s;
-    //mesh.scale.z = .03 * strength * scale + .5;
+    if (this.mesh) {
+      this.mesh.scale.z = u * world.map.scale + .5;
+    }
+
+    // remove
+    if (u === 0) {
+      world.graphics.scene.remove(this.mesh);
+      return;
+    }
+    // add back
+    else if (prev_units === 0 && u !== 0) {
+      world.graphics.scene.add(this.mesh);
+    }
+
   }
-
 }
 
