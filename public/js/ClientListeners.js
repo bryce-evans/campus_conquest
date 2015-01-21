@@ -94,6 +94,8 @@ ClientListeners = function() {
     //or the prev object isnt the same as the current
     if (this.cur_obj && (!this.prev_obj || (this.cur_obj !== this.prev_obj))) {
 
+      $('#canvas2D').css('cursor', 'url(/rsc/images/cursors/pointer-green-dot-red.png) 16 16, pointer');
+
       //set prev obj mat back
       if (this.prev_obj) {
         //this.prev_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.prev_obj.game_piece.team));
@@ -106,7 +108,7 @@ ClientListeners = function() {
 
       //***SOLID HIGHLIGHT
       //cur_obj.object.material["color"] = highlight;
-      this.prev_obj_color.copy(this.cur_obj.material.color); 
+      this.prev_obj_color.copy(this.cur_obj.material.color);
       this.blend(this.cur_obj.material.color, highlight);
       this.prev_obj = this.cur_obj;
 
@@ -114,11 +116,10 @@ ClientListeners = function() {
     }
 
     //undoes highlight if no obj hovered over
-    else if (!this.cur_obj) {
-      if (this.prev_obj) {
-        this.prev_obj.material.color.copy(this.prev_obj_color);
-        this.prev_obj = null;
-      }
+    else if (!this.cur_obj && this.prev_obj) {
+      $('#canvas2D').css('cursor', 'url(/rsc/images/cursors/pointer-green.png) 16 16, pointer');
+      this.prev_obj.material.color.copy(this.prev_obj_color);
+      this.prev_obj = null;
     }
 
   }.bind(this)
