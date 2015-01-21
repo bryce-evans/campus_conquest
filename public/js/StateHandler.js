@@ -184,9 +184,9 @@ StateHandler.prototype = {
       }
     });
 
-		// allow to submit any time
-		$('#button-done').show();
-		
+    // allow to submit any time
+    $('#button-done').show();
+
     // done button to submit all orders
     $('#button-done').click( function() {
       var commands = [];
@@ -305,17 +305,25 @@ StateHandler.prototype = {
 
           // issue attack
         } else {
-          var start_id = this.current_selected.id;
+          var start_piece = this.current_selected;
+          var start_id = start_piece.id;
           var end_id = piece.id;
 
           var arrow = world.map.getArrow(start_id, end_id);
           var prev_arrow_units = arrow.units;
 
-          var max_force = this.current_selected.units - 1;
+          var max_force = start_piece.units - 1;
           var init_slider_force = prev_arrow_units > 0 ? prev_arrow_units : max_force;
+          var init_start_pt_force = start_piece.units;
 
           $('#attack-panel .from').text(start_id);
           $('#attack-panel .to').text(end_id);
+
+          // init force changes
+          // same changes occur on slider.slide
+          $("#attack-unit-count").text('units: ' + (init_slider_force));
+          arrow.setUnits(init_slider_force);
+          start_piece.units = init_start_pt_force - init_slider_force;
 
           $("#attack-slider").slider("destroy");
           $("#attack-slider").slider({
@@ -326,45 +334,37 @@ StateHandler.prototype = {
             slide : function(event, ui) {
               $("#attack-unit-count").text('units: ' + ui.value);
               arrow.setUnits(ui.value);
+              start_piece.units = init_start_pt_force - ui.value;
             }
           });
-
-          // $("#attack-slider").slider('option', 'value', piece.units - 1);
-          // $("#attack-slider").slider('option', 'max', piece.units - 1);
-          // $("#attack-slider").slider({
-          // slide : function(e, ui) {
-          // $("#attack-unit-count").text('units: ' + ui.value);
-          // arrow.setStrength(ui.value);
-          // }
-          // });
-          $("#attack-unit-count").text('units: ' + (init_slider_force));
-          arrow.setUnits(init_slider_force);
 
           $('#attack-panel').show();
 
           $('#attack-panel>.button.okay').click( function() {
             // initialize move data map [<from> : <to>]
-            if (!this.temp_move_data[this.current_selected.id]) {
-              this.temp_move_data[this.current_selected.id] = {};
+            if (!this.temp_move_data[start_id]) {
+              this.temp_move_data[start_id] = {};
             }
-            this.temp_move_data[this.current_selected.id][piece.id] = $("#attack-slider").slider('option', 'value');
+            this.temp_move_data[start_id][end_id] = $("#attack-slider").slider('option', 'value');
 
             // undo selection
-            this.current_selected.unhighlight();
-            this.current_selected = undefined;
+            start_piece.unhighlight();
+            start_piece = undefined;
 
             // allow to finish round (not required, can add more moves)
             $('#button-done').show();
           }.bind(this));
 
-					// remove old listener so canceling doesnt clear everything!
+          // remove old listener so canceling doesnt clear everything!
           $('#attack-panel .button.cancel').unbind('click');
 
           $('#attack-panel .button.cancel').click( function() {
-            arrow.setUnits(this.prev_arrow_units);
+            arrow.setUnits(prev_arrow_units);
+            start_piece.units = init_start_pt_force;
             $('#attack-panel').hide();
           }.bind({
-            prev_arrow_units : prev_arrow_units
+            prev_arrow_units : prev_arrow_units,
+            init_start_pt_force : init_start_pt_force,
           }));
 
           $('#attack-panel .button.okay').click(function() {
