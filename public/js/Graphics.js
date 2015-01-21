@@ -143,7 +143,7 @@ Graphics.prototype = {
 
         if (piece.units_added > 0) {
           ctx2d.fillStyle = "#ff3811";
-           ctx2d.textAlign = 'left';
+          ctx2d.textAlign = 'left';
           ctx2d.fillText("+" + piece.units_added, coord.x + ctx2d.measureText(piece.units).width, coord.y);
         }
 
@@ -167,11 +167,14 @@ Graphics.prototype = {
     ctx2d.shadowColor = "#ffffff";
     ctx2d.textAlign = 'center';
 
-    for (var index in this.arrow_meshes) {
-      var arr = this.arrow_meshes[index];
-      if (arr.center) {
-        coord = toScreenXY(arr.center);
-        ctx2d.fillText(arr.strength, coord.x, coord.y);
+    for (var start in world.map.arrows) {
+      var bucket = world.map.arrows[start];
+      for (var end in bucket) {
+        var arrow = bucket[end];
+        if (arrow.center && arrow.units > 0) {
+          var coord = this.toScreenXY(arrow.center);
+          ctx2d.fillText(arrow.units, coord.x, coord.y);
+        }
       }
     }
 

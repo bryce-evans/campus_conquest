@@ -184,6 +184,9 @@ StateHandler.prototype = {
       }
     });
 
+		// allow to submit any time
+		$('#button-done').show();
+		
     // done button to submit all orders
     $('#button-done').click( function() {
       var commands = [];

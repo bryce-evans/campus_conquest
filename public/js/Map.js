@@ -9,10 +9,8 @@ Map = function() {
   // map: string id -> connected (string[] ids)
   this.buildings = new Array();
 
-  this.arrow_meshes = [];
-
   // Arrow lookup map- <string> start-id : {<string> end-id : Arrow}
-  this.arrow_map = {};
+  this.arrows = {};
 
   // mesh[]
   this.selectable_objects = [];
@@ -113,8 +111,8 @@ Map.prototype = {
     }.bind(this));
   },
   getArrow : function(start_id, end_id) {
-    if (this.arrow_map[start_id] && this.arrow_map[start_id][end_id]) {
-      return this.arrow_map[start_id][end_id];
+    if (this.arrows[start_id] && this.arrows[start_id][end_id]) {
+      return this.arrows[start_id][end_id];
     } else {
       return new Arrow(start_id, end_id);
     }
@@ -246,10 +244,10 @@ Arrow = function(id1, id2) {
   // id of piece ends at
   this.end = id2;
 
-  if (!world.map.arrow_map[id1]) {
-    world.map.arrow_map[id1] = {};
+  if (!world.map.arrows[id1]) {
+    world.map.arrows[id1] = {};
   }
-  world.map.arrow_map[id1][id2] = this;
+  world.map.arrows[id1][id2] = this;
 
   // units this arrow represents
   this.units = 0;
@@ -280,6 +278,7 @@ Arrow = function(id1, id2) {
     });
 
     var mesh = new THREE.Mesh(geometry, material);
+    this.mesh = mesh;
 
     mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
 
@@ -291,11 +290,8 @@ Arrow = function(id1, id2) {
     x = mesh.position.x;
     z = mesh.position.z;
 
-    this.mesh = mesh;
-
+    // get center for displaying text at this point
     this.center = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
-
-    world.map.arrow_meshes.push(mesh);
 
     // don't add to scene until units > 0
     if (this.units !== 0) {
