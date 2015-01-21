@@ -110,7 +110,34 @@ Map.prototype = {
       }
     }.bind(this));
   },
-  
+
+  addEdge : function(mesh1, mesh2) {
+    var geo = new THREE.Geometry();
+    geo.vertices.push(new THREE.Vector3(mesh2.center[0], 2 * mesh2.center[1] + 5, mesh2.center[2]));
+    geo.vertices.push(new THREE.Vector3(mesh1.center[0], 2 * mesh1.center[1] + 5, mesh1.center[2]));
+
+    var mat = new THREE.LineBasicMaterial({
+      color : this.colors.edge,
+    });
+
+    var line = new THREE.Line(geo, mat);
+    var sorted = [mesh1.game_piece.id, mesh2.game_piece.id].sort();
+    this.edges[sorted[0] + sorted[1]] = line;
+
+    this.scene.add(line);
+  },
+  removeEdge : function(id1, id2) {
+    var sorted = [id1, id2].sort();
+    var line = this.edges[sorted[0] + sorted[1]];
+    this.scene.remove(line);
+  },
+
+  addEdges : function() {
+
+  },
+  removeEdges : function() {
+
+  },
   // gets an arrow from start_id to end_id.
   // creates one if one doesn't exist
   getArrow : function(start_id, end_id) {
@@ -314,12 +341,12 @@ Arrow.prototype = {
     }
 
     // remove
-    if (u === 0) {
+    if (u === 0 && this.mesh) {
       world.graphics.scene.remove(this.mesh);
       return;
     }
     // add back
-    else if (prev_units === 0 && u !== 0) {
+    else if (prev_units === 0 && u !== 0 && this.mesh) {
       world.graphics.scene.add(this.mesh);
     }
 
