@@ -312,9 +312,21 @@ StateHandler.prototype = {
           var arrow = world.map.getArrow(start_id, end_id);
           var prev_arrow_units = arrow.units;
 
-          var max_force = start_piece.units - 1;
-          var init_slider_force = prev_arrow_units > 0 ? prev_arrow_units : max_force;
           var init_start_pt_force = start_piece.units;
+
+          var total_force = init_start_pt_force + prev_arrow_units;
+          var max_force = total_force - 1;
+
+          // load previous arrow if exists;
+          if (prev_arrow_units > 0) {
+            var init_slider_force = prev_arrow_units;
+
+            // new arrow
+          } else {
+            var init_slider_force = max_force;
+            arrow.setUnits(max_force);
+            start_piece.units = init_start_pt_force - init_slider_force;
+          }
 
           $('#attack-panel .from').text(start_id);
           $('#attack-panel .to').text(end_id);
@@ -322,8 +334,6 @@ StateHandler.prototype = {
           // init force changes
           // same changes occur on slider.slide
           $("#attack-unit-count").text('units: ' + (init_slider_force));
-          arrow.setUnits(init_slider_force);
-          start_piece.units = init_start_pt_force - init_slider_force;
 
           $("#attack-slider").slider("destroy");
           $("#attack-slider").slider({
@@ -334,26 +344,11 @@ StateHandler.prototype = {
             slide : function(event, ui) {
               $("#attack-unit-count").text('units: ' + ui.value);
               arrow.setUnits(ui.value);
-              start_piece.units = init_start_pt_force - ui.value;
+              start_piece.units = total_force - ui.value;
             }
           });
 
           $('#attack-panel').show();
-
-          $('#attack-panel>.button.okay').click( function() {
-            // initialize move data map [<from> : <to>]
-            if (!this.temp_move_data[start_id]) {
-              this.temp_move_data[start_id] = {};
-            }
-            this.temp_move_data[start_id][end_id] = $("#attack-slider").slider('option', 'value');
-
-            // undo selection
-            start_piece.unhighlight();
-            start_piece = undefined;
-
-            // allow to finish round (not required, can add more moves)
-            $('#button-done').show();
-          }.bind(this));
 
           // remove old listener so canceling doesnt clear everything!
           $('#attack-panel .button.cancel').unbind('click');
@@ -367,9 +362,24 @@ StateHandler.prototype = {
             init_start_pt_force : init_start_pt_force,
           }));
 
+					$('#attack-panel .button.okay').unbind('click');
           $('#attack-panel .button.okay').click(function() {
+            // initialize move data map [<from> : <to>]
+            if (!this.temp_move_data[this.start_id]) {
+              this.temp_move_data[this.start_id] = {};
+            }
+            this.temp_move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
+
+            // undo selection
+            this.start_piece.unhighlight();
+            this.start_piece = undefined;
             $('#attack-panel').hide();
-          });
+          }.bind({
+          	temp_move_data : this.temp_move_data,
+          	start_piece : start_piece,
+          	start_id : start_id,
+          	end_id : end_id,
+          }));
 
         }
         break;

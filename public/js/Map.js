@@ -110,6 +110,9 @@ Map.prototype = {
       }
     }.bind(this));
   },
+  
+  // gets an arrow from start_id to end_id.
+  // creates one if one doesn't exist
   getArrow : function(start_id, end_id) {
     if (this.arrows[start_id] && this.arrows[start_id][end_id]) {
       return this.arrows[start_id][end_id];
