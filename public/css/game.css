@@ -112,20 +112,29 @@ nav a ul li:hover {
 .centered-window > .container {
   margin: 60px auto;
   width: 400px;
-  padding: 20px;
+  padding: 40px;
   border: 1px solid rgba(255,255,255,.88);
   border-radius: 4px;
   background: rgba(0,0,0,.8);
 }
 .centered-window > .container > h1 {
-  padding-bottom: 10px;
   color: white;
   font-size: 21px;
+  position: absolute;
+  top: 20px;
+  border: none;
 }
+
 .centered-window > .button-set {
   float: right;
 }
-
+#new-stage-intro > div {
+  position: relative;
+  text-align: center;
+}
+#new-stage-intro > div > h1 {
+  left: 30px;
+}
 #attack-panel {
 
 }
@@ -165,16 +174,16 @@ nav a ul li:hover {
   transform: rotate(-90deg);
 }
 
-@-webkit-keyframes AnimationName {
+@-webkit-keyframes ShiftingBackground {
 0%{background-position:0% 51%}
 100%{background-position:100% 50%}
 }
-@-moz-keyframes AnimationName {
+@-moz-keyframes ShiftingBackground {
 0%{background-position:0% 51%}
 50%{background-position:100% 50%}
 100%{background-position:0% 51%}
 }
-@keyframes AnimationName {
+@keyframes ShiftingBackground {
 0%{background-position:0% 51%}
 100%{background-position:100% 50%}
 }
@@ -202,9 +211,9 @@ nav a ul li:hover {
   background: -o-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* Opera 11.10+ */
   background: -ms-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* IE10+ */
   background-size: 1200% 1200%;
-  -webkit-animation: AnimationName 1s ease infinite;
-  -moz-animation: AnimationName 1s ease infinite;
-  animation: AnimationName 1s ease infinite;
+  -webkit-animation: ShiftingBackground 1s ease infinite;
+  -moz-animation: ShiftingBackground 1s ease infinite;
+  animation: ShiftingBackground 1s ease infinite;
 }
 
 #attack-slider > span:after {
@@ -230,9 +239,9 @@ nav a ul li:hover {
   background: -o-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* Opera 11.10+ */
   background: -ms-linear-gradient(45deg, rgba(232,46,46,1) 21%,rgba(232,46,46,1) 21%,rgba(232,46,46,1) 44%,rgba(232,46,46,1) 44%,rgba(255,211,211,1) 51%,rgba(226,45,45,1) 57%); /* IE10+ */
   background-size: 1200% 1200%;
-  -webkit-animation: AnimationName 1s ease infinite;
-  -moz-animation: AnimationName 1s ease infinite;
-  animation: AnimationName 1s ease infinite;
+  -webkit-animation: ShiftingBackground 1s ease infinite;
+  -moz-animation: ShiftingBackground 1s ease infinite;
+  animation: ShiftingBackground 1s ease infinite;
 }
 
 #attack-slider > span:active:before, #attack-slider > span:hover:before {
@@ -244,6 +253,33 @@ nav a ul li:hover {
 #attack-slider > span:focus {
   outline: none;
 }
+
+@-webkit-keyframes fade-in-out{
+0%{display: none;}
+1%{ transform: scale(1);
+opacity: 0;
+display: block;
+}
+20%{ transform: scale(.7);
+opacity:1;
+}
+80%{ transform: scale(.7);
+opacity:1;
+}
+
+99%{transform: scale(1);
+opacity: 0;
+display: block;
+}
+100%{display: none}
+}
+
+.fade-in-out {
+  opacity: 0;
+  -webkit-animation: fade-in-out 2s; /* Chrome, Safari, Opera */
+  animation: fade-in-out 2s;
+}
+
 #canvas2D, #canvas3D {
   cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
   position: absolute;

@@ -74,37 +74,37 @@ StateHandler.prototype = {
         world.map.getObj(data[i].id).game_piece.units_added = data[i].units;
         this.pieces_with_added_units.push(world.map.getObj(data[i].id).game_piece);
       }
-      
+
       $('#button-continue').show();
       this.waiting_on = true;
       $('#button-continue').click( function() {
-      	 $('#button-continue').hide();
-      	 this.waiting_on = false;
+        $('#button-continue').hide();
+        this.waiting_on = false;
         this.combineUnits();
         this.initOrdersStage();
       }.bind(this));
     }.bind(this));
 
     this.socket.on('orders update', function(data) {
-    	
+
       console.log('received orders update', data);
       this.hideWaitingOnWindow();
-      
+
       // TODO show all arrows and commands
       console.log("(show all arrows and commands)");
       $('#button-continue').show();
-       this.waiting_on = true;
-      $('#button-continue').click(function() {
-      	this.waiting_on = false;
-      	
-      	// TODO remove arrows from map
-      	// TODO show battles
-      	// TODO show end results
-      	console.log("(remove arrows from map)");
-      	console.log("(show battles)");
-      	console.log("(show end results)");
-      	
-      	 $('#button-continue').hide();
+      this.waiting_on = true;
+      $('#button-continue').click( function() {
+        this.waiting_on = false;
+
+        // TODO remove arrows from map
+        // TODO show battles
+        // TODO show end results
+        console.log("(remove arrows from map)");
+        console.log("(show battles)");
+        console.log("(show end results)");
+
+        $('#button-continue').hide();
         this.initReinforcementStage();
       }.bind(this));
     }.bind(this));
@@ -173,8 +173,9 @@ StateHandler.prototype = {
     this.current.turn_number = state.turn;
   },
   initReinforcementStage : function() {
-  	this.current.stage = 'reinforcement';
-  	
+    this.current.stage = 'reinforcement';
+    this.showStageIntro('Reinforcement');
+
     $('#panel-reinforcement-info').show();
     $.ajax({
       url : '/reinforcements',
@@ -190,6 +191,7 @@ StateHandler.prototype = {
   },
   initOrdersStage : function() {
     this.current.stage = 'orders';
+    this.showStageIntro('Attack Orders');
 
     // manages the attack panel slider
 
@@ -402,6 +404,13 @@ StateHandler.prototype = {
         }
         break;
     }
+  },
+  showStageIntro : function(stage_name) {
+  	$('#new-stage-text').text(stage_name);
+    $('#new-stage-intro').show();
+    window.setTimeout(function() {
+      $('#new-stage-intro').hide();
+    }, 2000);
   },
   showWaitingOnWindow : function(waiting_on) {
     // show only after getting data from server
