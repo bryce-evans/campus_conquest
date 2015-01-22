@@ -23,6 +23,7 @@ StateHandler = function() {
   this.temp_move_data = {};
 
   this.current_selected = undefined;
+  this.waiting = false;
 }
 
 StateHandler.prototype = {
@@ -73,33 +74,49 @@ StateHandler.prototype = {
         world.map.getObj(data[i].id).game_piece.units_added = data[i].units;
         this.pieces_with_added_units.push(world.map.getObj(data[i].id).game_piece);
       }
+      
       $('#button-continue').show();
+      this.waiting_on = true;
       $('#button-continue').click( function() {
+      	 $('#button-continue').hide();
+      	 this.waiting_on = false;
         this.combineUnits();
         this.initOrdersStage();
       }.bind(this));
     }.bind(this));
 
     this.socket.on('orders update', function(data) {
+    	
       console.log('received orders update', data);
+      this.hideWaitingOnWindow();
+      
+      // TODO show all arrows and commands
+      console.log("(show all arrows and commands)");
       $('#button-continue').show();
+       this.waiting_on = true;
       $('#button-continue').click(function() {
+      	this.waiting_on = false;
+      	
+      	// TODO remove arrows from map
+      	// TODO show battles
+      	// TODO show end results
+      	console.log("(remove arrows from map)");
+      	console.log("(show battles)");
+      	console.log("(show end results)");
+      	
+      	 $('#button-continue').hide();
         this.initReinforcementStage();
-      });
-    }.bind(this));
-
-    this.socket.on('battle update', function(data) {
-      console.log('received battle` update', data);
+      }.bind(this));
     }.bind(this));
 
   },
 
   // takes a list of pieces with units added, adds those units and resets added to 0
   combineUnits : function() {
-    var pieces = this.pieces_with_units_added;
+    var pieces = this.pieces_with_added_units;
     for (var i = 0; i < pieces.length; i++) {
-      pieces.units += pieces.units_added;
-      pieces.units_added = 0;
+      pieces[i].units += pieces[i].units_added;
+      pieces[i].units_added = 0;
     }
     pieces = [];
   },
@@ -156,6 +173,8 @@ StateHandler.prototype = {
     this.current.turn_number = state.turn;
   },
   initReinforcementStage : function() {
+  	this.current.stage = 'reinforcement';
+  	
     $('#panel-reinforcement-info').show();
     $.ajax({
       url : '/reinforcements',
@@ -164,7 +183,7 @@ StateHandler.prototype = {
         team : me.team
       }
     }).done( function(res) {
-      console.log('reinfocements', res);
+      console.log('reinforcements', res);
       this.moves_left = res.reinforcements;
       $('#reinforcements-remaining').text(res.reinforcements);
     }.bind(this));
@@ -189,28 +208,27 @@ StateHandler.prototype = {
 
     // done button to submit all orders
     $('#button-done').click( function() {
-      var commands = [];
+      //var commands = [];
 
       // format for sending
-      for (var start in this.temp_move_data) {
-        for (var end in this.temp_move_data[start]) {
-          commands.push({
-            start : key,
-            end : key2,
-            units : this.temp_move_data[start][end],
-          });
-        }
-      }
+      // for (var start in this.temp_move_data) {
+      // for (var end in this.temp_move_data[start]) {
+      // commands.push({
+      // start : start,
+      // end : end,
+      // units : this.temp_move_data[start][end],
+      // });
+      // }
+      // }
       var move_data = {
-        meta : {
-          scope : world.id,
-          team_index : me.team_index,
-          team_id : me.team,
-        },
-        commands : commands,
+        game_id : world.id,
+        team_index : me.team_index,
+        team_id : me.team,
+        commands : this.temp_move_data,
       };
       this.socket.emit('orders move', move_data);
       this.temp_move_data = {};
+      $('#button-done').hide();
     }.bind(this));
   },
   // takes a clicked piece and handles the change in state on the client only until turn is over
@@ -362,8 +380,8 @@ StateHandler.prototype = {
             init_start_pt_force : init_start_pt_force,
           }));
 
-					$('#attack-panel .button.okay').unbind('click');
-          $('#attack-panel .button.okay').click(function() {
+          $('#attack-panel .button.okay').unbind('click');
+          $('#attack-panel .button.okay').click( function() {
             // initialize move data map [<from> : <to>]
             if (!this.temp_move_data[this.start_id]) {
               this.temp_move_data[this.start_id] = {};
@@ -375,10 +393,10 @@ StateHandler.prototype = {
             this.start_piece = undefined;
             $('#attack-panel').hide();
           }.bind({
-          	temp_move_data : this.temp_move_data,
-          	start_piece : start_piece,
-          	start_id : start_id,
-          	end_id : end_id,
+            temp_move_data : this.temp_move_data,
+            start_piece : start_piece,
+            start_id : start_id,
+            end_id : end_id,
           }));
 
         }
@@ -389,6 +407,7 @@ StateHandler.prototype = {
     // show only after getting data from server
     // prevents window from flashing when no waiting-on left
     $('#waiting-on').show();
+    this.waiting = true;
     $('#waiting-on-list').empty();
     for (var i = 0; i < waiting_on.length; i++) {
       var team_id = this.team_order[waiting_on[i]];
@@ -398,6 +417,7 @@ StateHandler.prototype = {
 
   hideWaitingOnWindow : function() {
     $('#waiting-on').hide();
+    this.waiting = false;
     $('#waiting-on-list').empty();
   },
 

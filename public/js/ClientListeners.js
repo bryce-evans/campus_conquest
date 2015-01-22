@@ -56,6 +56,10 @@ ClientListeners = function() {
 
   // click function, colors buildings for territory grab
   var onMouseDown = function(event) {
+  	
+  	if(world.state_handler.waiting){
+  		return;
+  	}
 
     var hit_object = this.getHitObject();
     if (!hit_object) {
@@ -77,6 +81,9 @@ ClientListeners = function() {
   }.bind(this)
 
   this.onMouseMove = function(event) {
+  	if(world.state_handler.waiting){
+  		return;
+  	}
 
     const highlight = new THREE.Color(0xffff00);
 

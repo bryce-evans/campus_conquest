@@ -1,3 +1,9 @@
+/**
+ * REQUIRES: World.js, Graphics.js
+ *  
+ */
+
+
 Map = function() {
 
   this.map_dir = "/rsc/models/map/";
@@ -15,6 +21,15 @@ Map = function() {
   // mesh[]
   this.selectable_objects = [];
   this.scale = 15;
+
+  this.colors = {
+    current : 0xffc038,
+    connected : 0x18cd00,
+    included : 0x544aaaa,
+    excluded : 0xcc6666,
+    edge : 0x00ff33,
+    highlight : 0xffff00,
+  };
 
 }
 Map.prototype = {
@@ -104,39 +119,68 @@ Map.prototype = {
       mesh.scale.set(this.scale, this.scale, this.scale);
       mesh.position.y = 0;
       try {
-        this.scene.add(mesh);
+        world.graphics.scene.add(mesh);
       } catch(err) {
         console.log(err.stack);
       }
     }.bind(this));
   },
 
-  addEdge : function(mesh1, mesh2) {
+  addEdge : function(id1, id2) {
+    var sorted = [id1, id2].sort();
+
+    // check to see if it already exists
+    var edge = this.edges[sorted[0] + sorted[1]];
+    if (edge) {
+      if (edge.parent) {
+        return;
+      } else {
+        world.graphics.scene.add(edge);
+      }
+    }
+
+    var mesh1 = this.getObj(id1);
+    var mesh2 = this.getObj(id2);
+
     var geo = new THREE.Geometry();
-    geo.vertices.push(new THREE.Vector3(mesh2.center[0], 2 * mesh2.center[1] + 5, mesh2.center[2]));
-    geo.vertices.push(new THREE.Vector3(mesh1.center[0], 2 * mesh1.center[1] + 5, mesh1.center[2]));
+    geo.vertices.push(new THREE.Vector3(mesh2.center.x, 2 * mesh2.center.y + 5, mesh2.center.z));
+    geo.vertices.push(new THREE.Vector3(mesh1.center.x, 2 * mesh1.center.y + 5, mesh1.center.z));
 
     var mat = new THREE.LineBasicMaterial({
       color : this.colors.edge,
     });
 
     var line = new THREE.Line(geo, mat);
-    var sorted = [mesh1.game_piece.id, mesh2.game_piece.id].sort();
     this.edges[sorted[0] + sorted[1]] = line;
 
-    this.scene.add(line);
+    world.graphics.scene.add(line);
+  },
+  getEdge : function(id1, id2) {
+    var sorted = [id1, id2].sort();
+    return this.edges[sorted[0] + sorted[1]];
   },
   removeEdge : function(id1, id2) {
     var sorted = [id1, id2].sort();
-    var line = this.edges[sorted[0] + sorted[1]];
-    this.scene.remove(line);
+    world.graphics.scene.remove(this.edges[sorted[0] + sorted[1]]);
   },
 
   addEdges : function() {
+    this.edges = {};
+    for (var piece in world.map.map.Cornell.Territories) {
+      var connections = world.map.map.Cornell.Territories[piece];
+      for (var i = 0; i < connections.length; i++) {
+        this.addEdge(piece, connections[i]);
+      }
+    }
 
   },
   removeEdges : function() {
-
+    for (var piece in world.map.map.Cornell.Territories) {
+      var connections = world.map.map.Cornell.Territories[piece];
+      for (var i = 0; i < connections.length; i++) {
+        this.removeEdge(piece, connections[i]);
+      }
+    }
   },
   // gets an arrow from start_id to end_id.
   // creates one if one doesn't exist
