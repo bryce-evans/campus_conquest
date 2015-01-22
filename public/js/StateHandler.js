@@ -15,8 +15,6 @@ StateHandler = function() {
   this.moves_left = 0;
   this.move_data = {};
 
-  this.move_data.commands = [];
-
   this.pieces_with_added_units = [];
 
   // used to temporarily store data before finally packaging into move_data
@@ -56,7 +54,6 @@ StateHandler.prototype = {
 
     // when another player moves, update list of who's left
     this.socket.on('waiting-on update', function(data) {
-      console.log('TODO waiting-on update', data);
 
       // still waiting on me
       if (data.indexOf(me.team_index) >= 0) {
@@ -77,6 +74,7 @@ StateHandler.prototype = {
 
       $('#button-continue').show();
       this.waiting_on = true;
+      $('#button-continue').unbind('click');
       $('#button-continue').click( function() {
         $('#button-continue').hide();
         this.waiting_on = false;
@@ -89,20 +87,30 @@ StateHandler.prototype = {
 
       console.log('received orders update', data);
       this.hideWaitingOnWindow();
+      world.map.removeAllArrows();
 
       // TODO show all arrows and commands
       console.log("(show all arrows and commands)");
+      for (var team in data) {
+        for (var start_id in data[team]) {
+          for (var end_id in data[team][start_id]) {
+            var arrow = world.map.getArrow(start_id, end_id);
+            arrow.setUnits(data[team][start_id][end_id]);
+            //  arrow.mesh.material.color.copy(new THREE.Color(this.getTeamColorFromIndex(team)));
+          }
+        }
+      }
+
       $('#button-continue').show();
       this.waiting_on = true;
+      $('#button-continue').unbind('click');
       $('#button-continue').click( function() {
         this.waiting_on = false;
-
-        // TODO remove arrows from map
+        
         // TODO show battles
         // TODO show end results
-        console.log("(remove arrows from map)");
-        console.log("(show battles)");
-        console.log("(show end results)");
+
+        world.map.removeAllArrows();
 
         $('#button-continue').hide();
         this.initReinforcementStage();
@@ -205,10 +213,12 @@ StateHandler.prototype = {
       }
     });
 
-    // allow to submit any time
+    // show submit button before any attacks given
+    // allow to submit no attacks
     $('#button-done').show();
+    $('#button-done').unbind('click');
 
-    // done button to submit all orders
+    // submit all orders
     $('#button-done').click( function() {
       //var commands = [];
 
@@ -280,6 +290,7 @@ StateHandler.prototype = {
           $('#reinforcements-remaining').text(this.moves_left);
 
           if (this.moves_left == 0) {
+            this.move_data.commands = [];
             for (var key in this.temp_move_data) {
               if (this.temp_move_data.hasOwnProperty(key)) {
                 this.move_data.commands.push({
@@ -406,7 +417,7 @@ StateHandler.prototype = {
     }
   },
   showStageIntro : function(stage_name) {
-  	$('#new-stage-text').text(stage_name);
+    $('#new-stage-text').text(stage_name);
     $('#new-stage-intro').show();
     window.setTimeout(function() {
       $('#new-stage-intro').hide();

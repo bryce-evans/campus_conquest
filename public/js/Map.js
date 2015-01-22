@@ -1,8 +1,7 @@
 /**
  * REQUIRES: World.js, Graphics.js
- *  
+ *
  */
-
 
 Map = function() {
 
@@ -14,6 +13,9 @@ Map = function() {
 
   // map: string id -> connected (string[] ids)
   this.buildings = new Array();
+
+  // list of geometries for frequently created objects like arrows
+  this.geometries = {};
 
   // Arrow lookup map- <string> start-id : {<string> end-id : Arrow}
   this.arrows = {};
@@ -182,6 +184,20 @@ Map.prototype = {
       }
     }
   },
+
+  loadGeometries : function() {
+    this.loadArrowGeometry();
+  },
+
+  loadArrowGeometry : function() {
+    this.loader.load("../rsc/models/map/arrow/arrow.js", function(geometry) {
+
+      geometry.computeMorphNormals();
+      this.geometries.arrow = geometry;
+    }.bind(this));
+
+  },
+
   // gets an arrow from start_id to end_id.
   // creates one if one doesn't exist
   getArrow : function(start_id, end_id) {
@@ -190,7 +206,17 @@ Map.prototype = {
     } else {
       return new Arrow(start_id, end_id);
     }
-  }
+  },
+  removeAllArrows : function() {
+    for (var start in this.arrows) {
+      for (var end in this.arrows[start]) {
+        var arrow = this.arrows[start][end];
+        world.graphics.scene.remove(arrow.mesh);
+        delete arrow;
+      }
+    }
+    this.arrows = {};
+  },
 }
 
 GamePiece = function(map, id, mesh, init_team, init_units) {
@@ -342,38 +368,35 @@ Arrow = function(id1, id2) {
 
   //get mesh object
   var x, z;
-  world.map.loader.load("../rsc/models/map/arrow/arrow.js", function(geometry) {
+  var geometry = world.map.geometries.arrow;
 
-    geometry.computeMorphNormals();
+  material = new THREE.MeshLambertMaterial({
+    color : 0xff0000,
+    shading : THREE.SmoothShading
+  });
 
-    material = new THREE.MeshLambertMaterial({
-      color : 0xff0000,
-      shading : THREE.SmoothShading
-    });
+  var mesh = new THREE.Mesh(geometry, material);
+  this.mesh = mesh;
 
-    var mesh = new THREE.Mesh(geometry, material);
-    this.mesh = mesh;
+  mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
 
-    mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
+  mesh.position.x = start_mesh.center.x;
+  mesh.position.z = start_mesh.center.z;
+  mesh.position.y = 15;
+  mesh.rotation.y = theta;
 
-    mesh.position.x = start_mesh.center.x;
-    mesh.position.z = start_mesh.center.z;
-    mesh.position.y = 15;
-    mesh.rotation.y = theta;
+  x = mesh.position.x;
+  z = mesh.position.z;
 
-    x = mesh.position.x;
-    z = mesh.position.z;
+  // get center for displaying text at this point
+  this.center = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
 
-    // get center for displaying text at this point
-    this.center = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
+  // don't add to scene until units > 0
+  if (this.units !== 0) {
+    this.mesh.scale.z = this.units * world.map.scale + .5;
+    world.graphics.scene.add(this.mesh);
+  }
 
-    // don't add to scene until units > 0
-    if (this.units !== 0) {
-      this.mesh.scale.z = this.units * world.map.scale + .5;
-      world.graphics.scene.add(this.mesh);
-    }
-
-  }.bind(this));
 }
 Arrow.prototype = {
   setUnits : function(u) {

@@ -35,6 +35,7 @@ World.prototype = {
       }).done( function(init_data) {
         this.state_handler.setState(init_data);
         this.map.loadFromState(init_data.state);
+        this.map.loadGeometries();
         //this.control_panel_handler.updateTextFields(init_data);
       }.bind(this));
     } else {
