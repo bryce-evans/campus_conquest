@@ -36,6 +36,8 @@ ClientListeners = function() {
       this.onMouseMove(event);
     }.bind(this));
 
+    this.controls = new THREE.OrbitControls(world.graphics.camera, world.graphics.renderer3D.domElement);
+
     //$('#canvas3D').mousedown(this.zoom);
     //$('#canvas3D').keypress(getKeyCode);
 
@@ -89,7 +91,7 @@ ClientListeners = function() {
 
     //refresh mouse location for use in other functions
     this.mouseX = event.x;
-    this.mouseY = event.y - 50;
+    this.mouseY = event.y;
 
     //*****highlights hovered
     this.cur_obj = this.getHitObject();

@@ -15,7 +15,7 @@ nav {
   border-bottom: 2px solid #000;
   background-color: #0f0f0f;
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   width: 100%;
 }
 nav > img {
@@ -62,7 +62,7 @@ nav a ul li:hover {
   background: #111;
   height: 100%;
   padding: 20px;
-  z-index: 10;
+  z-index: 3;
   top: 50px;
 }
 #info {
@@ -284,7 +284,6 @@ display: block;
   cursor: url(/rsc/images/cursors/pointer-green.png) 16 16, pointer;
   position: absolute;
   left: 0;
-  top: 50px;
 }
 
 #canvas2D {

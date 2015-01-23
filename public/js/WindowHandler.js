@@ -1,5 +1,5 @@
 WindowHandler = function() {
-
+  
 }
 
 WindowHandler.prototype.setDimensions = function() {
@@ -15,13 +15,15 @@ WindowHandler.prototype.setDimensions = function() {
 }
 
 WindowHandler.prototype.addWindowResizeListener = function() {
-  window.addEventListener('resize', this.onWindowResize, false);
+  window.addEventListener('resize', this.onWindowResize.bind(this), false);
 }
 
 WindowHandler.prototype.onWindowResize = function(event) {
+	
   this.setDimensions();
-  //world.graphics.renderer.setSize(this.dimensions.width - 400, (this.dimensions.height - 40) / this.aspect_ratio);
-  world.graphics.renderer.setSize(this.dimensions.width, (this.dimensions.height) / this.aspect_ratio);
+  world.graphics.renderer2D.setSize(this.dimensions.width, this.dimensions.height);
+  world.graphics.renderer3D.setSize(this.dimensions.width, this.dimensions.height);
+  world.graphics.camera.aspect = this.aspect_ratio;
   world.graphics.camera.updateProjectionMatrix();
 }
 

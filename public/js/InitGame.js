@@ -72,14 +72,15 @@ function initGame(data) {
   world.setWindowHandler(window_handler);
   world.setControlPanelHandler(control_panel_handler);
 
+  window_handler.addWindowResizeListener();
   window_handler.setDimensions();
-  
-  client_listeners.initListeners(state.stage);
 
   var socket = io();
   world.connectToSocket(socket, data);
 
   world.graphics.init();
+  client_listeners.initListeners(state.stage);
+  
   world.loadWorld({
     has_ground : false
   });
