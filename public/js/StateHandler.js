@@ -31,17 +31,10 @@ StateHandler.prototype = {
   connectToSocket : function(socket) {
     this.socket = socket;
 
+// currently only used to switch to REINFORCEMENT stage
     this.socket.on('stage update', function(data) {
       this.stage = data.stage;
-      switch(data.stage) {
-        case 'reinforcement':
-          this.moves_left = data.reinforcements;
-          console.log('changed to REINFORCEMENT stage');
-          break;
-        case 'orders':
-          break;
-
-      }
+			this.initReinforcementStage();
     }.bind(this));
 
     // recieve moves
@@ -268,7 +261,7 @@ StateHandler.prototype = {
           return;
         }
         var move_data = {
-          scope : world.id,
+          game_id : world.id,
           team_index : world.state_handler.getCurrent().team_index,
           team_id : me.team,
           piece : piece.game_piece.id,

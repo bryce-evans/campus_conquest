@@ -93,14 +93,14 @@ header > .team.icon.as, header > .team.icon.aap, header > .team.icon.cals, heade
 }
 
 /* shrink to fit line*/
-.team.name.as:after, .team.name.humec:after {
+header >.team.name.as:after,header > .team.name.humec:after {
   font-size: 22px;
   padding-top: 15px;
   padding-bottom: 15px;
 }
 
 /* overflow to next line*/
-.team.name.aap:after, .team.name.cals:after {
+header >.team.name.aap:after,header > .team.name.cals:after {
   display: flex;
   line-height: 26px;
   padding-top: 2px;

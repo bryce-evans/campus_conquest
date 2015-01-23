@@ -22,7 +22,9 @@ var Api = require('./api.js');
 var api = new Api(io,db);
 
 var Game = require('./game.js');
-var games = {};
+GLOBAL.CC_GLOBALS = {};
+CC_GLOBALS.games = {};
+var games = CC_GLOBALS.games;
 var clients = [];
 
 function initGames(io, db) {
@@ -59,7 +61,21 @@ app.get('/open-games', function(req, res) {
 app.get('/state', function(req, res) {
   if (req.query.id) {
     api.getState(req.query.id, utils.curry(utils.writeData,res));
+  }else{
+    res.end('{"status":500}');
   }
+
+});
+
+app.get('/reinforcements' , function(req,res) {
+
+  if (req.query.id && req.query.team) {
+    api.getReinforcements(req.query.id, req.query.team,  utils.curry(utils.writeData,res));
+  }else{
+    res.end('{"status":500}');
+  }
+
+
 });
 
 app.get('/rooms', function(req, res) {
@@ -117,17 +133,26 @@ io.on('connection', function(socket) {
     console.log('recieved message to ' + msg_data.scope);
     io.to(msg_data.scope).emit('message', msg_data.message);
   }.bind(this));
+   
 
   socket.on('join game', function(data){
     if(data.game_id in games){
       games[data.game_id].addPlayer(socket, data.team);
+      
+      // game this socket is part of
+      socket.game_id = data.game_id;
     } else {
       console.log('failed to join game ' + data.game_id);
       socket.emit('joined',true);
     }
   });
 
- 
+  socket.on('disconnect',function(){
+  // disconnect from game if in on
+  if(socket.game_id){    games[socket.game_id].removeClientFromActive(socket);
+     console.log('user ' + socket.id + ' disconnected from game '+ socket.game_id); 
+  }
+  });
 
 }.bind(this));
 
