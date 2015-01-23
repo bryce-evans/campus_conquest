@@ -27,7 +27,7 @@ var GAME_PRIVACY = 2; //data.privacy
       reinforcements smallint DEFAULT 20,\
       waiting_on boolean DEFAULT false,\
 			player_count integer DEFAULT 0 NOT NULL,\
-      password text DEFAULT '':text\
+      password text DEFAULT ''\
 			);\
 			\
 			ALTER TABLE teams.\""+GAME_ID+"\" OWNER TO ccadmin;\
