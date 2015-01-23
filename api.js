@@ -1,3 +1,6 @@
+var game = require('./game.js');
+var index = require('./index.js');
+
 function Api(io, db) {
   this.io = io;
   this.db = db;
@@ -41,7 +44,6 @@ var GAME_PRIVACY = 2; //data.privacy
 			\
 			 ALTER TABLE state.\""+GAME_ID+"\" OWNER TO ccadmin;\
 			\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('duffield');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('olin_lib');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('sage_chapel');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('barnes');\
@@ -147,6 +149,7 @@ getOpenGames : function(callback){
       ret.team_order = {};
       ret.current_team = data.cur_team;
       ret.waiting_on = []; 
+
       this.db.query('SELECT * FROM "state"."' + id + '"', function(err, result) {
         if (err) {
           callback({
@@ -182,6 +185,15 @@ getOpenGames : function(callback){
       }.bind(this));
     }.bind(this));
   },
+
+  getReinforcements : function(id, team, callback){
+    var team_index = CC_GLOBALS.games[id].team_order.indexOf(team);
+    if(team_index < 0) {
+      callback({status: 500, error: "team id not found"});
+    } else {
+    callback({status: 200, id:id, team:team_index, reinforcements: 3});
+    }
+  }
 }
 
 module.exports = Api;

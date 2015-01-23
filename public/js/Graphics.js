@@ -42,6 +42,7 @@ Graphics.prototype = {
   init : function() {
 
     this.container = $('#container')[0];
+    this.ctx2d = $('#canvas2D')[0].getContext('2d');
 
     this.camera = new THREE.PerspectiveCamera(30, world.window_handler.aspect_ratio, 1, 2000);
     this.camera.position.set(0, 600, 0);
@@ -99,7 +100,8 @@ Graphics.prototype = {
   },
 
   overlayText : function() {
-    var ctx2d = $('#canvas2D')[0].getContext('2d');
+
+    var ctx2d = this.ctx2d;
 
     ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -128,17 +130,22 @@ Graphics.prototype = {
       var piece = mesh.game_piece;
 
       var coord = this.toScreenXY(mesh.center);
-      // ctx2d.fillText(piece.id, coord.x, coord.y);
 
-      if (true) {
+      // show name on grab, show units in all other stages
+      if (world.state_handler.current.stage == 'grab') {
 
+        ctx2d.fillText(piece.id, coord.x, coord.y);
+
+      } else {
+        // text shrinks for pieces far away
         //size = 3*(coord.z + 1917) + 5;
         //ctx2d.font = size + "px helvetica";
         ctx2d.font = (size + 2) + "px" + font;
-        // ctx2d.font = "20px helvetica";
 
+        // set styles again
         ctx2d.fillStyle = "#ffffff";
         ctx2d.textAlign = 'center';
+
         ctx2d.fillText(piece.units, coord.x, coord.y);
 
         if (piece.units_added > 0) {
@@ -147,13 +154,6 @@ Graphics.prototype = {
           ctx2d.fillText("+" + piece.units_added, coord.x + ctx2d.measureText(piece.units).width, coord.y);
         }
 
-        /*
-         ctx2d.font = "14px" + font;
-         ctx2d.fillStyle = "#4466aa";
-         ctx2d.fillText(piece.id, coord.x, coord.y + 15);
-         */
-      } else {
-        ctx2d.fillText(piece.id, coord.x, coord.y);
       }
 
     }
@@ -195,13 +195,3 @@ Graphics.prototype = {
 
   }
 }
-// Graphics.prototype.startRender = function() {
-//
-// //initialize to center to prevent unwanted pan
-// var mouseX = world.window_handler.dimensions.width / 2;
-// var mouseY = world.window_handler.dimensions.height / 2;
-//
-// this.animate();
-//
-// }
-

@@ -11,6 +11,9 @@
 StateHandler = function() {
   this.socket = undefined;
   this.current = {};
+  
+  //this.current.watch('stage', function(){debugger;});
+  
   this.team_order = [];
   this.moves_left = 0;
   this.move_data = {};
@@ -46,7 +49,14 @@ StateHandler.prototype = {
       var team = data.team_index;
       var building_id = data.piece;
       var building = world.map.buildings[building_id];
-      building.material.color.copy(new THREE.Color(world.state_handler.getTeamColorFromIndex(team)));
+      var new_color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
+      building.material.color.copy(new_color);
+      
+      // don't change back to white when leaving hover if currently hovered over
+      if(building === world.client_listeners.prev_obj){
+      	world.client_listeners.prev_obj_color.copy(new_color);
+      }
+      
       building.game_piece.team = team;
       world.control_panel_handler.updateWheelToNext();
       this.updateState(data);
@@ -248,23 +258,13 @@ StateHandler.prototype = {
   move : function(piece) {
     switch(this.current.stage) {
       case 'start':
-        // nat cho move yet son
-        if (me.team != this.getCurrent().team) {
-          console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
-          return;
-        }
-        var move_data = {
-          scope : world.id,
-          team_index : world.state_handler.getCurrent().team_index,
-          team_id : me.team,
-          piece : piece.game_piece.id,
-        };
-        this.socket.emit('grab move', move_data);
+        console.error('in start stage, should not be able to move');
         break;
       case 'grab':
         // nat cho move yet son
         if (me.team != this.getCurrent().team) {
           console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
+          
           return;
         }
         var move_data = {
