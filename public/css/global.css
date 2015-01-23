@@ -3,18 +3,22 @@ html {
 }
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 header > h2.team.name {
   margin: 0;
   padding: 0;
-  line-height: 60px;
+  line-height: 55px;
 }
 /*adds icon inline with title*/
 header > .team.icon {
   display: inline-block;
   float: left;
   margin: 5px 12px 5px 5px;
+}
+header > .team.icon.as, header > .team.icon.aap, header > .team.icon.cals, header > .team.icon.humec {
+  margin: 8px 12px 0px 5px;
 }
 .icon {
   background-position: center;
@@ -67,49 +71,88 @@ header > .team.icon {
 }
 
 .team.name.hotel:after {
-  content: "Hotel"
+  content: "Hotel";
 }
 .team.name.as:after {
-  content: "Arts & Sciences"
+  content: "Arts & Sciences";
 }
 .team.name.aap:after {
-  content: "Archetecture and Arts"
+  content: "Archetecture & Arts Planning";
 }
 .team.name.cals:after {
-  content: "CALS"
+  content: "Agriculture & Life Sciences";
 }
 .team.name.eng:after {
-  content: "Engineering"
+  content: "Engineering";
 }
 .team.name.ilr:after {
-  content: "ILR"
+  content: "ILR";
 }
 .team.name.humec:after {
-  content: "Human Ecology"
+  content: "Human Ecology";
+}
+
+/* shrink to fit line*/
+.team.name.as:after, .team.name.humec:after {
+  font-size: 22px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+/* overflow to next line*/
+.team.name.aap:after, .team.name.cals:after {
+  display: flex;
+  line-height: 26px;
+  padding-top: 2px;
+}
+
+header > .team.name.as:after, header > .team.name.humec:after, header > .team.name.aap:after, header > .team.name.cals:after {
+  font-size: 22px;
 }
 
 .team.colored.hotel {
-  background-color: #7e0a0b;
+  background-color: #b21c1d;
 }
 .team.colored.as {
-  background-color: #d73520;
+  background-color: #f1592a;
 }
 .team.colored.aap {
-  background-color: #f5a11a;
+  background-color: #ffc010;
 }
 .team.colored.cals {
-  background-color: #3cb04b;
+  background-color: #00b050;
 }
 .team.colored.ilr {
-  background-color: #3cb04b;
+  background-color: #0184ba;
 }
 .team.colored.eng {
-  background-color: #43346d;
+  background-color: #474187;
 }
 .team.colored.humec {
-  background-color: #bb0677;
+  background-color: #b03c83;
 }
 
+.team.text-colored.hotel {
+  background-color: #7e0a0b;
+}
+.team.text-colored.as {
+  background-color: #d73520;
+}
+.team.text-colored.aap {
+  background-color: #f5a11a;
+}
+.team.text-colored.cals {
+  background-color: #3cb04b;
+}
+.team.text-colored.ilr {
+  background-color: #3cb04b;
+}
+.team.text-colored.eng {
+  background-color: #43346d;
+}
+.team.text-colored.humec {
+  background-color: #bb0677;
+}
 .card {
   box-shadow: 2px 5px 10px rgba(0,0,0,.3);
   max-width: 920px;

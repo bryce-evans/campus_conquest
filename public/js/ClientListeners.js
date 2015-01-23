@@ -167,8 +167,6 @@ ClientListeners = function() {
     try {
 
       var vector = new THREE.Vector3();
-      // vector.x = (this.mouseX - 115) / $('#canvas3D').width() * 2 - 1;
-      // vector.y = -((this.mouseY - 1.5 * world.nav.height) / $('#canvas3D').height() ) * 2 + 1;
 
       vector.x = 2 * (this.mouseX / $('#canvas3D').width()) - 1;
       vector.y = 1 - 2 * ((this.mouseY / $('#canvas3D').height()));

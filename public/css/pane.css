@@ -138,6 +138,9 @@ table {
 .faded-text {
   color: rgba(255,255,255,.6);
 }
+.team-li{
+	text-align: center;
+}
 .team-li>.icon {
   border-radius: 50% 0 0 50%;
   background-position: center;
@@ -147,6 +150,9 @@ table {
 }
 .team-li>.name {
   padding: 0 20px 0 20px;
+}
+.team-li>.team.name::after{
+	display: block;
 }
 .team-li>.endpiece {
   width: 30px;
