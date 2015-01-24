@@ -112,7 +112,9 @@ app.get('/remove-game', function(req, res) {
 
 app.post('/create-game', function(req, res) {
     console.log(req.body);
-    api.createGame(req.body);
+    api.createGame(req.body, function(id, state){
+  games[id] = new Game(state, io, db);
+})
 });
 
 app.post('/delete-game', function(req, res) {
@@ -157,3 +159,11 @@ io.on('connection', function(socket) {
 }.bind(this));
 
 server.listen(constants.port);
+
+module.exports = {
+  addNewGame : function(id,state){
+
+},
+}
+
+

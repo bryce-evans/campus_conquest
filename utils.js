@@ -22,4 +22,31 @@ curry : function(func) {
     return func.apply(this, args);
   };
 },
+/**
+ Fisher-Yates Shuffle
+ @author: Mike Bostock
+ http://bost.ocks.org/mike/shuffle/
+
+ shuffles an array in-place 
+*/
+ shuffle : function(array){
+
+  var m = array.length, t, i;
+
+  // While there remain elements to shuffle.
+  while (m) {
+
+    // Pick a remaining element.
+    i = Math.floor(Math.random() * m--);
+
+    // And swap it with the current element.
+    t = array[m];
+    array[m] = array[i];
+    array[i] = t;
+  }
+
+  return array;
+
+
+ }
 }

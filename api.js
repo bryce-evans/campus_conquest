@@ -1,5 +1,6 @@
 var game = require('./game.js');
 var index = require('./index.js');
+var utils = require('./utils.js');
 
 function Api(io, db) {
   this.io = io;
@@ -8,25 +9,32 @@ function Api(io, db) {
 
 Api.prototype = {
 
-  createGame : function(data){
-if(data.id == undefined){
-return false;
-}
-var GAME_ID = data.id;
-var GAME_DESC = data.desc || "";
-var GAME_PRIVACY = 2; //data.privacy
+	getCornellTeamList : function() {
+	  return ['hotel', 'as', 'aap', 'cals', 'ilr', 'eng', 'humec'];
+	},
+
+
+  createGame : function(data,callback){
+		
+		if (data.game_id == undefined) {
+		  return false;
+		}
+
+		var GAME_ID = data.game_id;
+		var GAME_DESC = data.game_desc || "";
+		var GAME_PRIVACY = 2; //data.privacy
+
 
     var query = "\
-			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+" );\
+			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy,stage) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+",'grab' );\
 			\
 			SET search_path = teams, pg_catalog;\
 			\
 			CREATE TABLE \""+GAME_ID+"\"(\
 			index smallint NOT NULL,\
 			id public.cc_team DEFAULT 'none'::public.cc_team,\
-      reinforcements smallint DEFAULT 20,\
+      player_count smallint DEFAULT 1,\
       waiting_on boolean DEFAULT false,\
-			player_count integer DEFAULT 0 NOT NULL,\
       password text DEFAULT ''\
 			);\
 			\
@@ -96,13 +104,36 @@ var GAME_PRIVACY = 2; //data.privacy
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('goldwin');\
 			";
 		this.db.query(query, function(err, result) {
-		        if (err) {
-		          console.log(query);
-              console.log(err);
-		        }else{
-              console.log('created game ' + GAME_ID);
-}
-		});
+				
+				if (err) {
+				  console.log(query);
+				  console.log(err);
+				} else {
+				
+				  var all_teams = this.getCornellTeamList();
+				  var game_teams = [];
+				  for (var i = 0; i < all_teams.length; i++) {
+				    if (data[all_teams[i]]) {
+				      game_teams.push(all_teams[i]);
+				    }
+				
+				  }
+				  utils.shuffle(game_teams);
+				  for (var i = 0; i < game_teams.length; i++) {
+          var query = "INSERT INTO teams.\"" + GAME_ID + "\" VALUES (" + i + ",'"+ game_teams[i] + "',1,TRUE,'')";
+				    this.db.query(query, function(err) {
+				      if (err) {
+				        console.log('ERROR CREATING GAME');
+                console.log(query);
+                console.log(err);
+				      }
+				    });
+				  }
+       //get the state of the game and add it to index.js games[]
+			this.getState(GAME_ID, function(state){callback(GAME_ID,state);});	
+				}
+
+		}.bind(this));
   },
   deleteGame : function(GAME_ID){
   	var query = "\

@@ -3,7 +3,7 @@
 
 	<head>
 
-		<title>Remove Game</title>
+		<title>Create Game | Campus Conquest</title>
 
 		<meta charset="utf-8">
 
@@ -11,6 +11,13 @@
 		<link rel="stylesheet" href="css/fonts.css" />
 		<link rel="stylesheet" href="css/global.css" />
 		<link rel="stylesheet" href="css/pane.css" />
+		<style>
+      .warning {
+        padding: 10px 0 0;
+        color: red;
+        font-size: 12px;
+      }
+		</style>
 		<script src="js/Constants.js"></script>
 
 	</head>
@@ -19,19 +26,22 @@
 
 		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 
-		<div id='removal-pane' style="display: block;">
+		<div id='create-pane' style="display: block;">
 			<div class='card'>
 				<div class='card-contents'>
 
 					<h1> Create Game</h1>
 					<form id="create-game-form" style='margin-top: 5em;'>
 						<div>
-							ID:
-							<input type="text" name="id" >
+							Name:
+							<div id="game-id-warning" class='warning' style="display: none;">
+								*Required*
+							</div>
+							<input id="game_id" type="text" name="game_id" >
 						</div>
 						<div>
 							Description:
-							<input type="text" name="desc" >
+							<input type="text" name="game_desc" >
 						</div>
 						<div style="display: none;">
 							Public
@@ -49,8 +59,10 @@
 							</select>
 						</div>
 						<div>
-							Teams 
-							
+							Teams
+							<div id="team-min-warning" class='warning' style="display: none;">
+								At least two teams must be selected
+							</div>
 							<ul id='team-list'></ul>
 						</div>
 
@@ -67,23 +79,45 @@
       $(document).ready(function() {
 
         for (var id in TEAM_DATA) {
-          $('#team-list').append('<li><label><input type="checkbox" name="team-choice" value="' + id + '"/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
+          $('#team-list').append('<li><label><input type="checkbox" name="' + id + '" value="true"/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
         }
 
         $('#create-game-form').submit(function(e) {
           e.preventDefault();
+
+          var error = false;
+          $('.warning').hide();
+
+          if (!$('#game_id').val() || $('#game_id').val() === "") {
+            $('#game-id-warning').show();
+            error = true;
+          }
           // Prevents the page from refreshing
           var $this = $(this);
-          // `this` refers to the current form element
-          console.log($this);
+
+          var selected = [];
+          $('#team-list input:checked').each(function() {
+            selected.push($(this).attr('value'));
+          });
+          if (selected.length < 2) {
+            $('#team-min-warning').show();
+            error = true;
+          }
+
+          if (error) {
+            return;
+          }
+
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);
+            window.location.href = "/game#" + $('#game_id').val();
           }, "json" // The format the response should be in
           );
         });
 
         $("#create-game-button").click(function(e) {
           $('#create-game-form').submit();
+
         });
 
       });
