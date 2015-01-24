@@ -110,9 +110,10 @@
 
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);
-            window.location.href = "/game#" + $('#game_id').val();
+            
           }, "json" // The format the response should be in
           );
+          window.location.href = "/game";// + $('#game_id').val();
         });
 
         $("#create-game-button").click(function(e) {

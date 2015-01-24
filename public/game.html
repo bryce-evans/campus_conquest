@@ -43,7 +43,7 @@
 					<div class='card-header'>
 						<div class='card-header'>
 							<h1> Open Games </h1>
-							<div class ="button right">
+							<div id='new-game' class ="button right">
 								New Game
 							</div>
 						</div>
@@ -188,7 +188,7 @@
 			</div>
 			<div id='new-stage-intro' class='centered-window fade-in-out' style="display: none;">
 				<div class='container'>
-					<h1> <span id="new-stage-text"></span> Stage</h1>
+					<h1><span id="new-stage-text"></span> Stage</h1>
 				</div>
 			</div>
 			<div id='attack-panel' class='centered-window' style="display: none;">
@@ -243,7 +243,11 @@
 		<script>
       $(document).ready(function() {
         var init_data = {};
-
+		
+		$('#new-game').click(function(){
+		  window.location.href='/new-game';	
+		});
+		
         $('#new-game-form').submit(function(e) {
           e.preventDefault();
           // Prevents the page from refreshing
@@ -278,6 +282,8 @@
           }
         });
 
+        var teams_in_games = {};
+
         $.ajax({
           url : "/open-games",
         }).done(function(data) {
@@ -297,6 +303,7 @@
               var row = this;
               row.append('<td>' + data.team_order.length + '</td>');
               row.append('<td>' + data.stage + '</td>');
+              teams_in_games[data.id] = data.team_order;
               $('#open-games').append(row);
 
             }.bind(row));
@@ -308,14 +315,19 @@
             var game_id = this.children[0].innerText
             $('#join-game-header').text(game_id);
             init_data.game_id = game_id;
+
+            // populate list of possible teams
+            $('#team-list').empty();
+
+            var selected = teams_in_games[game_id][0];
+            $('#myteam').text(selected);
+            for (var index in teams_in_games[game_id]) {
+              var team_id = teams_in_games[game_id][index];
+              $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + team_id + '" ' + (team_id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/128/' + team_id + '.jpg"> </label></li>');
+            }
+
           });
         });
-
-        var selected = 'hotel';
-        $('#myteam').text(TEAM_DATA[selected].name);
-        for (var id in TEAM_DATA) {
-          $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
-        }
 
         $('input:radio[name=team-choice]').click(function(e) {
           $('#myteam').text(e.target.value);
