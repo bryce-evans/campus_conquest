@@ -243,11 +243,11 @@
 		<script>
       $(document).ready(function() {
         var init_data = {};
-		
-		$('#new-game').click(function(){
-		  window.location.href='/new-game';	
-		});
-		
+
+        $('#new-game').click(function() {
+          window.location.href = '/new-game';
+        });
+
         $('#new-game-form').submit(function(e) {
           e.preventDefault();
           // Prevents the page from refreshing
@@ -326,14 +326,14 @@
               $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + team_id + '" ' + (team_id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/128/' + team_id + '.jpg"> </label></li>');
             }
 
-          });
-        });
+            $('input:radio[name=team-choice]').click(function(e) {
+              $('#myteam').text(e.target.value);
+            });
+            $('img').on('dragstart', function(event) {
+              event.preventDefault();
+            });
 
-        $('input:radio[name=team-choice]').click(function(e) {
-          $('#myteam').text(e.target.value);
-        });
-        $('img').on('dragstart', function(event) {
-          event.preventDefault();
+          });
         });
 
         $('#join-button').click(function() {
