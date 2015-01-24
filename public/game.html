@@ -93,7 +93,7 @@
 							</div>
 						</div>
 
-						<div>
+						<div class='button-set right'>
 							<a href="#" class="button" id="create-game-button" >Create Game</a>
 						</div>
 
@@ -124,7 +124,7 @@
 							</script>
 							<ul id='team-list'></ul>
 						</div>
-						<div>
+						<div class='button-set right'>
 							<a href="#" class="button" id="join-button">Join Game</a>
 						</div>
 
@@ -313,7 +313,7 @@
 
         var selected = 'hotel';
         $('#myteam').text(TEAM_DATA[selected].name);
-        for (id in TEAM_DATA) {
+        for (var id in TEAM_DATA) {
           $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + id + '" ' + (id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
         }
 

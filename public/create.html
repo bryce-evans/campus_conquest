@@ -11,6 +11,7 @@
 		<link rel="stylesheet" href="css/fonts.css" />
 		<link rel="stylesheet" href="css/global.css" />
 		<link rel="stylesheet" href="css/pane.css" />
+		<script src="js/Constants.js"></script>
 
 	</head>
 
@@ -32,22 +33,28 @@
 							Description:
 							<input type="text" name="desc" >
 						</div>
-						<div>
-							Public <div class='checkbox'>
+						<div style="display: none;">
+							Public
+							<div class='checkbox'>
 								<input type="checkbox" name="privacy" id='is-public-checkbox'>
 								<label for="is-public-checkbox"></label>
 							</div>
 						</div>
 						<div style="display:none;">
-							Privacy (Currently will always be public)
+							Private? (**Currently all games are public)
 
 							<select name="privacy">
 								<option value=0>Private</option>
 								<option value=1>Public</option>
 							</select>
 						</div>
-
 						<div>
+							Teams 
+							
+							<ul id='team-list'></ul>
+						</div>
+
+						<div class='button-set right'>
 							<a href="#" class="button" id="create-game-button" >Create Game</a>
 						</div>
 					</form>
@@ -59,8 +66,11 @@
 		<script>
       $(document).ready(function() {
 
+        for (var id in TEAM_DATA) {
+          $('#team-list').append('<li><label><input type="checkbox" name="team-choice" value="' + id + '"/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
+        }
 
-       $('#create-game-form').submit(function(e) {
+        $('#create-game-form').submit(function(e) {
           e.preventDefault();
           // Prevents the page from refreshing
           var $this = $(this);

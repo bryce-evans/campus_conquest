@@ -9,12 +9,14 @@
 
 h1 {
   margin: 0;
-  border-bottom: 2px solid black;
   font-family: Goudy Trajan Regular;
   color: black;
   width: 50%;
   min-width: 400px;
   float: left;
+}
+.card-contents h1 {
+  border-bottom: 2px solid black;
 }
 
 form > div {
@@ -38,7 +40,7 @@ input[type=text], input[type=select], input[type=search] {
   font-family: Goudy Trajan Regular;
 }
 
-input[type=checkbox] {
+.checkbox > input[type=checkbox] {
   visibility: hidden;
 }
 
@@ -105,6 +107,10 @@ table {
   border-spacing: 0;
 }
 
+#team-list {
+  margin: 10px 0 10px 0;
+  height: 120px;
+}
 #lobby-table {
   text-align: left;
   width: 50%;
@@ -138,23 +144,23 @@ table {
 .faded-text {
   color: rgba(255,255,255,.6);
 }
-.team-li{
-	text-align: center;
+.team-li {
+  text-align: center;
 }
-.team-li>.icon {
+.team-li > .icon {
   border-radius: 50% 0 0 50%;
   background-position: center;
   padding: 4px;
   width: 22px;
   height: 22px;
 }
-.team-li>.name {
+.team-li > .name {
   padding: 0 20px 0 20px;
 }
-.team-li>.team.name::after{
-	display: block;
+.team-li > .team.name::after {
+  display: block;
 }
-.team-li>.endpiece {
+.team-li > .endpiece {
   width: 30px;
   border-radius: 0 50% 50% 0;
 }
@@ -167,9 +173,6 @@ ul {
   display: block;
   text-align: center;
   margin: 10px 0 60px 0;
-}
-#new-game-button {
-  float: right;
 }
 
 #open-games {
@@ -206,6 +209,9 @@ ul {
 .button.right {
   float: right;
 }
+.button-set.right{
+	text-align : right;
+}
 /* HIDE RADIO BUTTON*/
 label > input {
   display: none;
@@ -235,9 +241,4 @@ label > input:checked + img {
 /* (HOVER) IMAGE STYLES */
 label > input + img:hover {
   opacity: 0.9;
-}
-
-#join-button {
-  float: right;
-  margin-top: 20px;
 }
