@@ -19,7 +19,7 @@ function Game(state, io, db) {
   this.teams = {};
   this.turn = state.turn;
   this.state = state.state;
-  
+
   // list of all socket clients in the game
   this.clients = [];
 
@@ -90,7 +90,7 @@ Game.prototype = {
     }.bind(this));
   },
   handleGrabMove : function(socket, move_data) {
-  if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
+    if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
       console.log('invalid move data');
       return false;
     }
@@ -108,35 +108,34 @@ Game.prototype = {
     this.db.query(query_string);
     var query_string = 'UPDATE global.games SET turn = ' + this.turn + ', cur_team = ' + this.current_team_index + ' WHERE id = \'' + this.id + '\'';
 
-    this.db.query(query_string, function(err,results){
-    move_data.current_team = this.current_team_index;
-    move_data.turn = this.turn;
-    move_data.stage = this.stage;
+    this.db.query(query_string, function(err, results) {
+      move_data.current_team = this.current_team_index;
+      move_data.turn = this.turn;
+      move_data.stage = this.stage;
 
-    this.io.to(this.id).emit('grab update', move_data);
-    this.db.query('SELECT EXISTS(SELECT 1 FROM state.' + this.id + ' WHERE -1=team)', function(err, result) {
+      this.io.to(this.id).emit('grab update', move_data);
+      this.db.query('SELECT EXISTS(SELECT 1 FROM state."' + this.id + '" WHERE -1=team)', function(err, result) {
 
-      // END OF STAGE
-      // this accesses the "FALSE" var in results if no rows found
-      if (!result.rows[0]['?column?']) {
-        console.log(result);
-        var query_string = 'UPDATE global.games SET stage = \'reinforcement\'WHERE id = \'' + this.id + '\'';
+        // END OF STAGE
+        // this accesses the "FALSE" var in results if no rows found
+        if (!result.rows[0]['?column?']) {
+          console.log(result);
+          var query_string = 'UPDATE global.games SET stage = \'reinforcement\'WHERE id = \'' + this.id + '\'';
 
-        this.db.query(query_string);
-        this.io.to(this.id).emit('stage update', {
-          stage : 'reinforcement',
-          reinforcements : 20
-        });
-//  update all client sockets 
-        for(var i = 0; i< this.clients.length; i++){
-        var socket = this.clients[i];
-        socket.removeAllListeners('grab move');
-          this.initReinforcementStage(socket);
-        
+          this.db.query(query_string);
+          this.io.to(this.id).emit('stage update', {
+            stage : 'reinforcement',
+            reinforcements : 20
+          });
+          //  update all client sockets
+          for (var i = 0; i < this.clients.length; i++) {
+            var socket = this.clients[i];
+            socket.removeAllListeners('grab move');
+            this.initReinforcementStage(socket);
+
+          }
+
         }
-
-
-      }
       }.bind(this));
     }.bind(this));
   },
@@ -206,16 +205,16 @@ Game.prototype = {
           }.bind(this));
 
           //reset waiting_on list
-          this.db.query('UPDATE teams.' + this.id + ' SET waiting_on=TRUE', function(err, result) {
+          this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=TRUE', function(err, result) {
             if (err) {
               console.error('ERROR could not reset waiting_on=TRUE in initOrdersStage')
             }
           });
-// update all clients to same state
-         for(var i = 0; i < this.clients.length; i++){
+          // update all clients to same state
+          for (var i = 0; i < this.clients.length; i++) {
             var socket = this.clients[i];
-          socket.removeAllListeners('reinforcement move');
-          this.initOrdersStage(socket);
+            socket.removeAllListeners('reinforcement move');
+            this.initOrdersStage(socket);
           }
         }
       }.bind(this));
@@ -239,7 +238,7 @@ Game.prototype = {
     }
 
     this.all_move_data[move_data.team_index] = move_data.commands;
-    console.log('all_move_data updated:',this.all_move_data);
+    console.log('all_move_data updated:', this.all_move_data);
     // mark as moved
     this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.team_id + '\'', function(err, result) {
 
@@ -265,11 +264,8 @@ Game.prototype = {
           this.io.to(this.id).emit('waiting-on update', waiting_on);
 
           // no one left
-        // only runs on last player to move
+          // only runs on last player to move
         } else {
-          console.log('no one is left!!', this.all_move_data);
-          this.io.to(this.id).emit('orders update', this.all_move_data);
-          this.all_move_data = [];
 
           // set up for reinforcement  stage
           // XXX RET
@@ -282,43 +278,150 @@ Game.prototype = {
           }.bind(this));
 
           //reset waiting_on list
-          this.db.query('UPDATE teams.' + this.id + ' SET waiting_on=TRUE', function(err, result) {
+          this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=TRUE', function(err, result) {
             if (err) {
               console.error('ERROR could not reset waiting_on=TRUE in initOrdersStage')
             }
           });
 
-//  update all client sockets 
-        for(var i = 0; i< this.clients.length; i++){
-        var socket = this.clients[i];
-        socket.removeAllListeners('orders move');
-          this.initReinforcementStage(socket);
-        }
+          //
+          var results = this.genAllAttackResults(this.all_move_data);
+
+          this.io.to(this.id).emit('orders update', results);
+          this.all_move_data = [];
+          //  update all client sockets
+          for (var i = 0; i < this.clients.length; i++) {
+            var socket = this.clients[i];
+            socket.removeAllListeners('orders move');
+            this.initReinforcementStage(socket);
+          }
         }
 
       }.bind(this));
     }.bind(this));
   },
+
+  // move data : [{start : {end}}]
+  genAllAttackResults : function(move_data) {
+    
+    var ret = [];
+    for (var i = 0; i < move_data.length; i++) {
+      for (var start in moves[i]) {
+        for (var end in moves[i][start]) {
+          var bidirectional = false;
+          // test if bidirectional
+          for (var j = i + 1; j < move_data.length; j++) {
+            // set bidirection vars
+            if (move_data[k][end] && move_data[j][end][start]) {
+              bidirectional = true;
+
+              var data1 = {
+                team_index : i,
+                piece_id : start,
+                units : move_data[i][start][end],
+                base_units : this.state[start].units
+              };
+              var data2 = {
+                team_index : this.state[end].team,
+                piece_id : end,
+                units : move_data[j][end][start],
+                base_units : this.state[end].units,
+              };
+              if (start < end) {
+                var start_data = data1;
+                var end_data = data2;
+              } else {
+                var start_data = data2;
+                var end_data = data1;
+              }
+
+              var result_data = this.genAttackResults(start_data.units, end_data.units, true);
+              // start won
+              if (result_data.victor) {
+                var secondary_results = this.genAttackResults(result_data.units, end_data.base_units, false);
+              } else {
+                var secondary_results = this.genAttackResults(result_data.units, start_data.base_units, false);
+              }
+
+              // remove the direction that was handled already
+              delete move_data[j][end][start];
+
+              ret.append({
+                start : start_data,
+                end : end_data,
+                results : result_data,
+                secondary : secondary_results
+              });
+              break;
+
+            }
+          }
+
+          if (!bidirectional) {
+
+            ret.push({
+              start : {
+                team_index : i,
+                piece_id : start,
+                units : move_data[i][start][end],
+              },
+              end : {
+                team_index : this.state[end].team,
+                piece_id : end,
+                units : this.state[end].units,
+              },
+              results : this.genAttackResults(this.state[start].units, this.state[end].units, false),
+              secondary : undefined,
+
+            });
+          }
+        }
+      }
+    }
+    return ret;
+  },
+
+  // adds the victor arrays (battle results) to move data
+  // index of move_data is that teams moves
+  genAttackResults : function(start_units, end_units, bidirectional) {
+    var ret = []
+    var results = [];
+    // true if start wins
+    var winner = true;
+    while (start_units > 0 || end_units > 0) {
+      // random unit lost
+      winner = Math.random() < end_units / (start_units + end_units);
+      if (winner) {
+        end_units--;
+      } else {
+        start_units--;
+      }
+      results.push(winner);
+    }
+    return {
+      victor : start_units > 0,
+      units : Math.max(start_units, end_units),
+      playout : results,
+    }
+  },
   nextTeamIndex : function() {
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
     return this.current_team_index;
   },
-  removeClientFromActive : function(socket){
-     var index = this.clients.indexOf(socket);
-     
-        if (index > -1) {
-            this.clients.splice(index, 1);
-            }
-            else{
-console.error('ERROR. could not remove player' + socket.id);
-            }
-        
-        
+  removeClientFromActive : function(socket) {
+    var index = this.clients.indexOf(socket);
+
+    if (index > -1) {
+      this.clients.splice(index, 1);
+    } else {
+      console.error('ERROR. could not remove player' + socket.id);
+    }
+
   },
   printDebugInfo : function(socket) {
     console.log('================================ Debug Info');
     var client_ids = new Array(this.clients.length);
-    for(var i = 0; i<this.clients.length; i++){
+    for (var i = 0; i < this.clients.length; i++) {
       client_ids[i] = this.clients[i].id;
     }
     var out = {
@@ -326,7 +429,9 @@ console.error('ERROR. could not remove player' + socket.id);
       all_move_data : this.all_move_data,
       clients : client_ids,
     }
-    if(socket){out.socket_id = socket.id;}
+    if (socket) {
+      out.socket_id = socket.id;
+    }
     console.log(out);
     console.log('===========================================');
   },
