@@ -1,14 +1,23 @@
 var game = require('./game.js');
-var index = require('./index.js');
 var utils = require('./utils.js');
+
+var debug = require('./debug.js');
 
 function Api(io, db) {
   this.io = io;
   this.db = db;
+  this.gm = undefined;
 }
 
 Api.prototype = {
-
+	
+		/**
+ 	 * @param {Object} gm
+	 */
+	setGameManager : function(gm){
+		this.gm = gm;
+	},
+	
 	getCornellTeamList : function() {
 	  return ['hotel', 'as', 'aap', 'cals', 'ilr', 'eng', 'humec'];
 	},
@@ -34,7 +43,7 @@ Api.prototype = {
 			index smallint NOT NULL,\
 			id public.cc_team DEFAULT 'none'::public.cc_team,\
       player_count smallint DEFAULT 1,\
-      waiting_on boolean DEFAULT false,\
+      waiting_on boolean DEFAULT true,\
       password text DEFAULT ''\
 			);\
 			\
@@ -156,9 +165,19 @@ getOpenGames : function(callback){
   });
 },
 
-  // gets the current state and runs callback(state) when done
+  // gets the current state of game id <string>  and runs callback(state) when done
+  // includes data in memory like waiting_on 
   getState : function(id, callback) {
-
+  	this.getDbState(id, function(data){
+  		 data.waiting_on = this.gm.getGame(id).getWaitingOn();
+  		 callback(data);
+  	}.bind(this));
+  },
+  
+  // gets the state from the DB, 
+  // does not include temp info like whose turn it is
+  getDbState : function(id, callback){
+  
     var ret = {
       status : 200
     };
@@ -179,7 +198,7 @@ getOpenGames : function(callback){
       ret.turn = data.turn;
       ret.team_order = {};
       ret.current_team = data.cur_team;
-      ret.waiting_on = []; 
+
 
       this.db.query('SELECT * FROM "state"."' + id + '"', function(err, result) {
         if (err) {
@@ -207,7 +226,6 @@ getOpenGames : function(callback){
 	        var order = ret.team_order;
 	        for (var i = 0; i < result.rows.length; i++) {
             var r = result.rows[i];
-            if(r.waiting_on) {ret.waiting_on.push(r.index);}
             order[r.index] = r.id;
 	        }
 

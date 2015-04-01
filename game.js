@@ -3,6 +3,8 @@
  */
 
 var api = require('./api.js');
+var conflictHandler = require('./conflictHandler.js');
+
 function Game(state, io, db) {
 
   this.id = state.id;
@@ -20,19 +22,39 @@ function Game(state, io, db) {
   this.turn = state.turn;
   this.state = state.state;
 
+  // map of who is left to move this turn
+  // {team_id <string> : waiting_on <bool>}
+  this.waiting_on = {};
+
   // list of all socket clients in the game
   this.clients = [];
 
   // all move data for this turn
-  // gets built as players contribute their moves
+  // gets appended to as players contribute their moves
   this.all_move_data = [];
 }
 
 Game.prototype = {
+
+  /**
+   * @param id <string> : id of team, e.g. 'cals' or 'eng'
+   */
   addTeam : function(id) {
     this.team_count += 1;
     this.teams[id] = [];
+    this.waiting_on[id] = true;
+    
+    console.log('ASFDASDF ADDING TEAM');
+    console.log('id', id);
+    console.log(this.teams);
+    console.log(this.waiting_on);
   },
+
+  /**
+   * Adds a player to the game
+   * @param socket : client that is connecting
+   * @param team_id : team that they are joining
+   */
   addPlayer : function(socket, team_id) {
 
     // subscribe the player to updates to the room
@@ -46,7 +68,7 @@ Game.prototype = {
     }
 
     this.teams[team_id].push(socket);
-
+    
     console.log('player entering stage ' + this.stage);
 
     switch(this.stage) {
@@ -62,6 +84,9 @@ Game.prototype = {
     }
   },
 
+  /**
+   * sets up functions for grab stage
+   */
   initGrabStage : function(socket) {
 
     // handle selecting buildings
@@ -70,6 +95,10 @@ Game.prototype = {
       this.handleGrabMove(socket, move_data);
     }.bind(this));
   },
+
+  /**
+   * sets up functions for reinforcement stage
+   */
   initReinforcementStage : function(socket) {
 
     console.log('initReinforcementStage() called');
@@ -79,6 +108,9 @@ Game.prototype = {
       this.handleReinforcementMove(socket, move_data);
     }.bind(this));
   },
+  /**
+   *  sets up functions for orders stage
+   */
   initOrdersStage : function(socket) {
     console.log('initOrdersStage() called');
 
@@ -89,6 +121,9 @@ Game.prototype = {
       this.handleOrdersMove(socket, move_data);
     }.bind(this));
   },
+  /**
+   * Takes a client and their move and handles the grab turn
+   */
   handleGrabMove : function(socket, move_data) {
     if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
       console.log('invalid move data');
@@ -139,12 +174,16 @@ Game.prototype = {
       }.bind(this));
     }.bind(this));
   },
+
+  /**
+   * Takes a client and their move and adds the reinforcements to the move list
+   */
   handleReinforcementMove : function(socket, move_data) {
     var team = move_data.meta.team_index;
     var coms = move_data.commands;
 
+    // TODO  make reinforcment count dynamic
     //var reinforcements_remaining = api.getReinforcementsFromState(this.state,team);
-    // XXX TODO remove later,only temp
     var reinforcements_remaining = 3;
 
     for (var i = 0; i < coms.length; i++) {
@@ -163,63 +202,46 @@ Game.prototype = {
         });
       }
     }
-    this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.meta.team + '\'', function(err, result) {
+    this.removeFromWaitingOn(move_data.meta.team);
 
-      if (err) {
-        console.error('ERR GAME.JS UPDATING WAITING_ON');
-      }
+    // append validated moves
+    this.all_move_data = this.all_move_data.concat(move_data.commands);
 
-      // append validated moves
-      this.all_move_data = this.all_move_data.concat(move_data.commands);
+		var togo = this.getWaitingOn();
+    if (togo.length > 0) {
 
-      // who are we waiting on still?
-      this.db.query('SELECT index FROM teams."' + this.id + '" WHERE waiting_on=TRUE', function(err, result) {
+      this.io.to(this.id).emit('waiting-on update', togo);
 
+      // no one remaining
+      // only runs once on last player to move
+    } else {
+      console.log('no one is left!!', this.all_move_data);
+      this.io.to(this.id).emit('reinforcement update', this.all_move_data);
+      this.all_move_data = [];
+
+      // set to orders stage
+      this.db.query('UPDATE global.games SET stage = \'orders\'WHERE id = \'' + this.id + '\'', function(err, result) {
         if (err) {
-          console.error('ERROR: query checking teams still waiting on returned error')
+          console.error('ERROR: cannot switch to orders stage');
         }
-
-        // someone left
-        if (result.rows.length > 0) {
-          var waiting_on = new Array(result.rows.length);
-          for (var i = 0; i < result.rows.length; i++) {
-            waiting_on[i] = result.rows[i].index;
-          }
-          console.log('still waiting on:', waiting_on);
-
-          this.io.to(this.id).emit('waiting-on update', waiting_on);
-
-          // no one remaining
-          // only runs once on last player to move
-        } else {
-          console.log('no one is left!!', this.all_move_data);
-          this.io.to(this.id).emit('reinforcement update', this.all_move_data);
-          this.all_move_data = [];
-
-          // set to orders stage
-          this.db.query('UPDATE global.games SET stage = \'orders\'WHERE id = \'' + this.id + '\'', function(err, result) {
-            if (err) {
-              console.error('ERROR: cannot switch to orders stage');
-            }
-            this.stage = 'orders';
-          }.bind(this));
-
-          //reset waiting_on list
-          this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=TRUE', function(err, result) {
-            if (err) {
-              console.error('ERROR could not reset waiting_on=TRUE in initOrdersStage')
-            }
-          });
-          // update all clients to same state
-          for (var i = 0; i < this.clients.length; i++) {
-            var socket = this.clients[i];
-            socket.removeAllListeners('reinforcement move');
-            this.initOrdersStage(socket);
-          }
-        }
+        this.stage = 'orders';
       }.bind(this));
-    }.bind(this));
+
+      this.resetWaitingOn();
+
+      // update all clients to same state
+      for (var i = 0; i < this.clients.length; i++) {
+        var socket = this.clients[i];
+        socket.removeAllListeners('reinforcement move');
+        this.initOrdersStage(socket);
+      }
+    }
+
   },
+
+  /**
+   * Takes a client and their move and handles the backend for the move
+   */
   handleOrdersMove : function(socket, move_data) {
     var team_index = move_data.team_index;
 
@@ -239,175 +261,107 @@ Game.prototype = {
 
     this.all_move_data[move_data.team_index] = move_data.commands;
     console.log('all_move_data updated:', this.all_move_data);
-    // mark as moved
-    this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.team_id + '\'', function(err, result) {
 
-      if (err) {
-        console.error('ERR GAME.JS UPDATING WAITING_ON');
-      }
+		var togo = this.getWaitingOn();
+		
+    // someone left
+    if (togo.length > 0) {
 
-      // who are we waiting on still?
-      this.db.query('SELECT index FROM teams."' + this.id + '" WHERE waiting_on=TRUE', function(err, result) {
+      this.io.to(this.id).emit('waiting-on update', togo);
 
+      // no one left
+      // only runs on last player to move
+    } else {
+
+      // set up for reinforcement  stage
+      this.db.query('UPDATE global.games SET stage = \'reinforcement\' WHERE id = \'' + this.id + '\'', function(err, result) {
         if (err) {
-          console.error('ERROR: query checking teams still waiting on returned error')
+          console.log('ERROR: cannot switch to reinforcement stage');
         }
 
-        // someone left
-        if (result.rows.length > 0) {
-          var waiting_on = new Array(result.rows.length);
-          for (var i = 0; i < result.rows.length; i++) {
-            waiting_on[i] = result.rows[i].index;
-          }
-          console.log('still waiting on:', waiting_on);
-
-          this.io.to(this.id).emit('waiting-on update', waiting_on);
-
-          // no one left
-          // only runs on last player to move
-        } else {
-
-          // set up for reinforcement  stage
-          // XXX RET
-          this.db.query('UPDATE global.games SET stage = \'reinforcement\' WHERE id = \'' + this.id + '\'', function(err, result) {
-            if (err) {
-              console.log('ERROR: cannot switch to reinforcement stage');
-            }
-
-            this.stage = 'reinforcement';
-          }.bind(this));
-
-          //reset waiting_on list
-          this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=TRUE', function(err, result) {
-            if (err) {
-              console.error('ERROR could not reset waiting_on=TRUE in initOrdersStage')
-            }
-          });
-
-          //
-          var results = this.genAllAttackResults(this.all_move_data);
-
-          this.io.to(this.id).emit('orders update', results);
-          this.all_move_data = [];
-          //  update all client sockets
-          for (var i = 0; i < this.clients.length; i++) {
-            var socket = this.clients[i];
-            socket.removeAllListeners('orders move');
-            this.initReinforcementStage(socket);
-          }
-        }
-
+        this.stage = 'reinforcement';
       }.bind(this));
-    }.bind(this));
+
+      this.resetWaitingOn();
+
+      //
+      var results = conflictHandler.genAllAttackResults(this.all_move_data);
+
+      this.io.to(this.id).emit('orders update', results);
+      this.all_move_data = [];
+      //  update all client sockets
+      for (var i = 0; i < this.clients.length; i++) {
+        var socket = this.clients[i];
+        socket.removeAllListeners('orders move');
+        this.initReinforcementStage(socket);
+      }
+    }
   },
 
-  // move data : [{start : {end}}]
-  genAllAttackResults : function(move_data) {
-    
+  /**
+   * Returns a list of ids of players that have yet to move for this turn
+   */
+  getWaitingOn : function() {
     var ret = [];
-    for (var i = 0; i < move_data.length; i++) {
-      for (var start in moves[i]) {
-        for (var end in moves[i][start]) {
-          var bidirectional = false;
-          // test if bidirectional
-          for (var j = i + 1; j < move_data.length; j++) {
-            // set bidirection vars
-            if (move_data[k][end] && move_data[j][end][start]) {
-              bidirectional = true;
 
-              var data1 = {
-                team_index : i,
-                piece_id : start,
-                units : move_data[i][start][end],
-                base_units : this.state[start].units
-              };
-              var data2 = {
-                team_index : this.state[end].team,
-                piece_id : end,
-                units : move_data[j][end][start],
-                base_units : this.state[end].units,
-              };
-              if (start < end) {
-                var start_data = data1;
-                var end_data = data2;
-              } else {
-                var start_data = data2;
-                var end_data = data1;
-              }
-
-              var result_data = this.genAttackResults(start_data.units, end_data.units, true);
-              // start won
-              if (result_data.victor) {
-                var secondary_results = this.genAttackResults(result_data.units, end_data.base_units, false);
-              } else {
-                var secondary_results = this.genAttackResults(result_data.units, start_data.base_units, false);
-              }
-
-              // remove the direction that was handled already
-              delete move_data[j][end][start];
-
-              ret.append({
-                start : start_data,
-                end : end_data,
-                results : result_data,
-                secondary : secondary_results
-              });
-              break;
-
-            }
-          }
-
-          if (!bidirectional) {
-
-            ret.push({
-              start : {
-                team_index : i,
-                piece_id : start,
-                units : move_data[i][start][end],
-              },
-              end : {
-                team_index : this.state[end].team,
-                piece_id : end,
-                units : this.state[end].units,
-              },
-              results : this.genAttackResults(this.state[start].units, this.state[end].units, false),
-              secondary : undefined,
-
-            });
-          }
-        }
+    for (var key in Object.keys(this.waiting_on)) {
+      if (this.waiting_on[key]) {
+        ret.push(key);
       }
     }
+
     return ret;
+
+    // this.db.query('SELECT index FROM teams."' + this.id + '" WHERE waiting_on=TRUE', function(err, result) {
+    // if (err) {
+    // console.error('ERROR: query checking teams still waiting on returned error')
+    // }
+    // if (result.rows.length > 0) {
+    // var waiting_on = new Array(result.rows.length);
+    // for (var i = 0; i < result.rows.length; i++) {
+    // waiting_on[i] = result.rows[i].index;
+    // }
+    // console.log('still waiting on:', waiting_on);
+    // }.bind(this));
+
+  },
+  /**
+   * sets every team to waiting on
+   * used at the start of every move
+   */
+  resetWaitingOn : function() {
+    for (var key in Object.keys(this.waiting_on)) {
+      this.waiting_on[key] = true;
+    }
+
+    // this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=TRUE', function(err, result) {
+    // if (err) {
+    // console.error('ERROR could not reset waiting_on=TRUE in initOrdersStage')
+    // }
+    // });
   },
 
-  // adds the victor arrays (battle results) to move data
-  // index of move_data is that teams moves
-  genAttackResults : function(start_units, end_units, bidirectional) {
-    var ret = []
-    var results = [];
-    // true if start wins
-    var winner = true;
-    while (start_units > 0 || end_units > 0) {
-      // random unit lost
-      winner = Math.random() < end_units / (start_units + end_units);
-      if (winner) {
-        end_units--;
-      } else {
-        start_units--;
-      }
-      results.push(winner);
-    }
-    return {
-      victor : start_units > 0,
-      units : Math.max(start_units, end_units),
-      playout : results,
-    }
+  removeFromWaitingOn : function(id) {
+    this.waiting_on[id] = false;
+
+    // this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.meta.team + '\'', function(err, result) {
+    // if (err) {
+    // console.error('ERR GAME.JS UPDATING WAITING_ON');
+    // }
+    // }.bind(this));
   },
+  /**
+   * Gets the index of the next player to move
+   */
   nextTeamIndex : function() {
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
     return this.current_team_index;
   },
+
+  /**
+   * Takes a socket and removes it from the list of active players
+   * @param {Object} socket
+   */
   removeClientFromActive : function(socket) {
     var index = this.clients.indexOf(socket);
 
@@ -418,6 +372,11 @@ Game.prototype = {
     }
 
   },
+
+  /**
+   * Prints data related to this game for debugging
+   * @param {Object} socket : [OPTIONAL] if included, prints socket info
+   */
   printDebugInfo : function(socket) {
     console.log('================================ Debug Info');
     var client_ids = new Array(this.clients.length);
@@ -428,6 +387,7 @@ Game.prototype = {
       stage : this.stage,
       all_move_data : this.all_move_data,
       clients : client_ids,
+      waiting_on : this.getWaitingOn(),
     }
     if (socket) {
       out.socket_id = socket.id;
