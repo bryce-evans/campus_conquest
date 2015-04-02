@@ -2,14 +2,14 @@
  Requires a Game was already created with api.js and records exist in DB
  */
 
-var api = require('./api.js');
 var conflictHandler = require('./conflictHandler.js');
 
-function Game(state, io, db) {
+function Game(state, game_manager) {
 
   this.id = state.id;
-  this.io = io;
-  this.db = db;
+  this.gm = game_manager;
+  this.io = game_manager.io;
+  this.db = game_manager.db;
 
   this.stage = state.stage;
 
@@ -17,14 +17,18 @@ function Game(state, io, db) {
   this.team_order = state.team_order;
   this.current_team_index = state.current_team;
 
-  // players[team_id] returns player socket list
+  // teams[team_id <string>] contains team data
+  // players: player list returns player socket list
   this.teams = {};
   this.turn = state.turn;
   this.state = state.state;
 
-  // map of who is left to move this turn
-  // {team_id <string> : waiting_on <bool>}
-  this.waiting_on = {};
+  // who is left to move this turn
+  // boolean array: index = team index
+  this.waiting_on = new Array(this.team_order.length);
+  for (var i = 0; i < this.team_order.length; i++) {
+    this.waiting_on[i] = true;
+  }
 
   // list of all socket clients in the game
   this.clients = [];
@@ -40,14 +44,7 @@ Game.prototype = {
    * @param id <string> : id of team, e.g. 'cals' or 'eng'
    */
   addTeam : function(id) {
-    this.team_count += 1;
-    this.teams[id] = [];
-    this.waiting_on[id] = true;
-    
-    console.log('ASFDASDF ADDING TEAM');
-    console.log('id', id);
-    console.log(this.teams);
-    console.log(this.waiting_on);
+    this.teams[id] = new Team(id);
   },
 
   /**
@@ -58,7 +55,6 @@ Game.prototype = {
   addPlayer : function(socket, team_id) {
 
     // subscribe the player to updates to the room
-
     socket.join(this.id);
     this.clients.push(socket);
     console.log('player joined game ' + this.id);
@@ -67,10 +63,14 @@ Game.prototype = {
       this.addTeam(team_id);
     }
 
-    this.teams[team_id].push(socket);
-    
+    var player = new Player(socket, {
+      team_index : this.getTeamIndexFromId(team_id)
+    });
+    this.teams[team_id].players.push(socket);
+
     console.log('player entering stage ' + this.stage);
 
+    // puts this client into being served by different stage handlers
     switch(this.stage) {
       case 'grab':
         this.initGrabStage(socket);
@@ -82,6 +82,10 @@ Game.prototype = {
         this.initOrdersStage(socket);
         break;
     }
+  },
+
+  getTeamIndexFromId : function(team_id) {
+    return this.team_order.indexOf(team_id);
   },
 
   /**
@@ -179,19 +183,23 @@ Game.prototype = {
    * Takes a client and their move and adds the reinforcements to the move list
    */
   handleReinforcementMove : function(socket, move_data) {
-    var team = move_data.meta.team_index;
+  	var team = move_data.meta.team;
+    var team_index = move_data.meta.team_index;
     var coms = move_data.commands;
 
-    // TODO  make reinforcment count dynamic
     //var reinforcements_remaining = api.getReinforcementsFromState(this.state,team);
-    var reinforcements_remaining = 3;
+    // XXX WILL FAIL IF GET_REINFORCEMENTS BECOMES ASYNC
+    var reinforcements_remaining = this.gm.api.getReinforcements(this.id, team, function(x) {
+      return x;
+    });
 
     for (var i = 0; i < coms.length; i++) {
       var com = coms[i];
       var piece = this.state[com.id];
+      console.log('PIECE', piece);
 
       // make sure you own the piece and have enough to add
-      if (piece.team === team && reinforcements_remaining - com.units >= 0) {
+      if (piece.team === team_index && reinforcements_remaining - com.units >= 0) {
         piece.units += com.units;
         reinforcements_remaining -= com.units;
 
@@ -202,12 +210,13 @@ Game.prototype = {
         });
       }
     }
-    this.removeFromWaitingOn(move_data.meta.team);
 
     // append validated moves
     this.all_move_data = this.all_move_data.concat(move_data.commands);
 
-		var togo = this.getWaitingOn();
+    this.removeFromWaitingOn(team_index);
+
+    var togo = this.getWaitingOn();
     if (togo.length > 0) {
 
       this.io.to(this.id).emit('waiting-on update', togo);
@@ -262,8 +271,9 @@ Game.prototype = {
     this.all_move_data[move_data.team_index] = move_data.commands;
     console.log('all_move_data updated:', this.all_move_data);
 
-		var togo = this.getWaitingOn();
-		
+    this.removeFromWaitingOn(team_index);
+    var togo = this.getWaitingOn();
+
     // someone left
     if (togo.length > 0) {
 
@@ -299,19 +309,18 @@ Game.prototype = {
   },
 
   /**
-   * Returns a list of ids of players that have yet to move for this turn
+   * Returns a list of int ids <int> of players that have yet to move for this turn
    */
   getWaitingOn : function() {
-    var ret = [];
 
-    for (var key in Object.keys(this.waiting_on)) {
-      if (this.waiting_on[key]) {
-        ret.push(key);
+    ret = [];
+    for (var i = 0; i < this.waiting_on.length; i++) {
+      if (this.waiting_on[i]) {
+        ret.push(i);
       }
     }
 
     return ret;
-
     // this.db.query('SELECT index FROM teams."' + this.id + '" WHERE waiting_on=TRUE', function(err, result) {
     // if (err) {
     // console.error('ERROR: query checking teams still waiting on returned error')
@@ -341,8 +350,10 @@ Game.prototype = {
     // });
   },
 
-  removeFromWaitingOn : function(id) {
-    this.waiting_on[id] = false;
+  removeFromWaitingOn : function(index) {
+    console.log('removing from waiting on', this.waiting_on, index);
+    this.waiting_on[index] = false;
+    console.log('after', this.waiting_on);
 
     // this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.meta.team + '\'', function(err, result) {
     // if (err) {
@@ -372,7 +383,6 @@ Game.prototype = {
     }
 
   },
-
   /**
    * Prints data related to this game for debugging
    * @param {Object} socket : [OPTIONAL] if included, prints socket info
@@ -394,7 +404,21 @@ Game.prototype = {
     }
     console.log(out);
     console.log('===========================================');
-  },
+  }
+}
+
+// stores info related to a team
+function Team(id, name) {
+  this.id = id;
+  this.name = name || '';
+  this.players = [];
+}
+
+function Player(socket, options) {
+  this.socket = socket;
+  this.name = options.name || '';
+  this.id = options.id || '';
+  this.team_index = options.team_index || -1;
 }
 
 module.exports = Game;

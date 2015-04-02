@@ -198,6 +198,9 @@ getOpenGames : function(callback){
       ret.turn = data.turn;
       ret.team_order = {};
       ret.current_team = data.cur_team;
+      
+      // add the key in the object for better layout of getState()
+      ret.waiting_on = undefined;
 
 
       this.db.query('SELECT * FROM "state"."' + id + '"', function(err, result) {
@@ -235,12 +238,16 @@ getOpenGames : function(callback){
     }.bind(this));
   },
 
-  getReinforcements : function(id, team, callback){
-    var team_index = CC_GLOBALS.games[id].team_order.indexOf(team);
+// TODO  make reinforcment count dynamic
+  getReinforcements : function(game_id, team_id, callback){
+  	if(!this.gm.gameExists(game_id)){
+  		console.log('GAME DOEST EXIST');
+  	}
+    var team_index = this.gm.getGame(game_id).getTeamIndexFromId(team_id);
     if(team_index < 0) {
       callback({status: 500, error: "team id not found"});
     } else {
-    callback({status: 200, id:id, team:team_index, reinforcements: 3});
+    callback({status: 200, id:game_id, team:team_index, reinforcements: 3});
     }
   }
 }

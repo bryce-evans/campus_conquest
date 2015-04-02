@@ -14,6 +14,7 @@ module.exports =
 {
 genAllAttackResults : function(move_data) {
 
+	console.log('GEN ALL ATTACK RESULTS CALLED',move_data);
 
 	// 03-30-15
 	// testing results integration

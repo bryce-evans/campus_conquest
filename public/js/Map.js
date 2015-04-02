@@ -88,6 +88,12 @@ Map.prototype = {
 
   load : function(model_name, init_state) {
 
+		// model is not in this game
+		if(!init_state[model_name]){
+			console.log(model_name + ' not included in this map');
+			return;
+		}
+		
     this.loader.load(this.map_dir + "buildings/" + model_name + "/" + model_name + ".js", function(geometry) {
 
       geometry.computeMorphNormals();
@@ -102,6 +108,7 @@ Map.prototype = {
         piece_owner = init_state[model_name].team;
       }
 
+			
       var game_piece = new GamePiece(this, model_name, mesh, piece_owner, init_state[model_name].units);
       world.graphics.scene.add(mesh);
 

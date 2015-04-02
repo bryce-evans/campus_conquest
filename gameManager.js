@@ -42,7 +42,7 @@ GameManager.prototype = {
           data.state = state.state;
           data.turn = state.turn;
 
-          this.gm.games[data.id] = new Game(state, this.gm.io, this.gm.db);
+          this.gm.games[data.id] = new Game(state, this.gm);
         }.bind({
           data : data,
           gm : this
@@ -55,6 +55,10 @@ GameManager.prototype = {
   addNewGame : function(id, state) {
 
   },
+  gameExists : function(id) {
+  	return id in this.games;
+  },
+  
   getGame : function(id) {
     var ret = this.games[id];
     if (!ret) {
