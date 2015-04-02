@@ -1,7 +1,7 @@
 /**
  * Graphics Handler
- *  manages rendering and animating the scene
- * @param {Object} world
+ * manages rendering and animating the scene
+ * @param {World} world
  */
 
 Graphics = function() {

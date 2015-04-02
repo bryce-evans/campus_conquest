@@ -1,3 +1,10 @@
+/**
+ * World 
+ * main class for managing all components running a game
+ * contains settings, and components that run every thing
+ * used to tie all other components together
+ * @param {string} id
+ */
 World = function(id) {
   this.id = id;
   this.map = undefined;

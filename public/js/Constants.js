@@ -1,3 +1,8 @@
+/**
+ * Constants
+ * Misc constants used for team information
+ * and display
+ */
 TEAM_DATA = {
   hotel : {
     name : "Hotel",

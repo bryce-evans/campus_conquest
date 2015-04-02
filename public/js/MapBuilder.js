@@ -1,3 +1,10 @@
+/**
+ * Map Builder
+ * contains all of the functions needed for the map builder
+ * 
+ * TODO currently has duplicated code from other scripts
+ * because of small changes, but should extend other classes 
+ */
 MapBuilder = function() {
 
   this.scene = new THREE.Scene();

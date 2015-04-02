@@ -1,3 +1,7 @@
+/**
+ * Window Handler
+ * manages resizing window and elements
+ */
 WindowHandler = function() {
   
 }

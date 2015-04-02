@@ -1,3 +1,8 @@
+/**
+ * Splash
+ * shows a splash screen while items are loading 
+ */
+
 Splash = function() {
 
   var splash = document.createElement('div');

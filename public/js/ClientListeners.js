@@ -1,3 +1,9 @@
+/**
+ * ClientListeners
+ * manages IO, primarily cursor listeners 
+ * when interacting with the world window 
+ */
+
 ClientListeners = function() {
 
   //speed of panning

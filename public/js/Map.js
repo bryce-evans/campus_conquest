@@ -1,4 +1,9 @@
 /**
+ *
+ * Map
+ * 
+ * Loads and manages the models displayed in Graphics.js
+ *  
  * REQUIRES: World.js, Graphics.js
  *
  */

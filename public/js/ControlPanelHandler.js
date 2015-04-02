@@ -1,3 +1,9 @@
+/**
+ * ControlPanelHandler
+ * Manages all of the controls and interactions 
+ * within the controlpanel in the game
+ */
+
 ControlPanelHandler = function() {
   this.socket
   this.width = 260;

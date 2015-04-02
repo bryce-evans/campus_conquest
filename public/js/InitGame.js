@@ -1,4 +1,8 @@
 /*
+ * InitGame
+ * Initializes the game 
+ * loads the world and sends required info to the server on start
+ * 
  * Globals:
  * World, Socket, Me, constants.js data
  *
