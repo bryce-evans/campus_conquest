@@ -15,11 +15,10 @@ module.exports =
 genAllAttackResults : function(move_data) {
 
 	console.log('GEN ALL ATTACK RESULTS CALLED',move_data);
+	ret = new ConflictSetResult(move_data);
 
-	// 03-30-15
-	// testing results integration
-	debugger;
-	
+	// XXX
+	return ret;
 	
   // inverted so it lists piece being attacked, and then list of pieces attacking (end : start)
   var inverse_orders = {};
@@ -38,6 +37,9 @@ genAllAttackResults : function(move_data) {
       }
     }
   }
+  
+  
+  
  }
 }
 
@@ -275,8 +277,9 @@ MultiAttackConflictResult = function(victors, units, teams, pieces, results) {
  * ffa - many pieces attacked a piece with no owner (owner removed as result of mutli)
  * single - basic attack
  */
-ConflictSetResult = function() {
+ConflictSetResult = function(commands) {
   return {
+  	commands : commands,
     bidirectional : [],
     multi : [],
     ffa : [],

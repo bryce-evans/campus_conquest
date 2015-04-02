@@ -94,11 +94,11 @@ StateHandler.prototype = {
 
       // TODO show all arrows and commands
       console.log("(show all arrows and commands)");
-      for (var team in data) {
-        for (var start_id in data[team]) {
-          for (var end_id in data[team][start_id]) {
+      for (var team in data.commands) {
+        for (var start_id in data.commands[team]) {
+          for (var end_id in data.commands[team][start_id]) {
             var arrow = world.map.getArrow(start_id, end_id);
-            arrow.setUnits(data[team][start_id][end_id]);
+            arrow.setUnits(data.commands[team][start_id][end_id]);
             //  arrow.mesh.material.color.copy(new THREE.Color(this.getTeamColorFromIndex(team)));
           }
         }

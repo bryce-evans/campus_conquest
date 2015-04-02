@@ -183,38 +183,39 @@ Game.prototype = {
    * Takes a client and their move and adds the reinforcements to the move list
    */
   handleReinforcementMove : function(socket, move_data) {
-  	var team = move_data.meta.team;
+    var team = move_data.meta.team;
     var team_index = move_data.meta.team_index;
     var coms = move_data.commands;
 
     //var reinforcements_remaining = api.getReinforcementsFromState(this.state,team);
     // XXX WILL FAIL IF GET_REINFORCEMENTS BECOMES ASYNC
-    var reinforcements_remaining = this.gm.api.getReinforcements(this.id, team, function(x) {
-      return x;
-    });
+    // var reinforcements_remaining = this.gm.api.getReinforcements(this.id, team, function(x) {
+    // return x;
+    // });
 
+    var all_moves_valid = true;
     for (var i = 0; i < coms.length; i++) {
       var com = coms[i];
       var piece = this.state[com.id];
-      console.log('PIECE', piece);
 
-      // make sure you own the piece and have enough to add
-      if (piece.team === team_index && reinforcements_remaining - com.units >= 0) {
-        piece.units += com.units;
-        reinforcements_remaining -= com.units;
+      // TODO make sure you own the piece and have enough to add
+      if (piece.team === team_index) {// && reinforcements_remaining - com.units >= 0) {
+        //piece.units += com.units;
+        //reinforcements_remaining -= com.units;
 
-        this.db.query('UPDATE state."' + this.id + '" SET units=' + piece.units + ' WHERE piece_name=\'' + coms[i].id + '\'', function(err, result) {
-          if (err) {
-            console.error('ERROR cannot update state in initReinforcementStage()');
-          }
-        });
+        continue;
+
+      } else {
+        all_moves_valid = false;
+        break;
       }
     }
 
     // append validated moves
-    this.all_move_data = this.all_move_data.concat(move_data.commands);
-
-    this.removeFromWaitingOn(team_index);
+    if (all_moves_valid) {
+      this.all_move_data = this.all_move_data.concat(move_data.commands);
+      this.removeFromWaitingOn(team_index);
+    }
 
     var togo = this.getWaitingOn();
     if (togo.length > 0) {
@@ -223,8 +224,22 @@ Game.prototype = {
 
       // no one remaining
       // only runs once on last player to move
+      // apply moves, notify, update stage
     } else {
       console.log('no one is left!!', this.all_move_data);
+
+      for (var i = 0; i < this.all_move_data; i++) {
+        var com = this.all_move_data[i];
+        var piece = this.state[com.id];
+
+        this.db.query('UPDATE state."' + this.id + '" SET units=' + piece.units + ' WHERE piece_name=\'' + coms[i].id + '\'', function(err, result) {
+          if (err) {
+            console.error('ERROR cannot update state in initReinforcementStage()');
+          }
+        });
+
+      }
+
       this.io.to(this.id).emit('reinforcement update', this.all_move_data);
       this.all_move_data = [];
 
