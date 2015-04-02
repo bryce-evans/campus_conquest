@@ -3,7 +3,8 @@
  * Keeps track of local state and keeping insync with server
  *
  *
- * Always use temp_move_data before sending move_data
+ * Always fully construct temp_move_data before sending move_data
+ *
  * Always send 'xxxxx move' and recieve 'xxxxx update' (not the same emit and recieve id)
  *
  */
@@ -11,9 +12,9 @@
 StateHandler = function() {
   this.socket = undefined;
   this.current = {};
-  
+
   //this.current.watch('stage', function(){debugger;});
-  
+
   this.team_order = [];
   this.moves_left = 0;
   this.move_data = {};
@@ -31,10 +32,10 @@ StateHandler.prototype = {
   connectToSocket : function(socket) {
     this.socket = socket;
 
-// currently only used to switch to REINFORCEMENT stage
+    // currently only used to switch to REINFORCEMENT stage
     this.socket.on('stage update', function(data) {
       this.stage = data.stage;
-			this.initReinforcementStage();
+      this.initReinforcementStage();
     }.bind(this));
 
     // recieve moves
@@ -44,12 +45,12 @@ StateHandler.prototype = {
       var building = world.map.buildings[building_id];
       var new_color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
       building.material.color.copy(new_color);
-      
+
       // don't change back to white when leaving hover if currently hovered over
-      if(building === world.client_listeners.prev_obj){
-      	world.client_listeners.prev_obj_color.copy(new_color);
+      if (building === world.client_listeners.prev_obj) {
+        world.client_listeners.prev_obj_color.copy(new_color);
       }
-      
+
       building.game_piece.team = team;
       world.control_panel_handler.updateWheelToNext();
       this.updateState(data);
@@ -91,9 +92,9 @@ StateHandler.prototype = {
       console.log('received orders update', data);
       this.hideWaitingOnWindow();
       world.map.removeAllArrows();
+      
+      console.log('orders update data', data);
 
-      // TODO show all arrows and commands
-      console.log("(show all arrows and commands)");
       for (var team in data.commands) {
         for (var start_id in data.commands[team]) {
           for (var end_id in data.commands[team][start_id]) {
@@ -109,7 +110,7 @@ StateHandler.prototype = {
       $('#button-continue').unbind('click');
       $('#button-continue').click( function() {
         this.waiting_on = false;
-        
+
         // TODO show battles
         // TODO show end results
 
@@ -132,10 +133,12 @@ StateHandler.prototype = {
     pieces = [];
   },
 
+  // adds a team to the state
   addTeam : function(team) {
     this.teams.append(team);
   },
 
+  // returns team_id<string> of current player
   getCurrent : function() {
     var ret = this.current;
     ret.team = this.team_order[ret.team_index];
@@ -154,10 +157,13 @@ StateHandler.prototype = {
 
     switch(state.stage) {
       case "start":
+        this.move = this.moveStart;
         break;
       case "grab":
+        this.initGrabStage();
         break;
       case "reinforcement":
+        this.move = this.moveReinforcement;
 
         // you have already moved
         if (state.waiting_on.indexOf(me.team_index) == -1) {
@@ -168,6 +174,7 @@ StateHandler.prototype = {
 
         break;
       case "orders":
+        this.move = this.moveOrders;
         // you have already moved
         if (state.waiting_on.indexOf(me.team_index) == -1) {
           this.showWaitingOnWindow(state.waiting_on);
@@ -183,9 +190,15 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
   },
+  
+  initGrabStage : function() {
+    this.move = this.moveGrab;
+  },
   initReinforcementStage : function() {
     this.current.stage = 'reinforcement';
     this.showStageIntro('Reinforcement');
+
+    this.move = this.moveReinforcement;
 
     $('#panel-reinforcement-info').show();
     $.ajax({
@@ -204,8 +217,9 @@ StateHandler.prototype = {
     this.current.stage = 'orders';
     this.showStageIntro('Attack Orders');
 
-    // manages the attack panel slider
+    this.move = this.moveOrders;
 
+    // manages the attack panel slider
     $("#attack-slider").slider({
       range : "min",
       value : 8,
@@ -248,167 +262,175 @@ StateHandler.prototype = {
   },
   // takes a clicked piece and handles the change in state on the client only until turn is over
   // does not always take a full turn if multiple pieces are needed to handle the turn
-  move : function(piece) {
-    switch(this.current.stage) {
-      case 'start':
-        console.error('in start stage, should not be able to move');
-        break;
-      case 'grab':
-        // nat cho move yet son
-        if (me.team != this.getCurrent().team) {
-          console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
-          
-          return;
+  moveStart : function(piece) {
+    console.error('in start stage, should not be able to move');
+  },
+  moveGrab : function(piece) {
+    // nat cho move yet son
+    if (me.team != this.getCurrent().team) {
+      console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
+
+      return;
+    }
+    var move_data = {
+      game_id : world.id,
+      team_index : world.state_handler.getCurrent().team_index,
+      team_id : me.team,
+      piece : piece.game_piece.id,
+    };
+    this.socket.emit('grab move', move_data);
+  },
+  moveReinforcement : function(piece) {
+    if (world.state_handler.team_order[piece.game_piece.team] !== me.team) {
+      return;
+    }
+    if (this.moves_left >= 1) {
+      if (this.temp_move_data[piece.game_piece.id]) {
+        this.temp_move_data[piece.game_piece.id]++;
+      } else {
+        this.temp_move_data[piece.game_piece.id] = 1;
+      }
+      piece.game_piece.units_added = this.temp_move_data[piece.game_piece.id];
+      this.moves_left--;
+      $('#reinforcements-remaining').text(this.moves_left);
+
+      if (this.moves_left == 0) {
+        this.move_data.commands = [];
+        for (var key in this.temp_move_data) {
+          if (this.temp_move_data.hasOwnProperty(key)) {
+            this.move_data.commands.push({
+              id : key,
+              units : this.temp_move_data[key]
+            });
+          }
+
         }
-        var move_data = {
-          game_id : world.id,
-          team_index : world.state_handler.getCurrent().team_index,
-          team_id : me.team,
-          piece : piece.game_piece.id,
+        this.move_data.meta = {
+          team : me.team,
+          team_index : me.team_index,
+          key : "my_super_secret_key"
         };
-        this.socket.emit('grab move', move_data);
-        break;
-      case 'reinforcement':
-        if (world.state_handler.team_order[piece.game_piece.team] !== me.team) {
-          return;
-        }
-        if (this.moves_left >= 1) {
-          if (this.temp_move_data[piece.game_piece.id]) {
-            this.temp_move_data[piece.game_piece.id]++;
-          } else {
-            this.temp_move_data[piece.game_piece.id] = 1;
-          }
-          piece.game_piece.units_added = this.temp_move_data[piece.game_piece.id];
-          this.moves_left--;
-          $('#reinforcements-remaining').text(this.moves_left);
-
-          if (this.moves_left == 0) {
-            this.move_data.commands = [];
-            for (var key in this.temp_move_data) {
-              if (this.temp_move_data.hasOwnProperty(key)) {
-                this.move_data.commands.push({
-                  id : key,
-                  units : this.temp_move_data[key]
-                });
-              }
-
-            }
-            this.move_data.meta = {
-              team : me.team,
-              team_index : me.team_index,
-              key : "my_super_secret_key"
-            };
-            console.log('sending reinforcement data', this.move_data);
-            this.socket.emit('reinforcement move', this.move_data);
-            this.temp_move_data = {};
-            this.move_data = {};
-            $('#panel-reinforcement-info').hide();
-          }
-        }
-        break;
-      case 'orders':
-        var mesh = piece;
-        var piece = mesh.game_piece;
-
-        // make sure its your piece
-        if (piece.team === me.team_index) {
-
-          // undo highlight
-          if (this.current_selected) {
-            this.current_selected.unhighlight();
-
-            //undo selection
-            if (this.current_selected === piece) {
-              this.current_selected = undefined;
-              return;
-            }
-          }
-
-          this.current_selected = piece;
-          this.current_selected.highlight();
-
-          // issue attack
-        } else {
-          var start_piece = this.current_selected;
-          var start_id = start_piece.id;
-          var end_id = piece.id;
-
-          var arrow = world.map.getArrow(start_id, end_id);
-          var prev_arrow_units = arrow.units;
-
-          var init_start_pt_force = start_piece.units;
-
-          var total_force = init_start_pt_force + prev_arrow_units;
-          var max_force = total_force - 1;
-
-          // load previous arrow if exists;
-          if (prev_arrow_units > 0) {
-            var init_slider_force = prev_arrow_units;
-
-            // new arrow
-          } else {
-            var init_slider_force = max_force;
-            arrow.setUnits(max_force);
-            start_piece.units = init_start_pt_force - init_slider_force;
-          }
-
-          $('#attack-panel .from').text(start_id);
-          $('#attack-panel .to').text(end_id);
-
-          // init force changes
-          // same changes occur on slider.slide
-          $("#attack-unit-count").text('units: ' + (init_slider_force));
-
-          $("#attack-slider").slider("destroy");
-          $("#attack-slider").slider({
-            range : "min",
-            value : init_slider_force,
-            min : 0,
-            max : max_force,
-            slide : function(event, ui) {
-              $("#attack-unit-count").text('units: ' + ui.value);
-              arrow.setUnits(ui.value);
-              start_piece.units = total_force - ui.value;
-            }
-          });
-
-          $('#attack-panel').show();
-
-          // remove old listener so canceling doesnt clear everything!
-          $('#attack-panel .button.cancel').unbind('click');
-
-          $('#attack-panel .button.cancel').click( function() {
-            arrow.setUnits(prev_arrow_units);
-            start_piece.units = init_start_pt_force;
-            $('#attack-panel').hide();
-          }.bind({
-            prev_arrow_units : prev_arrow_units,
-            init_start_pt_force : init_start_pt_force,
-          }));
-
-          $('#attack-panel .button.okay').unbind('click');
-          $('#attack-panel .button.okay').click( function() {
-            // initialize move data map [<from> : <to>]
-            if (!this.temp_move_data[this.start_id]) {
-              this.temp_move_data[this.start_id] = {};
-            }
-            this.temp_move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
-
-            // undo selection
-            this.start_piece.unhighlight();
-            this.start_piece = undefined;
-            $('#attack-panel').hide();
-          }.bind({
-            temp_move_data : this.temp_move_data,
-            start_piece : start_piece,
-            start_id : start_id,
-            end_id : end_id,
-          }));
-
-        }
-        break;
+        console.log('sending reinforcement data', this.move_data);
+        this.socket.emit('reinforcement move', this.move_data);
+        this.temp_move_data = {};
+        this.move_data = {};
+        $('#panel-reinforcement-info').hide();
+      }
     }
   },
+  moveOrders : function(piece) {
+    var mesh = piece;
+    var piece = mesh.game_piece;
+
+    // make sure its your piece
+    if (piece.team === me.team_index) {
+
+      // undo highlight
+      if (this.current_selected) {
+        this.current_selected.unhighlight();
+
+        //undo selection
+        if (this.current_selected === piece) {
+          this.current_selected = undefined;
+          return;
+        }
+      }
+
+      this.current_selected = piece;
+      this.current_selected.highlight();
+
+      // issue attack
+    } else {
+      var start_piece = this.current_selected;
+      var start_id = start_piece.id;
+      var end_id = piece.id;
+
+      var arrow = world.map.getArrow(start_id, end_id);
+      var prev_arrow_units = arrow.units;
+
+      var init_start_pt_force = start_piece.units;
+
+      var total_force = init_start_pt_force + prev_arrow_units;
+      var max_force = total_force - 1;
+
+      // load previous arrow if exists;
+      if (prev_arrow_units > 0) {
+        var init_slider_force = prev_arrow_units;
+
+        // new arrow
+      } else {
+        var init_slider_force = max_force;
+        arrow.setUnits(max_force);
+        start_piece.units = init_start_pt_force - init_slider_force;
+      }
+
+      $('#attack-panel .from').text(start_id);
+      $('#attack-panel .to').text(end_id);
+
+      // init force changes
+      // same changes occur on slider.slide
+      $("#attack-unit-count").text('units: ' + (init_slider_force));
+
+      $("#attack-slider").slider("destroy");
+      $("#attack-slider").slider({
+        range : "min",
+        value : init_slider_force,
+        min : 0,
+        max : max_force,
+        slide : function(event, ui) {
+          $("#attack-unit-count").text('units: ' + ui.value);
+          arrow.setUnits(ui.value);
+          start_piece.units = total_force - ui.value;
+        }
+      });
+
+      $('#attack-panel').show();
+
+      // remove old listener so canceling doesnt clear everything!
+      $('#attack-panel .button.cancel').unbind('click');
+
+      $('#attack-panel .button.cancel').click( function() {
+        arrow.setUnits(prev_arrow_units);
+        start_piece.units = init_start_pt_force;
+        $('#attack-panel').hide();
+      }.bind({
+        prev_arrow_units : prev_arrow_units,
+        init_start_pt_force : init_start_pt_force,
+      }));
+
+      $('#attack-panel .button.okay').unbind('click');
+      $('#attack-panel .button.okay').click( function() {
+        // initialize move data map [<from> : <to>]
+        if (!this.temp_move_data[this.start_id]) {
+          this.temp_move_data[this.start_id] = {};
+        }
+        this.temp_move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
+
+        // undo selection
+        this.start_piece.unhighlight();
+        this.start_piece = undefined;
+        $('#attack-panel').hide();
+      }.bind({
+        temp_move_data : this.temp_move_data,
+        start_piece : start_piece,
+        start_id : start_id,
+        end_id : end_id,
+      }));
+
+    }
+  },
+  /**
+   * handles every move
+   * is set to point to moveStart, moveGrab, moveReinforcement, or moveOrders
+   * depending on stage
+   */
+  move : function(piece) {
+    console.error('StateHandler.move not set');
+  },
+  /**
+   * shows animation for change of stage
+   * @param {string} stage_name : text to be displayed
+   */
   showStageIntro : function(stage_name) {
     $('#new-stage-text').text(stage_name);
     $('#new-stage-intro').show();
@@ -416,6 +438,10 @@ StateHandler.prototype = {
       $('#new-stage-intro').hide();
     }, 2000);
   },
+  /**
+   * Shows list of players yet to move
+   * @param {string[]} waiting_on
+   */
   showWaitingOnWindow : function(waiting_on) {
     // show only after getting data from server
     // prevents window from flashing when no waiting-on left
@@ -428,12 +454,19 @@ StateHandler.prototype = {
     }
   },
 
+  /**
+   * clears and hides waiting on window
+   */
   hideWaitingOnWindow : function() {
     $('#waiting-on').hide();
     this.waiting = false;
     $('#waiting-on-list').empty();
   },
 
+  /**
+   * returns primary color of team by index
+   * @param {int} index
+   */
   getTeamColorFromIndex : function(index) {
     if (index < 0) {
       return 0xffffff;

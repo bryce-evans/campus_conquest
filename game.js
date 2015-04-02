@@ -310,7 +310,7 @@ Game.prototype = {
       this.resetWaitingOn();
 
       //
-      var results = conflictHandler.genAllAttackResults(this.all_move_data);
+      var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
 
       this.io.to(this.id).emit('orders update', results);
       this.all_move_data = [];
