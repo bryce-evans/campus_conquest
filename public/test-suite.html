@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<script>module = {};</script>
 		<script src="../conflictHandler.js"></script>
 	</head>
 	<body>
@@ -225,29 +226,25 @@
         }
       };
       var move_data = [{
-        white : {
-          taylor : 3
+        malott : {
+          mudd_corson : 4
+        },
+        goldwin : {
+          rockefeller : 2
+        },
+        ad_white_house : {
+          ives : 3
         }
       }, {
-        taylor : {
-          white : 2
-        },
-
-        barton : {
-          statler : 15
+        duffield_phillips : {
+          statler : 4
         },
         ives : {
-          statler : 9
-        },
-        roberts_kennedy : {
-          malott : 6
-        },
-        rockefeller : {
-          uris : 8
+          ad_white_house : 4
         }
       }];
 
-      var results = genAllAttackResults(move_data, state);
+      var results = module.exports.genAllAttackResults(move_data, state.state);
       console.log(results);
 		</script>
 	</body>

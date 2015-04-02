@@ -81,52 +81,52 @@ module.exports = {
 
         }
       }
+    }
 
-      // second pass handles multi attacks and singles
-      for (var i = 0; i < defenders.length; i++) {
-        // piece id
-        var defender_id = defenders[i];
+    // second pass handles multi attacks and singles
+    for (var i = 0; i < defenders.length; i++) {
+      // piece id
+      var defender_id = defenders[i];
 
-        // <string> piece_id[] : only temp - may contain already handled orders
-        var attackers_temp = Object.keys(inverse_orders[defender_id]);
+      // <string> piece_id[] : only temp - may contain already handled orders
+      var attackers_temp = Object.keys(inverse_orders[defender_id]);
 
-        // Attack[]
-        var attackers = [];
+      // Attack[]
+      var attackers = [];
 
-        for (var j = 0; j < attackers_temp.length; j++) {
-          var attacker = attackers[j];
+      for (var j = 0; j < attackers_temp.length; j++) {
+        var attacker = attackers[j];
 
-          // push if not handled yet
-          if (!inverse_orders[defender_id][attackers_temp[j]].handled) {
-            var attack_data = inverse_orders[defender_id][attackers_temp[j]];
-            attackers.push(new Attack(attack_data.team, attack_data.team, attackers_temp[j], defender_id));
-          }
-
-        }
-
-        var defender = new Defender(state[defender_id].team, state[defender_id].units, defender_id);
-
-        // multi attack
-        if (attackers.length > 1) {
-
-          // XXX TODO handle case where many different teams attack a building
-
-          debugger;
-          var results = genMultiAttackResults(attackers, defender);
-          ret.multi.push(results);
-
-          var secondary_results = genFFAAttackResults([]);
-          ret.ffa.push(secondary_results);
-
-          // solo attack - could be length 0 if all are already handled
-        } else if (attackers.length > 0) {
-          var results = genMultiAttackResults(attackers, defender);
-          ret.single.push(results);
+        // push if not handled yet
+        if (!inverse_orders[defender_id][attackers_temp[j]].handled) {
+          var attack_data = inverse_orders[defender_id][attackers_temp[j]];
+          attackers.push(new Attack(attack_data.team, attack_data.team, attackers_temp[j], defender_id));
         }
 
       }
 
+      var defender = new Defender(state[defender_id].team, state[defender_id].units, defender_id);
+
+      // multi attack
+      if (attackers.length > 1) {
+
+        // XXX TODO handle case where many different teams attack a building
+
+        debugger;
+        var results = genMultiAttackResults(attackers, defender);
+        ret.multi.push(results);
+
+        var secondary_results = genFFAAttackResults([]);
+        ret.ffa.push(secondary_results);
+
+        // solo attack - could be length 0 if all are already handled
+      } else if (attackers.length > 0) {
+        var results = genMultiAttackResults(attackers, defender);
+        ret.single.push(results);
+      }
+
     }
+
     return ret;
 
   }
