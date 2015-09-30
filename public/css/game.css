@@ -55,6 +55,23 @@ nav a ul li {
 nav a ul li:hover {
   background-color: #282828;
 }
+.debug{
+	  margin-top: 5px;
+    width: 300px;
+    position: absolute;
+}
+.debug.window>.button-set{
+	width: 150px;
+}
+.debug.window>.header-container{
+	width: 100%;
+}
+.debug.window>.header-container>header{
+    background-color: rgb(15,15,60);
+    border-radius: 3px 3px 0 0;
+    padding: 5px;
+
+}
 #panel-wheel {
   padding: 10px;
 }
@@ -113,21 +130,23 @@ nav a ul li:hover {
   border-radius: 10px;
 }
 
-.centered-window {
+.window {
+	  border: 1px solid rgba(255,255,255,.88);
+    border-radius: 4px;
+    background: rgba(0,0,0,.8);
+}
+.centered-window-container {
   margin: 0 auto;
   width: 100%;
   z-index: 3;
   position: absolute;
 }
-.centered-window > .container {
+.centered-window-container > .window {
   margin: 60px auto;
   width: 400px;
   padding: 40px;
-  border: 1px solid rgba(255,255,255,.88);
-  border-radius: 4px;
-  background: rgba(0,0,0,.8);
 }
-.centered-window > .container > h1 {
+.centered-window-container > .window > h1 {
   color: white;
   font-size: 21px;
   position: relative;
@@ -135,7 +154,7 @@ nav a ul li:hover {
   padding-bottom: 20px;
 }
 
-.centered-window > .button-set {
+.centered-window-container > .button-set {
   float: right;
 }
 #waiting-on-list {
@@ -145,7 +164,7 @@ nav a ul li:hover {
   position: relative;
   text-align: center;
 }
-#new-stage-intro > .container {
+#new-stage-intro > .window {
   height: 20px;
   padding: 30px;
   letter-spacing: .4em;

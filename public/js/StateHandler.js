@@ -92,7 +92,7 @@ StateHandler.prototype = {
       console.log('received orders update', data);
       this.hideWaitingOnWindow();
       world.map.removeAllArrows();
-      
+
       console.log('orders update data', data);
 
       for (var team in data.commands) {
@@ -190,7 +190,7 @@ StateHandler.prototype = {
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
   },
-  
+
   initGrabStage : function() {
     this.move = this.moveGrab;
   },

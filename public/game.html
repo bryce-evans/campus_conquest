@@ -36,6 +36,7 @@
 		<script src="js/WindowHandler.js"></script>
 		<script src="js/ControlPanelHandler.js"></script>
 		<script src="js/InitGame.js"></script>
+		<script src="js/Debug.js"></script>
 
 		<div class='pane' id='gamelist-pane' style="display: block;">
 			<div class='card'>
@@ -154,7 +155,17 @@
 
 		<div id="game-window" style="display: none;">
 			<nav>
+				
 				<img src="rsc/images/logos/logo_small_inline.png"/>
+				<div class="debug window">
+			<div class="header-container">
+				<header>Debug</header>
+			</div>
+				  <ul class="button-set">
+				    <li><div class="button one-col make-my-turn">Make My Turn</div></li>
+				    <li><div class="button one-col pass-all"> Pass All</div></li>
+				  </ul>
+				</div>
 
 				<a id='nav-name' > Me
 				<ul>
@@ -178,21 +189,21 @@
 				<a id='nav-menu' > Menu </a>
 
 			</nav>
-			<div id='waiting-on' class='centered-window' style="display: none;">
-				<div class='container'>
+			<div id='waiting-on' class='centered-window-container' style="display: none;">
+				<div class='window'>
 					<h1> Waiting on </h1>
 					<table id="waiting-on-list">
 
 					</table>
 				</div>
 			</div>
-			<div id='new-stage-intro' class='centered-window fade-in-out' style="display: none;">
-				<div class='container'>
+			<div id='new-stage-intro' class='centered-window-container fade-in-out' style="display: none;">
+				<div class='window'>
 					<h1><span id="new-stage-text"></span> Stage</h1>
 				</div>
 			</div>
-			<div id='attack-panel' class='centered-window' style="display: none;">
-				<div class='container'>
+			<div id='attack-panel' class='centered-window-container' style="display: none;">
+				<div class='window'>
 					<h1><span class='from'> </span> >> <span class="to"> </span></h1>
 
 					<span id="attack-unit-count" class='microtext'>Units: ERROR</span>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="css/fonts.css" />
+		<link rel="stylesheet" href="css/global.css" />
+		<link rel="stylesheet" href="css/about.css" />
+
+	</head>
+	<body>
+
+		<div class='card'>
+			<div class='dark '>
+				<img class ='logo-m' src="rsc/images/logos/logo.png" /><h1> Design Documentation </h1>
+			</div>
+			<div class='card-contents'>
+
+				<div>
+
+					<div class='text-body'>
+						<h2> Vision <span> Turn Based Strategy at Cornell </span></h2>
+						<div class="q">
+							Write two paragraphs describing the high-level vision of the game.
+							What are you hoping to achieve? What is it that makes your game unique?
+							Why do you think it will attract a broad audience of players?
+							Keeping your project focused around the goal is critical for both
+							finishing on time and making your game feel cohesive and well-built.
+							Use your goal to keep your feature list as targeted and focused as
+							possible; every feature in your game should contribute directly to the goal.
+							Anything that doesn't is extraneous, and anything that actively fights against
+							the goal will actually make your product seem unfocused and sloppy.
+							Remember to keep your project goal in mind during the entire course of development.
+							When deciding how important/useful a feature might be, the first question
+							should always be "How does this contribute to the project goal?"
+						</div>
+						<div>
+							<p>
+								Campus Conquest is a turn based strategy game that aims to invoke a sense of solidarity among students as they
+								team up against other colleges.
+							</p>
+							<p>
+								The game is unique because it's the first to focus on the concept of a large scale team making decisions as opposed
+								to individuals. A game takes place over a several day period with turns occuring every six hours. All moves that are input within that time
+								are taken in to compute the outcome of that turn. It's a game that everyone can get involved in. It's approachable, casual, and provides a
+								relatable experience to players for being campus-centric.
+							</p>
+							<p>
+								Goals:
+								<ul>
+									<li>
+										Effectively have a game were many players can work together - no one can win by themselves and each person contributes
+									</li>
+									<li>
+										Have a strong sense of setting on Cornell
+									</li>
+								</ul>
+							</p>
+						</div>
+
+					</div>
+				</div>
+
+				<div>
+					<div class='text-body'>
+						<h2> Objectives <span>Capture the Flag</span></h2>
+
+						<div class="q">
+							Provide a single paragraph describing the primary player objective in your game.
+							Explain how it fits into your core vision of the game.
+							If your game has other objectives, mention those in additional paragraphs.
+							For each one, describe how important it is to your core vision and whether it can be dropped if necessary.
+						</div>
+						<div>
+							<p>
+								The goal of the game is to hide the team flag while capturing other team flags.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div>
+
+					<div class='text-body wide'>
+						<h2> Actions <span> </span></h2>
+
+						<div class="q">
+							Actions are the verbs that we talked about in class. Identify the most important verbs in your game. These verbs should be those that either bring the player closer to achieving the objective, or overcome the challenge. Remember our discussion about the differences between core verbs and verb proxies. A core verb should have an outcome that directly makes progress; it is not a verb that causes another action to happen.
+							Do not use this section to specify the mechanics of your verbs; that will come later. Simply list the verbs and give a one sentence description of each. For each verb, you should identify how important it is, namely critical, valuable, or desirable. A critical verb has to be implemented, else there is no game. Valuable verbs are likely to be implemented, and their loss will probably require some major changes in gameplay. Desirable verbs are the ones that you are most likely to drop if you run out of time. Be honest. If all your verbs are critical, then say so. Do not list a critical verb as desirable just because you want a verb of each type.
+							You may want to use a table to present this information. For example, a rope platformer may present its information as follows:
+						</div>
+						<div>
+							<table>
+								<tr>
+									<th>Verb</th><th>Description</th><th>Importance</th>
+								</tr>
+								<tr>
+									<td>Claim Territory</td><td>Take control of an open territory</td><td>Critical</td>
+								</tr>
+								<tr>
+									<td>Issue Attack</td><td>Send army to attack neighboring territory</td><td>Critical</td>
+								</tr>
+								<tr>
+									<td>Purchase Units</td><td>Increase Army Size</td><td>Desirable</td>
+								</tr>
+								<tr>
+									<td>Purchase Powerups</td><td>Increase Power or army</td><td>Desirable</td>
+								</tr>
+								<tr>
+									<td>Move Flag</td><td>Change position of flag</td><td>Valuable</td>
+								</tr>
+
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<div>
+
+					<div class='text-body'>
+						<h2> Challenges <span> </span></h2>
+
+						<div class="q">
+							It is still a bit early to know all of your challenges. However, if you have some challenges already, this is going to make your gameplay prototype much, much easier. List several samplechallenges in your game. For each challenge, mention the following:
+
+							What objectives (primary, secondary) does the challenge block?
+							How does the challenge block the player from the objective?
+							How can the player use the verbs to overcome the challenge?
+							How does the challenge involve skill, uncertainty, or risk?
+							This information is harder to represent in table format. We recommend that you list each challenge as a subheading with a short, one-paragraph description underneath. After this paragraph, answer the three questions above in either bullet (if short) or topic paragraph (if longer) form.
+
+							For the last question (skill, uncertainty, or risk), remember the lessons from class. If it is a skill-based challenge, what skill does it use? It is a timing challenge or a hand-eye coordination challenge? Puzzle challenges that do not involve hidden information are also a skill-based challenge. If there is hidden information involved, we show know that. Finally, let us know if there is a random element that makes the player outcome somewhat unpredictable. You do not need to be too formal here; just answer the question the best you can.
+						</div>
+						<div>
+							<p>
+								The primary challenge is to take control of territories. Given only one team can control a territory at a time, there is a constant struggle for power as each time
+								one team advances towards their objective, another is set back.
+							</p>
+							<p>
+								Players primarily initiate attacks to advance their cause. There is always some risk that their move will be be a failure and result in a greater loss than not
+								making the move at all. The challenge involves skill by judging risks.
+							</p>
+						</div>
+					</div>
+
+					<div class='text-body'>
+						<h2> Mechanics <span> </span></h2>
+
+						<div>
+							<h4>Attack</h4>
+							<p>
+								To attack, a player selects a start point (one of their own) and an endpoint (one of their opponents). A limitation is that the two
+								territories must be adjacent. At the end of the turn, the outcome for the action is that the units either capture the opponents territory
+								or they are lost.
+							</p>
+							<h4>Purchases</h4>
+							<p>
+								At the start of every turn, players may either purchase units or powerups. Two limited commodities/currencies would be used.
+								Limitations are being blocked from purchasing without enough resources. Immediate outcomes are having items to place on the board
+								and the newly aquired pieces further advancing the players ability to attack with lower risk of loss.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<div class='text-body'>
+						<h2> Interactions <span> </span></h2>
+
+						<div>
+							<h4>Attack</h4>
+							<p>
+								Trigger is an Attack being issued. The outcome is either the attacker or defender is deemed a winner. Players can increase strength of their army to
+								help control outcome.
+
+							</p>
+							<h4>Army is buffed</h4>
+							<p>
+								A player adding more units or a powerup will trigger an immediate increase in the army strength. Players can choose to or not to do this and which sections of
+								the board they want to focus on.
+							</p>
+						</div>
+					</div>
+				</div>
+				<div>
+					<div class='text-body'>
+						<h2> Mocks <span> </span></h2>
+						<div>
+							<img class="full" src="/other/screen_shots/building_labels.png" />
+							<img class="full" src="/other/screen_shots/full-map-edges.jpg" />
+							<img class="full" src="/other/screen_shots/attack-panel.jpg" />
+						</div>
+					</div>
+				</div>
+				<div>
+					<div class='text-body'>
+						<h2> Feature Priority List <span> </span></h2>
+
+						<div>
+							<h3>Critical</h3>
+							<ul>
+								<li>
+									Create New Game
+								</li>
+								<li>
+									Claim territories
+								</li>
+								<li>
+									Place Units
+								</li>
+								<li>
+									Issue Attacks
+								</li>
+								<li>
+									Attack Outcome Determined
+								</li>
+							</ul>
+							<h3>Desirable</h3>
+							<ul>
+								<li>
+									Purchase Units
+								</li>
+								<li>
+									Sign in, user profiles
+								</li>
+								<li>
+									Introduce multiple types of resources
+								</li>
+								<li>
+									Geolocation items - instead of purchasing items, they randomly appear and must be picked up at a physical location
+								</li>
+							</ul>
+							<h3>Valuable</h3>
+							<ul>
+								<li>
+									AI
+								</li>
+								<li>
+									Improved graphics
+								</li>
+								<li>
+									Mobile friendly
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</body>
+</html>

@@ -1,9 +1,9 @@
 /**
  *
  * Map
- * 
+ *
  * Loads and manages the models displayed in Graphics.js
- *  
+ *
  * REQUIRES: World.js, Graphics.js
  *
  */
@@ -93,12 +93,12 @@ Map.prototype = {
 
   load : function(model_name, init_state) {
 
-		// model is not in this game
-		if(!init_state[model_name]){
-			console.log(model_name + ' not included in this map');
-			return;
-		}
-		
+    // model is not in this game
+    if (!init_state[model_name]) {
+      console.log(model_name + ' not included in this map');
+      return;
+    }
+
     this.loader.load(this.map_dir + "buildings/" + model_name + "/" + model_name + ".js", function(geometry) {
 
       geometry.computeMorphNormals();
@@ -113,7 +113,6 @@ Map.prototype = {
         piece_owner = init_state[model_name].team;
       }
 
-			
       var game_piece = new GamePiece(this, model_name, mesh, piece_owner, init_state[model_name].units);
       world.graphics.scene.add(mesh);
 
@@ -321,19 +320,19 @@ GamePiece.prototype = {
     world.graphics.scene.remove(this.highlighted_mesh);
     return;
 
-    this.mesh.material.color.copy(TEAM_DATA[world.state_handler.team_order[this.team]].colors.primary);
-    return;
-    this.mesh.material.color.r = (this.mesh.material.color.r * 2) - 1;
-    this.mesh.material.color.g = (this.mesh.material.color.g * 2) - 1;
-    this.mesh.material.color.b = (this.mesh.material.color.b * 2) - 1;
-    return;
-
-    this.mesh.material.color.r ^=1;
-    this.mesh.material.color.g ^=1;
-    this.mesh.material.color.b ^=1;
-    return;
-
-    world.graphics.scene.remove(this.highlightedMesh);
+    // this.mesh.material.color.copy(TEAM_DATA[world.state_handler.team_order[this.team]].colors.primary);
+    // return;
+    // this.mesh.material.color.r = (this.mesh.material.color.r * 2) - 1;
+    // this.mesh.material.color.g = (this.mesh.material.color.g * 2) - 1;
+    // this.mesh.material.color.b = (this.mesh.material.color.b * 2) - 1;
+    // return;
+    //
+    // this.mesh.material.color.r ^=1;
+    // this.mesh.material.color.g ^=1;
+    // this.mesh.material.color.b ^=1;
+    // return;
+    //
+    // world.graphics.scene.remove(this.highlightedMesh);
 
   }
 }

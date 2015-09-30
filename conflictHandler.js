@@ -1,7 +1,7 @@
 /**
  * ConflictHandler.js
  * Handles conflict results for a turn
- * Only public function is genAllAttackResults()
+ * with genAllAttackResults()
  * returns instance of ConflictSetResult
  *
  */
@@ -112,15 +112,29 @@ module.exports = {
 
         // XXX TODO handle case where many different teams attack a building
 
-        debugger;
         var results = genMultiAttackResults(attackers, defender);
         ret.multi.push(results);
+        
+        // case where single piece fends off all attackers
+        if(results.victor){
+        	xxx
+        }
 
-        var secondary_results = genFFAAttackResults([]);
+        var ffa_attackers = [];
+        for (var i = 0; i < results.victors.length; i++) {
+        	var v = results.victors[i];
+        	
+        	
+        	var atk = new Attack(v, results.units[v], results.pieces[v], undefined);
+          ffa_attackers.push(atk);
+        }
+        
+        // XXX fix input arg
+        var secondary_results = genFFAAttackResults(ffa_attackers, defender.piece);
         ret.ffa.push(secondary_results);
 
         // solo attack - could be length 0 if all are already handled
-      } else if (attackers.length > 0) {
+      } else if (attackers.length == 1) {
         var results = genMultiAttackResults(attackers, defender);
         ret.single.push(results);
       }
@@ -128,6 +142,51 @@ module.exports = {
     }
 
     return ret;
+
+  },
+  writeResults : function(db, game_id, results) {
+
+// only update if defender won
+// otherwise results will be in ffa
+		 for (var i in results.multi) {
+		 	var r = results.multi[i];
+		 	if(r.victors[0] == r.pieces[r.pieces.length-1]){
+		 		 var winning_piece = pieces[r.victor];
+      var winning_team = teams[r.victor];
+      var winning_units = r.units;
+
+      db.query('UPDATE state."' + game_id + '" SET units=' + winning_units + ' WHERE piece_name=\'' + winning_piece + '\'', function(err, result) {
+        if (err) {
+          console.error('ERROR cannot update state in initReinforcementStage()');
+        }
+      });
+		 	}
+		 }
+		 
+    for (var i in results.ffa) {
+      var r = results.ffa[i];
+
+      var winning_piece = r.pieces[r.victor];
+      var winning_team = r.teams[r.victor];
+      var winning_units = r.units;
+
+      db.query('UPDATE state."' + game_id + '" SET units=' + winning_units + ' WHERE piece_name=\'' + winning_piece + '\'', function(err, result) {
+        if (err) {
+          console.error('ERROR cannot update state in initReinforcementStage()');
+        }
+      });
+
+      //ConflictResult = function(victor, units, teams, pieces, results)
+    }
+
+    for (var i in results.single) {
+      var r = results.bidirectional[i];
+
+      var winning_piece = r.pieces[r.victor];
+      var winning_team = r.teams[r.victor];
+      var winning_count = r.pieces;
+
+    }
 
   }
 }
@@ -166,13 +225,17 @@ genBidirectionalAttackResults = function(attacker1, attacker2) {
 // attack_list - list of pieces, with units and teams, attacking
 // defender - team data of defender, with units and team info
 genMultiAttackResults = function(attackers, defender) {
-  // treat it like a FFA for now
+  // FIXME treat it like a FFA for now
   attackers.push(defender);
-  return genFFAAttackResults(attackers);
+  var r = genFFAAttackResults(attackers, defender.piece);
+  
+  // last item in teams, pieces is the defender
+  return new MultiAttackConflictResult(r.victors, r.units,r.teams,r.pieces, r.piece, r.results);
 
 }
 // for a Free for All trying to claim a piece with no defender
-genFFAAttackResults = function(attackers) {
+// piece <string> : piece up for dispute
+genFFAAttackResults = function(attackers, piece) {
 
   // returns id of winning team, -1 if no winner
   function victor(attackers) {
@@ -216,7 +279,7 @@ genFFAAttackResults = function(attackers) {
     }
     winner = victor(attackers);
   }
-  return new ConflictResult(winner, total_units, teams, pieces, results);
+  return new FFAConflictResult(winner, total_units, teams, pieces, piece, results);
 
 }
 Attack = function(team, units, origin, target) {
@@ -230,14 +293,14 @@ Defender = function(team, units, piece) {
   this.units = units;
   this.piece = piece;
 }
+
 /**
- * <int> victor : team_index of the winner
- * <int> units : how many units survived
- * <int[]> teams : list of team_indexes involved
- * <string[]>  pieces : piece_ids involved. match indices to teams that own them
- * <int[]>  playout : index of pieces[] that loses in each kerfuffle.
+ * two attackers with each other
+ * one victor
+ * 
+ *  
  */
-ConflictResult = function(victor, units, teams, pieces, results) {
+BidirectionalConflictResult = function(victor, units, teams, pieces, results) {
   this.victor = victor;
   this.units = units;
   this.teams = teams;
@@ -245,11 +308,18 @@ ConflictResult = function(victor, units, teams, pieces, results) {
   this.playout = results;
 };
 
-// similiar to ConflictResult
-// victors is a list
-// units is a list corresponding to victors
-MultiAttackConflictResult = function(victors, units, teams, pieces, results) {
-  this.victors = victors;
+/**
+ * one attacker and defender
+ * one winner
+ * 
+ * <int> victor : team_index of the winner
+ * <int> units : how many units survived
+ * <int[]> teams : list of team_indexes involved
+ * <string[]>  pieces : piece_ids involved. match indices to teams that own them
+ * <int[]>  playout : index of pieces[] that loses in each kerfuffle.
+ */
+SingleConflictResult = function(victor, units, teams, pieces, results) {
+  this.victor = victor;
   this.units = units;
   this.teams = teams;
   this.pieces = pieces;
@@ -257,11 +327,47 @@ MultiAttackConflictResult = function(victors, units, teams, pieces, results) {
 };
 
 /**
+ * many attackers, one defender
+ * many victors, or defender wins
+ * 
+ * victors is a list
+ * units is a list corresponding to victors
+ */
+MultiAttackConflictResult = function(victors, units, teams, pieces, piece, results) {
+  this.victors = victors;
+  this.units = units;
+  this.teams = teams;
+  this.pieces = pieces;
+  this.piece = piece;
+  this.playout = results;
+};
+
+/**
+ * many attackers, no defender
+ * one victor
+ * 
+ * <int> victor : team_index of the winner
+ * <int> units : how many units survived
+ * <int[]> teams : list of team_indexes involved
+ * <string[]>  pieces : piece_ids involved. pieces[i] corresponds to being owned by team_index i
+ * <string>  piece : piece_id up for dispute. match indices to teams that own them
+ * <int[]>  playout : index of pieces[] that loses in each kerfuffle.
+ */
+FFAConflictResult = function(victor, units, teams, pieces, piece, results) {
+  this.victor = victor;
+  this.units = units;
+  this.teams = teams;
+  this.pieces = pieces;
+  this.piece = piece;
+  this.playout = results;
+};
+
+/**
  * Results for a full set of conflicts in a turn
  * organized into fields for type of conflict
  * bidirectional - two pieces attacked each toher
- * multi - two or more pieces attacked a piece
- * ffa - many pieces attacked a piece with no owner (owner removed as result of mutli)
+ * multi - two or more pieces attacked a piece with units
+ * ffa - many pieces attacked a piece with no owner (owner destroyed as result of multi)
  * single - basic attack
  */
 ConflictSetResult = function() {
@@ -271,6 +377,7 @@ ConflictSetResult = function() {
   this.ffa = [];
   this.single = [];
 };
+
 
 ConflictSetResult.prototype = {
   setCommands : function(coms) {

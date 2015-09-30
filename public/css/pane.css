@@ -172,7 +172,9 @@ ul {
   list-style: none;
   display: block;
   text-align: center;
-  margin: 10px 0 60px 0;
+}
+ul.margin{
+	margin: 10px 0 60px 0;
 }
 
 #open-games {

@@ -40,6 +40,7 @@ app.use(bodyParser.urlencoded({
 app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
+app.use('/other', express.static(__dirname + '/public/other'));
 
 app.get('/open-games', function(req, res) {
   api.getOpenGames(utils.curry(utils.writeData, res));
@@ -71,6 +72,11 @@ app.get('/rooms', function(req, res) {
 
 app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/public/about.html');
+});
+
+app.get('/design-doc', function(req, res) {
+  console.log(req);
+  res.sendFile(__dirname + '/public/DESIGN_DOC.html');
 });
 
 app.get('/mcgraw', function(req, res) {

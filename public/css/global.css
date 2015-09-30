@@ -207,3 +207,6 @@ header > .team.name.as:after, header > .team.name.humec:after, header > .team.na
   position: relative;
   top: 1px;
 }
+.button.one-col{
+	width: 100%;
+}
