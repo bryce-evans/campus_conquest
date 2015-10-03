@@ -1,0 +1,14 @@
+#!/bin/sh
+mkdir -p /home/fbcrew/webapps/bryce_campus_conquest/run
+pid=$(/sbin/pidof /home/fbcrew/webapps/bryce_campus_conquest/bin/node)
+if echo "$pid" | grep -q " "; then
+  pid=""
+fi
+if [ -n "$pid" ]; then
+  user=$(ps -p $pid -o user | tail -n 1)
+  if [ $user = "fbcrew" ]; then
+    exit 0
+  fi
+fi
+nohup /home/fbcrew/webapps/bryce_campus_conquest/bin/node /home/fbcrew/webapps/bryce_campus_conquest/index.js > /dev/null 2>&1 &
+/sbin/pidof /home/fbcrew/webapps/bryce_campus_conquest/bin/node > /home/fbcrew/webapps/bryce_campus_conquest/run/node.pid

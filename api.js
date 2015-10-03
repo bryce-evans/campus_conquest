@@ -241,15 +241,44 @@ getOpenGames : function(callback){
 // TODO  make reinforcment count dynamic
   getReinforcements : function(game_id, team_id, callback){
   	if(!this.gm.gameExists(game_id)){
-  		console.log('GAME DOEST EXIST');
+  		console.log('GAME DOES NOT EXIST');
   	}
     var team_index = this.gm.getGame(game_id).getTeamIndexFromId(team_id);
     if(team_index < 0) {
       callback({status: 500, error: "team id not found"});
     } else {
-    callback({status: 200, id:game_id, team:team_index, reinforcements: 3});
+      callback({status: 200, id:game_id, team:team_index, reinforcements: 3});
     }
-  }
+  },
+  /**
+    A set of overrides for debugging
+  */
+  handleMasterRequest : function(req, callback) {
+    var game_id = req.game_id;
+    if(!this.gm.gameExists(game_id)){
+  	  console.log('GAME DOES NOT EXIST');
+      callback({success: false});
+    }
+    var g = this.gm.getGame(game_id);
+    var pw_hash = req.pw_hash;
+    var command = req.command;
+    var data = req.data;
+    switch (command):
+      case "reset-turn":
+        g.resetTurn();
+        break;
+      case "advance-to-team":
+  	    console.log("api.js: advance to team not fully implemented");
+        var new_id = data.team_id;
+        var new_idx = g.getTeamIndexFromId(new_id);
+        g.setCurrentTeamIndex(new_idx);
+        callback({success: true});
+        break;
+      case "next-turn":
+        g.forceNextTurn();
+        break;
+
+  },
 }
 
 module.exports = Api;

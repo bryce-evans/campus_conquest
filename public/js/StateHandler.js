@@ -427,6 +427,23 @@ StateHandler.prototype = {
   move : function(piece) {
     console.error('StateHandler.move not set');
   },
+
+  freshPull : function(callback) {
+    $.ajax({
+      url : CONSTANTS.URL.STATE,
+      data : world.id,
+    }).done(function(state) {
+      callback(state);
+    }
+  },
+  
+  /**
+   * Initiates a fresh pull and syncs to remote
+   */
+  syncToServer : function() {
+    this.freshPull(world.id, this.setState());
+  },
+  
   /**
    * shows animation for change of stage
    * @param {string} stage_name : text to be displayed

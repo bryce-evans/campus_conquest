@@ -40,7 +40,6 @@ app.use(bodyParser.urlencoded({
 app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
-app.use('/other', express.static(__dirname + '/public/other'));
 
 app.get('/open-games', function(req, res) {
   api.getOpenGames(utils.curry(utils.writeData, res));
@@ -75,7 +74,6 @@ app.get('/about', function(req, res) {
 });
 
 app.get('/design-doc', function(req, res) {
-  console.log(req);
   res.sendFile(__dirname + '/public/DESIGN_DOC.html');
 });
 
@@ -112,6 +110,13 @@ app.post('/delete-game', function(req, res) {
 
 app.get('/game', function(req, res) {
   res.sendFile(__dirname + '/public/game.html');
+});
+
+app.post('/master-controller', function(req, res) {
+  console.log(req.body);
+  api.handleMasterRequest(req.body, function(success) {
+    // TODO
+  })
 });
 
 io.on('connection', function(socket) {

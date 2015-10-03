@@ -95,7 +95,7 @@ Game.prototype = {
 
     // handle selecting buildings
     socket.on('grab move', function(move_data) {
-      console.log('recieved grab move', move_data);
+      console.log('received grab move', move_data);
       this.handleGrabMove(socket, move_data);
     }.bind(this));
   },
@@ -383,6 +383,36 @@ Game.prototype = {
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
     return this.current_team_index;
   },
+
+  /**
+   *  Master Override
+   *  Resets the turn as if no one moved
+   */ 
+  forceResetTurn : function() {
+    this.all_move_data = [];
+    this.resetWaitingOn();
+    this.io.to(this.id).emit('override');
+    this.io.to(this.id).emit('fresh pull');
+  },
+  
+  /**
+   *  Master Override 
+   *  Continues to next turn even if not all players have moved
+   */
+  forceNextTurn : function() {
+    this.io.to(this.id).emit('override');
+    switch (this.stage){
+      case "grab":
+        this.current_team_index = this.nextTeamIndex();
+        break;
+      case "reinforcement":
+        break;
+      case "orders":
+        break;
+    }
+    this.io.to(this.id).emit('fresh pull');
+  },
+
 
   /**
    * Takes a socket and removes it from the list of active players

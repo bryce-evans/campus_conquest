@@ -1,6 +1,6 @@
 module.exports = {
 
-  /* writes data <string> to res <response> 
+  /* writes <string> data to <response> res
    as a json
    */
   writeData : function(res, data) {
