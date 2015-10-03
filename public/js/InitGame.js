@@ -8,6 +8,10 @@
  *
  */
 
+
+/**
+ *  Manages loading page via anchors (#)
+ */
 function doHashCheck() {
   if (UI.navPages[tab]) {
     if (UI.device) {
@@ -19,7 +23,6 @@ function doHashCheck() {
     // main entry page
     UI.highlightTab('#tab-featured');
     swapDisplayTo('#stage');
-    displaySet(sets.featured50);
   }
 }
 
@@ -50,7 +53,6 @@ function initGame(data) {
         autoClear : false,
         gammaInput : true,
         gammaOutput : true,
-
       }
     }
   };

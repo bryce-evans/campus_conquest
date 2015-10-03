@@ -64,3 +64,13 @@ CURSORS = {
 	RED_DOT : 'url(/rsc/images/cursors/pointer-green-dot-red.png) 16 16, pointer',
 	CROSSHAIRS : 'url(/rsc/images/cursors/crosshairs_red.png) 16 16, pointer'
 }
+
+CONSTANTS = {
+  IO : {
+    JOIN_GAME : "join game",
+  },
+  URL : {
+    STATE : "/state",
+    GAME : "/game",
+  }
+}
