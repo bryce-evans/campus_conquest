@@ -450,14 +450,14 @@ StateHandler.prototype = {
       },
     }).done(function(state) {
       callback(state);
-    });
+    }.bind(this));
   },
   
   /**
    * Initiates a fresh pull and syncs to remote
    */
   syncToServer : function() {
-    this.freshPull(this.setState);
+    this.freshPull(this.setState).bind(this);
   },
   
   /**

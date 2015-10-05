@@ -70,6 +70,7 @@ function initGame(data) {
   var graphics = new Graphics();
   var control_panel_handler = new ControlPanelHandler();
   var window_handler = new WindowHandler();
+  var override_controller = new OverrideController();
 
   world.setMap(map);
   world.setStateHandler(state);
@@ -77,6 +78,7 @@ function initGame(data) {
   world.setGraphics(graphics);
   world.setWindowHandler(window_handler);
   world.setControlPanelHandler(control_panel_handler);
+  world.setOverrideController(override_controller);
 
   window_handler.addWindowResizeListener();
   window_handler.setDimensions();
@@ -97,7 +99,8 @@ function initGame(data) {
   });
   
   world.control_panel_handler.setTeam(data.player.team);
-  
+
+  world.override_controller.addListeners();
   world.graphics.animate();
 
 }

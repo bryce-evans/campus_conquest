@@ -2,4 +2,4 @@ TODO.txt
 *.swp
 .project
 /lib/*
-
+/node_modules/*
