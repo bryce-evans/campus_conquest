@@ -254,7 +254,10 @@ getOpenGames : function(callback){
     A set of overrides for debugging
   */
   handleMasterRequest : function(req, callback) {
+<<<<<<< HEAD
     console.log("MASTER REQUEST RECEIVED");
+=======
+>>>>>>> d29095ea470569fa902ba5a61c47892ae972ba92
     var game_id = req.game_id;
     if(!this.gm.gameExists(game_id)){
   	  console.log('GAME DOES NOT EXIST');
