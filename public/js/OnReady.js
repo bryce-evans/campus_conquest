@@ -3,13 +3,8 @@
  * Executed in game.html on document ready
  */
 
-<<<<<<< HEAD
 var OnReady = {};
 OnReady.init = function() {
-=======
-OnReady = function() {        
-    this.init = function() {
->>>>>>> d29095ea470569fa902ba5a61c47892ae972ba92
 
         var init_data = {};
 
@@ -123,10 +118,5 @@ OnReady = function() {
         $('#start-game-button').click(function() {
 
         });
-<<<<<<< HEAD
   
 }
-=======
-    }
-}
->>>>>>> d29095ea470569fa902ba5a61c47892ae972ba92

@@ -401,12 +401,7 @@ Game.prototype = {
   forceResetTurn : function() {
     this.all_move_data = [];
     this.resetWaitingOn();
-<<<<<<< HEAD
     this.io.to(this.id).emit('server sync');
-=======
-    this.io.to(this.id).emit('override');
-    this.io.to(this.id).emit('fresh pull');
->>>>>>> d29095ea470569fa902ba5a61c47892ae972ba92
   },
   
   /**
