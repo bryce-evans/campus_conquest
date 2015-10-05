@@ -129,7 +129,18 @@ nav a ul li:hover {
   padding: 0 10px;
   border-radius: 10px;
 }
+#notifier {
+  position: absolute;
+  left: 0;
+  bottom: 1em;
+  z-index: 3;
+  margin: 0 0 1em .25em;
+}
 
+.note {
+  color: red;
+  font-family: monospace;
+}
 .window {
 	  border: 1px solid rgba(255,255,255,.88);
     border-radius: 4px;
