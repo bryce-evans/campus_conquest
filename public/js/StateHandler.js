@@ -32,14 +32,19 @@ StateHandler.prototype = {
   connectToSocket : function(socket) {
     this.socket = socket;
 
+    // note that client is out of sync with server 
+    this.socket.on(CONSTANTS.IO.SERVER_SYNC, function(data) {
+      this.syncToServer();
+    }.bind(this));
+
     // currently only used to switch to REINFORCEMENT stage
-    this.socket.on('stage update', function(data) {
+    this.socket.on(CONSTANTS.IO.STAGE_UPDATE, function(data) {
       this.stage = data.stage;
       this.initReinforcementStage();
     }.bind(this));
 
-    // recieve moves
-    this.socket.on('grab update', function(data) {
+    // receive moves
+    this.socket.on(CONSTANTS.IO.GRAB_UPDATE, function(data) {
       var team = data.team_index;
       var building_id = data.piece;
       var building = world.map.buildings[building_id];
@@ -57,7 +62,7 @@ StateHandler.prototype = {
     }.bind(this));
 
     // when another player moves, update list of who's left
-    this.socket.on('waiting-on update', function(data) {
+    this.socket.on(CONSTANTS.IO.WAITING_ON_UPDATE, function(data) {
 
       // still waiting on me
       if (data.indexOf(me.team_index) >= 0) {
@@ -68,7 +73,7 @@ StateHandler.prototype = {
 
     }.bind(this));
 
-    this.socket.on('reinforcement update', function(data) {
+    this.socket.on(CONSTANTS.IO.REINFORCEMENT_UPDATE, function(data) {
       console.log('received reinforcement update', data);
       this.hideWaitingOnWindow();
       for (var i = 0; i < data.length; i++) {
@@ -87,7 +92,7 @@ StateHandler.prototype = {
       }.bind(this));
     }.bind(this));
 
-    this.socket.on('orders update', function(data) {
+    this.socket.on(CONSTANTS.IO.ORDERS_UPDATE, function(data) {
 
       console.log('received orders update', data);
       this.hideWaitingOnWindow();
@@ -156,13 +161,13 @@ StateHandler.prototype = {
     world.control_panel_handler.initWheel(state.team_order, state.current_team);
 
     switch(state.stage) {
-      case "start":
+      case CONSTANTS.STAGES.START:
         this.move = this.moveStart;
         break;
-      case "grab":
+      case CONSTANTS.STAGES.GRAB:
         this.initGrabStage();
         break;
-      case "reinforcement":
+      case CONSTANTS.STAGES.REINFORCEMENT:
         this.move = this.moveReinforcement;
 
         // you have already moved
@@ -173,7 +178,7 @@ StateHandler.prototype = {
         }
 
         break;
-      case "orders":
+      case CONSTANTS.STAGES.ORDERS:
         this.move = this.moveOrders;
         // you have already moved
         if (state.waiting_on.indexOf(me.team_index) == -1) {
@@ -195,14 +200,14 @@ StateHandler.prototype = {
     this.move = this.moveGrab;
   },
   initReinforcementStage : function() {
-    this.current.stage = 'reinforcement';
-    this.showStageIntro('Reinforcement');
+    this.current.stage = CONSTANTS.STAGES.REINFORCEMENT;
+    this.showStageIntro(this.current.state.capitalize());
 
     this.move = this.moveReinforcement;
 
     $('#panel-reinforcement-info').show();
     $.ajax({
-      url : '/reinforcements',
+      url : CONSTANTS.URL.REINFORCEMENTS,
       data : {
         id : world.id,
         team : me.team
@@ -222,9 +227,9 @@ StateHandler.prototype = {
     // manages the attack panel slider
     $("#attack-slider").slider({
       range : "min",
-      value : 8,
+      value : 0,
       min : 0,
-      max : 10,
+      max : 1,
       slide : function(event, ui) {
         $("#attack-unit-count").text('units: ' + ui.value);
       }
@@ -428,20 +433,31 @@ StateHandler.prototype = {
     console.error('StateHandler.move not set');
   },
 
+  // Renders the board to match the current state
+  render : function() {
+    // unsure if needed?
+
+  },
+  
+  /**
+   * fetches the most recent state and runs callback
+   */
   freshPull : function(callback) {
     $.ajax({
       url : CONSTANTS.URL.STATE,
-      data : world.id,
+      data : {
+        id: world.id,
+      },
     }).done(function(state) {
       callback(state);
-    }
+    });
   },
   
   /**
    * Initiates a fresh pull and syncs to remote
    */
   syncToServer : function() {
-    this.freshPull(world.id, this.setState());
+    this.freshPull(this.setState);
   },
   
   /**

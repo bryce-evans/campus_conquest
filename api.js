@@ -254,30 +254,27 @@ getOpenGames : function(callback){
     A set of overrides for debugging
   */
   handleMasterRequest : function(req, callback) {
+    console.log("MASTER REQUEST RECEIVED");
     var game_id = req.game_id;
     if(!this.gm.gameExists(game_id)){
   	  console.log('GAME DOES NOT EXIST');
       callback({success: false});
     }
     var g = this.gm.getGame(game_id);
-    var pw_hash = req.pw_hash;
+    var key = req.key;
     var command = req.command;
     var data = req.data;
-    switch (command):
+    
+    this.io.to(this.id).emit('override');
+    switch (command){
       case "reset-turn":
-        g.resetTurn();
-        break;
-      case "advance-to-team":
-  	    console.log("api.js: advance to team not fully implemented");
-        var new_id = data.team_id;
-        var new_idx = g.getTeamIndexFromId(new_id);
-        g.setCurrentTeamIndex(new_idx);
-        callback({success: true});
+        g.forceResetTurn();
         break;
       case "next-turn":
         g.forceNextTurn();
         break;
-
+    }
+    callback({success: true});
   },
 }
 

@@ -3,8 +3,8 @@
  * Executed in game.html on document ready
  */
 
-OnReady = function() {        
-    this.init = function() {
+var OnReady = {};
+OnReady.init = function() {
 
         var init_data = {};
 
@@ -118,5 +118,5 @@ OnReady = function() {
         $('#start-game-button').click(function() {
 
         });
-    }
+  
 }

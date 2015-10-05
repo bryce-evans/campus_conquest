@@ -1,0 +1,5 @@
+TODO.txt
+*.swp
+.project
+/lib/*
+

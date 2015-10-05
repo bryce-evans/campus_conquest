@@ -28,31 +28,17 @@ World.prototype = {
   connectToSocket : function(socket, client_data) {
     this.state_handler.connectToSocket(socket);
     this.control_panel_handler.connectToSocket(socket);
-    socket.emit('join game', client_data);
+    socket.emit(CONSTANTS.IO.JOIN_GAME, client_data);
   },
   loadWorld : function(options) {
     has_ground = options.has_ground || false;
 
-    if (this.id != '') {
-      $.ajax({
-        url : "/state",
-        data : {
-          id : world.id
-        },
-      }).done( function(init_data) {
-        this.state_handler.setState(init_data);
-        this.map.loadFromState(init_data.state);
-        this.map.loadGeometries();
-        //this.control_panel_handler.updateTextFields(init_data);
-      }.bind(this));
-    } else {
-      $.ajax({
-        url : "/rsc/maps/example_state.json",
-      }).done( function(init_data) {
-        this.map.loadFromState(init_data.state);
-        this.control_panel.updateTextFields(init_data);
-      }.bind(this));
-    }
+    this.state_handler.freshPull(function(state){
+      this.state_handler.setState(state);
+      this.map.loadFromState(state.state);
+      this.map.loadGeometries();
+      //this.control_panel_handler.updateTextFields(init_data);
+    }.bind(this));
   },
   setMe : function(data) {
     this.me = data;

@@ -195,7 +195,10 @@ Map.prototype = {
       }
     }
   },
-
+  
+  /**
+   * Loads all models not associated with the specific map
+   */
   loadGeometries : function() {
     this.loadArrowGeometry();
   },

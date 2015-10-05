@@ -115,8 +115,8 @@ app.get('/game', function(req, res) {
 app.post('/master-controller', function(req, res) {
   console.log(req.body);
   api.handleMasterRequest(req.body, function(success) {
-    // TODO
-  })
+    utils.writeData(res, success); 
+  });
 });
 
 io.on('connection', function(socket) {

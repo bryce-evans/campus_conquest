@@ -227,6 +227,12 @@ Game.prototype = {
       // apply moves, notify, update stage
     } else {
       console.log('no one is left!!', this.all_move_data);
+      this.applyReinforcementMoves(); 
+    }
+
+  },
+
+  applyReinforcementMoves : function(){
 
       for (var i = 0; i < this.all_move_data; i++) {
         var com = this.all_move_data[i];
@@ -259,7 +265,7 @@ Game.prototype = {
         socket.removeAllListeners('reinforcement move');
         this.initOrdersStage(socket);
       }
-    }
+
 
   },
 
@@ -297,7 +303,12 @@ Game.prototype = {
       // no one left
       // only runs on last player to move
     } else {
+     this.applyOrdersMoves();
+   }
+  },
 
+  applyOrdersMoves : function() {
+    
       // set up for reinforcement  stage
       this.db.query('UPDATE global.games SET stage = \'reinforcement\' WHERE id = \'' + this.id + '\'', function(err, result) {
         if (err) {
@@ -320,7 +331,6 @@ Game.prototype = {
         socket.removeAllListeners('orders move');
         this.initReinforcementStage(socket);
       }
-    }
   },
 
   /**
@@ -391,8 +401,7 @@ Game.prototype = {
   forceResetTurn : function() {
     this.all_move_data = [];
     this.resetWaitingOn();
-    this.io.to(this.id).emit('override');
-    this.io.to(this.id).emit('fresh pull');
+    this.io.to(this.id).emit('server sync');
   },
   
   /**
@@ -400,17 +409,18 @@ Game.prototype = {
    *  Continues to next turn even if not all players have moved
    */
   forceNextTurn : function() {
-    this.io.to(this.id).emit('override');
     switch (this.stage){
       case "grab":
         this.current_team_index = this.nextTeamIndex();
         break;
       case "reinforcement":
+        this.applyReinforcementMoves();
         break;
       case "orders":
+        this.applyOrdersMoves();
         break;
     }
-    this.io.to(this.id).emit('fresh pull');
+    this.io.to(this.id).emit('server sync');
   },
 
 

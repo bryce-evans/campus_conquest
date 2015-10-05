@@ -1,7 +1,7 @@
 module.exports = {
 
-  /* writes <string> data to <response> res
-   as a json
+  /* writes <Object> data to <response> res
+   as a JSON String
    */
   writeData : function(res, data) {
     var json = JSON.stringify(data);
