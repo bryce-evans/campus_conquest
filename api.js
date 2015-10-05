@@ -264,8 +264,9 @@ getOpenGames : function(callback){
     var key = req.key;
     var command = req.command;
     var data = req.data;
-    
-    this.io.to(this.id).emit('override');
+     
+    console.log(this.id, 'override');
+    this.io.to(game_id).emit('override');
     switch (command){
       case "reset-turn":
         g.forceResetTurn();
