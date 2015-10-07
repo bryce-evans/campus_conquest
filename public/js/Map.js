@@ -402,7 +402,7 @@ Arrow.prototype = {
     this.units = u;
 
     if (this.mesh) {
-      this.mesh.scale.z = u * world.map.scale + .5;
+      this.mesh.scale.z = Math.min(300, u * world.map.scale);
     }
 
     // remove
