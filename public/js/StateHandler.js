@@ -153,47 +153,49 @@ StateHandler.prototype = {
   // for setting the entire initial state
   setState : function(state) {
     this.current.team_index = state.current_team;
-    this.current.stage = state.stage;
+    // resets if change of stage
+    if(this.current.stage != state.stage) {
+      this.temp_move_data = {};
+      this.current.stage = state.stage;
+    }
     this.current.state = state.state;
     this.current.turn_number = state.turn;
     this.team_order = state.team_order;
     me.team_index = this.team_order.indexOf(me.team);
     world.control_panel_handler.initWheel(state.team_order, state.current_team);
 
+    // you have already moved
+    if (state.waiting_on.indexOf(me.team_index) == -1) {
+      this.showWaitingOnWindow(state.waiting_on);
+      return;
+    } else {
+      this.hideWaitingOnWindow();
+    }
+
     switch(state.stage) {
       case CONSTANTS.STAGES.START:
-        this.move = this.moveStart;
+        this.initStartStage();
         break;
       case CONSTANTS.STAGES.GRAB:
         this.initGrabStage();
         break;
       case CONSTANTS.STAGES.REINFORCEMENT:
-        this.move = this.moveReinforcement;
-
-        // you have already moved
-        if (state.waiting_on.indexOf(me.team_index) == -1) {
-          this.showWaitingOnWindow(state.waiting_on);
-        } else {
-          this.initReinforcementStage();
-        }
-
+        this.initReinforcementStage();
         break;
       case CONSTANTS.STAGES.ORDERS:
-        this.move = this.moveOrders;
-        // you have already moved
-        if (state.waiting_on.indexOf(me.team_index) == -1) {
-          this.showWaitingOnWindow(state.waiting_on);
-        } else {
-          this.initOrdersStage();
-        }
+        this.initOrdersStage();
         break;
-    }
+  }
   },
   // for single move updates
   updateState : function(state) {
     this.current.team_index = state.current_team;
     this.current.stage = state.stage;
     this.current.turn_number = state.turn;
+  },
+
+  initStartStage : function() {
+    this.move = this.moveStart;
   },
 
   initGrabStage : function() {
@@ -261,7 +263,6 @@ StateHandler.prototype = {
         commands : this.temp_move_data,
       };
       this.socket.emit('orders move', move_data);
-      this.temp_move_data = {};
       $('#button-done').hide();
     }.bind(this));
   },
@@ -317,7 +318,6 @@ StateHandler.prototype = {
         };
         console.log('sending reinforcement data', this.move_data);
         this.socket.emit('reinforcement move', this.move_data);
-        this.temp_move_data = {};
         this.move_data = {};
         $('#panel-reinforcement-info').hide();
       }
@@ -449,7 +449,7 @@ StateHandler.prototype = {
         id: world.id,
       },
     }).done(function(state) {
-      callback(state);
+      callback.bind(this)(state);
     }.bind(this));
   },
   
@@ -457,7 +457,7 @@ StateHandler.prototype = {
    * Initiates a fresh pull and syncs to remote
    */
   syncToServer : function() {
-    this.freshPull(this.setState).bind(this);
+    this.freshPull(this.setState);
   },
   
   /**

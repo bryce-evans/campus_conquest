@@ -3,7 +3,7 @@ OverrideController = function() {
 OverrideController.prototype = {
   addListeners : function () {
     world.state_handler.socket.on(CONSTANTS.IO.OVERRIDE, function(data){
-      alert("override detected");
+      world.notifier.note("!Override Detected. Refreshing...");
     });
     $(".debug .force-reset").click(function(){
       console.log("resetting turn");
