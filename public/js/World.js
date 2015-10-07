@@ -13,6 +13,7 @@ World = function(id) {
   this.client_listeners = undefined;
   this.graphics = undefined;
   this.window_handler = undefined;
+  this.notifier = undefined;
   this.override_controller = undefined;
   this.nav = {
     height : 50
@@ -65,6 +66,9 @@ World.prototype = {
   },
   setControlPanelHandler : function(control_panel_handler) {
     this.control_panel_handler = control_panel_handler;
+  },
+  setNotifier : function(notifier) {
+    this.notifier = notifier;
   },
   setOverrideController : function(override_controller) {
     this.override_controller = override_controller;

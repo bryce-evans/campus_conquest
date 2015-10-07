@@ -71,6 +71,7 @@ function initGame(data) {
   var control_panel_handler = new ControlPanelHandler();
   var window_handler = new WindowHandler();
   var override_controller = new OverrideController();
+  var notifier = new Notifier();
 
   world.setMap(map);
   world.setStateHandler(state);
@@ -79,6 +80,7 @@ function initGame(data) {
   world.setWindowHandler(window_handler);
   world.setControlPanelHandler(control_panel_handler);
   world.setOverrideController(override_controller);
+  world.setNotifier(notifier);
 
   window_handler.addWindowResizeListener();
   window_handler.setDimensions();
