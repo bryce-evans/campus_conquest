@@ -1,11 +1,12 @@
 {
-	"Cornell": {
-		"Continents": { 
+ "id": "cornell",
+ "name": "Cornell Basic",
+ "regions": {
 			"EngineeringQuad": [ "duffield_phillips", "rhodes", "upson" ], 
 			"ArtsQuad": [ "goldwin", "mcgraw_uris", "taylor" ], 
 			"Central": [ "statler", "sage" ] 
 		},
-		"Territories": {
+ "pieces": {
 			"duffield_phillips": ["upson", "hoy", "statler", "sage", "carpenter"],
 			"upson": ["duffield_phillips", "ktb"],
 			"hoy": ["duffield_phillips", "barton", "statler", "schoellkopf", "teagle"],
@@ -65,7 +66,5 @@
 			"donlon": [],
 			"townhouses": [],
 			"appel": []
-
-		}
 	}
 } 

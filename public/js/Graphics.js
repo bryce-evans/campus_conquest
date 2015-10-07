@@ -128,6 +128,7 @@ Graphics.prototype = {
 
       var mesh = world.map.selectable_objects[i];
       var piece = mesh.game_piece;
+      var piece_state = world.state_handler.current.state[piece.id];
 
       var coord = this.toScreenXY(mesh.center);
 
@@ -146,12 +147,12 @@ Graphics.prototype = {
         ctx2d.fillStyle = "#ffffff";
         ctx2d.textAlign = 'center';
 
-        ctx2d.fillText(piece.units, coord.x, coord.y);
-
+        ctx2d.fillText(piece_state.units, coord.x, coord.y);
+        // XXX TODO
         if (piece.units_added > 0) {
           ctx2d.fillStyle = "#ff3811";
           ctx2d.textAlign = 'left';
-          ctx2d.fillText("+" + piece.units_added, coord.x + ctx2d.measureText(piece.units).width, coord.y);
+          ctx2d.fillText("+" + piece.units_added, coord.x + ctx2d.measureText(piece_state.units).width, coord.y);
         }
 
       }

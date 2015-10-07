@@ -203,7 +203,7 @@ StateHandler.prototype = {
   },
   initReinforcementStage : function() {
     this.current.stage = CONSTANTS.STAGES.REINFORCEMENT;
-    this.showStageIntro(this.current.state.capitalize());
+    this.showStageIntro(this.current.stage);
 
     this.move = this.moveReinforcement;
 
@@ -323,8 +323,7 @@ StateHandler.prototype = {
       }
     }
   },
-  moveOrders : function(piece) {
-    var mesh = piece;
+  moveOrders : function(mesh) {
     var piece = mesh.game_piece;
 
     // make sure its your piece
@@ -353,7 +352,7 @@ StateHandler.prototype = {
       var arrow = world.map.getArrow(start_id, end_id);
       var prev_arrow_units = arrow.units;
 
-      var init_start_pt_force = start_piece.units;
+      var init_start_pt_force = this.current.state[start_id].units;
 
       var total_force = init_start_pt_force + prev_arrow_units;
       var max_force = total_force - 1;

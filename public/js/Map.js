@@ -12,12 +12,22 @@ Map = function() {
 
   this.map_dir = "/rsc/models/map/";
   this.loader = new THREE.JSONLoader();
+  
+  // id and name for current map loaded
+  this.id = undefined;
+  this.name = undefined;
 
-  this.map = {};
-  this.map_territories = {};
+  // {<String> id : Region} 
+  this.regions = {};
 
-  // map: string id -> connected (string[] ids)
-  this.buildings = new Array();
+  // {<String> id : GamePiece
+  this.game_pieces = {}
+
+  // ids of all game_pieces
+  this.piece_ids = []
+
+  // meshes of all selectable pieces
+  this.selectable_objects = [];
 
   // list of geometries for frequently created objects like arrows
   this.geometries = {};
@@ -25,8 +35,6 @@ Map = function() {
   // Arrow lookup map- <string> start-id : {<string> end-id : Arrow}
   this.arrows = {};
 
-  // mesh[]
-  this.selectable_objects = [];
   this.scale = 15;
 
   this.colors = {
@@ -37,69 +45,48 @@ Map = function() {
     edge : 0x00ff33,
     highlight : 0xffff00,
   };
-
 }
+
 Map.prototype = {
-  getObj : function(id) {
-    return this.buildings[id];
-  },
-
-  /**
-   * given an object
-   * returns string array of connected buildings
-   * Precondition: obj must have field called name
-   */
-  getConnectedByMesh : function(obj) {
-    return this.map_territories[obj.game_piece.id];
-  },
-  /**
-   * returns string[] ids of connected buildings
-   * returns undefined if str not in scene
-   */
-  getConnectedById : function(id) {
-    return this.map_territories[id];
-  },
-  /*
-   "state_id": "1",
-   "t_id": "dickson",
-   "u_id": "1",
-   "num_troops": "174",
-   "game_id": "1"
-   */
-
-  loadFromState : function(state) {
-
+    
+  // TODO dynamically load different maps
+  loadMapFile : function(filename) {
     $.ajax({
-      url : "/rsc/maps/cornell_basic.json",
+      url : "/rsc/maps/" + filename,
     }).done( function(data) {
-      this.map = data;
-      this.map_territories = this.map.Cornell.Territories;
-
-      var i = 0;
-      jQuery.each(this.map_territories, function(key, val) {
-        this.buildings[i++] = key;
+      this.id = data.id;
+      this.name = data.name;
+     
+      $.each(data.regions, function(id, r) {
+        this.regions[id] = new Region(id, r.name, r.connected, r.value);
       }.bind(this));
 
+      $.each(data.pieces, function(id, piece_data) {
+        this.piece_ids.push(id);
+        // pushes to this.game_pieces
+        this.loadPiece({id: id, connected: piece_data});
+      }.bind(this));
+      
       if (world.graphics.complex_geometry == true) {
         this.loadGround();
       }
 
-      // load models
-      for (var index in this.buildings) {
-        this.load(this.buildings[index], state);
-      }
     }.bind(this));
   },
 
-  load : function(model_name, init_state) {
+  loadPiece : function(piece_data) {
+    var piece_id = piece_data.id;
+    var name = piece_data.name;
+// XXX
+    var connected =  piece_data.connected;
 
     // model is not in this game
-    if (!init_state[model_name]) {
-      console.log(model_name + ' not included in this map');
+    if (!world.state_handler.current.state[piece_id]) {
+      console.log(piece_id + ' not included in this map');
       return;
     }
 
-    this.loader.load(this.map_dir + "buildings/" + model_name + "/" + model_name + ".js", function(geometry) {
+    this.loader.load(this.map_dir + "buildings/" + piece_id + "/" + piece_id + ".js", function(geometry) {
 
       geometry.computeMorphNormals();
 
@@ -108,12 +95,12 @@ Map.prototype = {
       });
 
       var mesh = new THREE.Mesh(geometry, material);
-      var piece_owner;
-      if (init_state[model_name]) {
-        piece_owner = init_state[model_name].team;
-      }
+      
+      this.game_pieces[piece_id] = new GamePiece(this, piece_id, name, mesh, connected);
+      
+      this.selectable_objects.push(mesh);
+      mesh.computeCenter();
 
-      var game_piece = new GamePiece(this, model_name, mesh, piece_owner, init_state[model_name].units);
       world.graphics.scene.add(mesh);
 
     }.bind(this));
@@ -152,8 +139,8 @@ Map.prototype = {
       }
     }
 
-    var mesh1 = this.getObj(id1);
-    var mesh2 = this.getObj(id2);
+    var mesh1 = this.game_pieces[id1].mesh;
+    var mesh2 = this.game_pieces[id2].mesh;
 
     var geo = new THREE.Geometry();
     geo.vertices.push(new THREE.Vector3(mesh2.center.x, 2 * mesh2.center.y + 5, mesh2.center.z));
@@ -179,19 +166,19 @@ Map.prototype = {
 
   addEdges : function() {
     this.edges = {};
-    for (var piece in world.map.map.Cornell.Territories) {
-      var connections = world.map.map.Cornell.Territories[piece];
+    for (var piece_id in this.piece_ids) {
+      var connections = this.game_pieces[piece_id].connected;
       for (var i = 0; i < connections.length; i++) {
-        this.addEdge(piece, connections[i]);
+        this.addEdge(piece_id, connections[i]);
       }
     }
 
   },
   removeEdges : function() {
-    for (var piece in world.map.map.Cornell.Territories) {
-      var connections = world.map.map.Cornell.Territories[piece];
+    for (var piece_id in this.piece_ids) {
+      var connections = this.game_pieces[piece_id].connected;
       for (var i = 0; i < connections.length; i++) {
-        this.removeEdge(piece, connections[i]);
+        this.removeEdge(piece_id, connections[i]);
       }
     }
   },
@@ -233,41 +220,38 @@ Map.prototype = {
   },
 }
 
-GamePiece = function(map, id, mesh, init_team, init_units) {
+Region = function(id, name, pieces, value) {
+  this.id = id;
+  this.name = name;
+  this.pieces = pieces;
+  this.value = value;
+}
+
+GamePiece = function(map, id, name, mesh, connected) {
 
   this.id = id;
+  this.name = name;
   this.mesh = mesh;
-  this.team = undefined;
-  this.units = init_units || 0;
+  this.connected = connected;
 
   mesh.game_piece = this;
 
-  this.connected = map.map_territories[id];
-  this.setTeam(init_team);
+  this.setTeam();
 
   mesh.scale.set(map.scale, map.scale, map.scale);
   mesh.position.y = 0;
 
-  var sumx = 0;
-  var sumy = 0;
-  var sumz = 0;
-  var counter = 0;
-  var verts = mesh.geometry.vertices;
-  for (index in verts) {
-    sumx += verts[index].x;
-    sumy += verts[index].y;
-    sumz += verts[index].z;
-    counter++;
-  }
-  this.mesh.center = new THREE.Vector3(map.scale * sumx / counter, map.scale * sumy / counter, map.scale * sumz / counter);
-
-  map.buildings[id] = mesh;
-  map.selectable_objects.push(mesh);
-
+ 
 }
+
+
 // @team_number : int
 GamePiece.prototype = {
-  setTeam : function(team_number) {
+  /**
+   * updates materials to match owner in current state
+   */
+  setTeam : function() {
+    var team_number = world.state_handler.current.state[this.id].team;
     if (team_number > world.state_handler.team_order.length) {
       console.error("set piece to invalid team");
     }
@@ -349,8 +333,8 @@ GamePiece.prototype = {
  */
 Arrow = function(id1, id2) {
 
-  var start_mesh = world.map.getObj(id1);
-  var end_mesh = world.map.getObj(id2);
+  var start_mesh = world.map.game_pieces[id1].mesh;
+  var end_mesh = world.map.game_pieces[id2].mesh;
 
   // the id of the piece the arrow originates
   this.start = id1;
@@ -433,4 +417,18 @@ Arrow.prototype = {
 
   }
 }
-
+THREE.Mesh.prototype.computeCenter = function(){
+  var sumx = 0;
+  var sumy = 0;
+  var sumz = 0;
+  var counter = 0;
+  var verts = this.geometry.vertices;
+  for (index in verts) {
+    sumx += verts[index].x;
+    sumy += verts[index].y;
+    sumz += verts[index].z;
+    counter++;
+  }
+  var map = world.map;
+  this.center =  new THREE.Vector3(map.scale * sumx / counter, map.scale * sumy / counter, map.scale * sumz / counter);
+}

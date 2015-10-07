@@ -19,11 +19,6 @@ World = function(id) {
     height : 50
   };
 
-  this.canvas2D = $('#canvas2D');
-  // this.renderer2D = new THREE.CanvasRenderer({
-  // canvas : canvas2D,
-  // });
-
 }
 
 World.prototype = {
@@ -37,7 +32,7 @@ World.prototype = {
 
     this.state_handler.freshPull(function(state){
       this.state_handler.setState(state);
-      this.map.loadFromState(state.state);
+      this.map.loadMapFile("cornell_basic.json");
       this.map.loadGeometries();
       //this.control_panel_handler.updateTextFields(init_data);
     }.bind(this));
