@@ -77,8 +77,8 @@ StateHandler.prototype = {
       console.log('received reinforcement update', data);
       this.hideWaitingOnWindow();
       for (var i = 0; i < data.length; i++) {
-        world.map.getObj(data[i].id).game_piece.units_added = data[i].units;
-        this.pieces_with_added_units.push(world.map.getObj(data[i].id).game_piece);
+        world.map.game_pieces[data[i].id].mesh.units_added = data[i].units;
+        this.pieces_with_added_units.push(world.map.game_pieces[data[i].id]);
       }
 
       $('#button-continue').show();
