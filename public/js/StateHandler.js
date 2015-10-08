@@ -468,6 +468,9 @@ StateHandler.prototype = {
    */
   syncToServer : function() {
     this.freshPull(this.setState);
+    // must clear moves
+    this.resetTempData();
+    world.notifier.note("Synced with Server");
   },
   
   /**
