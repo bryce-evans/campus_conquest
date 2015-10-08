@@ -146,15 +146,27 @@ Graphics.prototype = {
         // set styles again
         ctx2d.fillStyle = "#ffffff";
         ctx2d.textAlign = 'center';
-
-        ctx2d.fillText(piece_state.units, coord.x, coord.y);
+        
+        var units_displayed = piece_state.units;
+        /*if (world.state_handler.current.stage === "orders" &&
+            world.state_handler.move_data[piece.id]){
+            $.each(world.state_handler.move_data[piece.id], function(key, val){
+            units_displayed -= val;
+            });
+          
+        }*/
+        
+        ctx2d.fillText(units_displayed, coord.x, coord.y);
         // XXX TODO
-        if (piece.units_added > 0) {
+        if (world.state_handler.current.stage === "reinforcement"){
+        var to_be_added = world.state_handler.move_data[piece.id];
+        if (to_be_added > 0) {
+        
           ctx2d.fillStyle = "#ff3811";
           ctx2d.textAlign = 'left';
-          ctx2d.fillText("+" + piece.units_added, coord.x + ctx2d.measureText(piece_state.units).width, coord.y);
+          ctx2d.fillText("+" + to_be_added, coord.x + ctx2d.measureText(piece_state.units).width, coord.y);
         }
-
+}
       }
 
     }

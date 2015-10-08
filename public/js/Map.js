@@ -36,6 +36,7 @@ Map = function() {
   this.arrows = {};
 
   this.scale = 15;
+  this.show_edges = false;
 
   this.colors = {
     current : 0xffc038,
@@ -163,24 +164,31 @@ Map.prototype = {
     var sorted = [id1, id2].sort();
     world.graphics.scene.remove(this.edges[sorted[0] + sorted[1]]);
   },
-
+  toggleEdges : function() {
+    if(!this.show_edges){
+      this.addEdges();
+    } else{
+      this.removeEdges();
+    }
+    this.show_edges = !this.show_edges;
+  },
   addEdges : function() {
     this.edges = {};
-    for (var piece_id in this.piece_ids) {
-      var connections = this.game_pieces[piece_id].connected;
+    $.each(this.game_pieces, function(piece_id, piece) {
+      var connections = piece.connected;
       for (var i = 0; i < connections.length; i++) {
         this.addEdge(piece_id, connections[i]);
       }
-    }
+    }.bind(this));
 
   },
   removeEdges : function() {
-    for (var piece_id in this.piece_ids) {
-      var connections = this.game_pieces[piece_id].connected;
+    $.each(this.game_pieces, function(piece_id, piece) {
+      var connections = piece.connected;
       for (var i = 0; i < connections.length; i++) {
         this.removeEdge(piece_id, connections[i]);
       }
-    }
+    }.bind(this));
   },
   
   /**

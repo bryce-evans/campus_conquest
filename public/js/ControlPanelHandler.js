@@ -48,6 +48,7 @@ ControlPanelHandler.prototype = {
   	$('.team').addClass(id);
   },
   initWheel : function(teams, start) {
+    $('#panel-wheel').empty();
     for (var i = start; i < start + teams.length; i++) {
       jQuery('<div/>').css("background-color", '#' + ("000000" + TEAM_DATA[teams[i % teams.length]].colors.primary.toString(16)).slice(-6)).appendTo('#panel-wheel');
     }

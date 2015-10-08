@@ -183,6 +183,7 @@ Game.prototype = {
    * Takes a client and their move and adds the reinforcements to the move list
    */
   handleReinforcementMove : function(socket, move_data) {
+    
     var team = move_data.meta.team;
     var team_index = move_data.meta.team_index;
     var coms = move_data.commands;
@@ -216,6 +217,8 @@ Game.prototype = {
       this.all_move_data = this.all_move_data.concat(move_data.commands);
       this.removeFromWaitingOn(team_index);
     }
+    
+    console.log(this.all_move_data);
 
     var togo = this.getWaitingOn();
     if (togo.length > 0) {
@@ -233,12 +236,14 @@ Game.prototype = {
   },
 
   applyReinforcementMoves : function(){
-
-      for (var i = 0; i < this.all_move_data; i++) {
+     
+     console.log("APPLY_REINFORCEMENT", this.all_move_data);
+      for (var i = 0; i < this.all_move_data.length; i++) {
         var com = this.all_move_data[i];
-        var piece = this.state[com.id];
-
-        this.db.query('UPDATE state."' + this.id + '" SET units=' + piece.units + ' WHERE piece_name=\'' + coms[i].id + '\'', function(err, result) {
+        var piece_id = com.id;
+        var units = this.state[com.id].units + com.units;
+        
+        this.db.query('UPDATE state."' + this.id + '" SET units=' + units + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
           if (err) {
             console.error('ERROR cannot update state in initReinforcementStage()');
           }
@@ -376,9 +381,9 @@ Game.prototype = {
   },
 
   removeFromWaitingOn : function(index) {
-    console.log('removing from waiting on', this.waiting_on, index);
+    //console.log('removing from waiting on', this.waiting_on, index);
     this.waiting_on[index] = false;
-    console.log('after', this.waiting_on);
+    //console.log('after', this.waiting_on);
 
     // this.db.query('UPDATE teams."' + this.id + '" SET waiting_on=FALSE WHERE id=\'' + move_data.meta.team + '\'', function(err, result) {
     // if (err) {

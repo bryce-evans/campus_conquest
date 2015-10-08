@@ -16,13 +16,13 @@ StateHandler = function() {
   //this.current.watch('stage', function(){debugger;});
 
   this.team_order = [];
-  this.moves_left = 0;
+  this.moves_allowed = 0;
+  this.moves_made = 0;
   this.move_data = {};
 
-  this.pieces_with_added_units = [];
-
-  // used to temporarily store data before finally packaging into move_data
-  this.temp_move_data = {};
+  // current moves made 
+  // format differs by stage
+  this.move_data = {};
 
   this.current_selected = undefined;
   this.waiting = false;
@@ -78,7 +78,7 @@ StateHandler.prototype = {
       this.hideWaitingOnWindow();
       for (var i = 0; i < data.length; i++) {
         world.map.game_pieces[data[i].id].mesh.units_added = data[i].units;
-        this.pieces_with_added_units.push(world.map.game_pieces[data[i].id]);
+        this.move_data[data[i].id] = data[i].units;
       }
 
       $('#button-continue').show();
@@ -88,6 +88,7 @@ StateHandler.prototype = {
         $('#button-continue').hide();
         this.waiting_on = false;
         this.combineUnits();
+        this.move_data = {};
         this.initOrdersStage();
       }.bind(this));
     }.bind(this));
@@ -130,12 +131,11 @@ StateHandler.prototype = {
 
   // takes a list of pieces with units added, adds those units and resets added to 0
   combineUnits : function() {
-    var pieces = this.pieces_with_added_units;
-    for (var i = 0; i < pieces.length; i++) {
-      pieces[i].units += pieces[i].units_added;
-      pieces[i].units_added = 0;
-    }
-    pieces = [];
+    if(this.current.stage !== "reinforcement") return;
+    $.each(this.move_data, function(id, units){
+      this.current.state[id].units += units;
+    }.bind(this));
+    this.move_data = {};
   },
 
   // adds a team to the state
@@ -155,7 +155,7 @@ StateHandler.prototype = {
     this.current.team_index = state.current_team;
     // resets if change of stage
     if(this.current.stage != state.stage) {
-      this.temp_move_data = {};
+      this.resetTempData();
       this.current.stage = state.stage;
     }
     this.current.state = state.state;
@@ -194,6 +194,16 @@ StateHandler.prototype = {
     this.current.turn_number = state.turn;
   },
 
+  /**
+   *  
+   */
+  resetTempData : function() {
+    pieces = [];
+    this.move_data = {};
+    this.moves_made = 0;
+    world.map.removeAllArrows();
+  },
+
   initStartStage : function() {
     this.move = this.moveStart;
   },
@@ -205,6 +215,7 @@ StateHandler.prototype = {
     this.current.stage = CONSTANTS.STAGES.REINFORCEMENT;
     this.showStageIntro(this.current.stage);
 
+    this.moves_made = 0;
     this.move = this.moveReinforcement;
 
     $('#panel-reinforcement-info').show();
@@ -216,7 +227,7 @@ StateHandler.prototype = {
       }
     }).done( function(res) {
       console.log('reinforcements', res);
-      this.moves_left = res.reinforcements;
+      this.moves_allowed = res.reinforcements;
       $('#reinforcements-remaining').text(res.reinforcements);
     }.bind(this));
   },
@@ -256,13 +267,14 @@ StateHandler.prototype = {
       // });
       // }
       // }
-      var move_data = {
+      var move_data_final = {
         game_id : world.id,
         team_index : me.team_index,
         team_id : me.team,
-        commands : this.temp_move_data,
+        commands : this.move_data,
       };
-      this.socket.emit('orders move', move_data);
+      this.socket.emit('orders move', move_data_final);
+      this.move_data = {};
       $('#button-done').hide();
     }.bind(this));
   },
@@ -290,35 +302,34 @@ StateHandler.prototype = {
     if (world.state_handler.team_order[piece.game_piece.team] !== me.team) {
       return;
     }
-    if (this.moves_left >= 1) {
-      if (this.temp_move_data[piece.game_piece.id]) {
-        this.temp_move_data[piece.game_piece.id]++;
+    if (this.moves_made < this.moves_allowed) {
+      if (this.move_data[piece.game_piece.id]) {
+        this.move_data[piece.game_piece.id]++;
       } else {
-        this.temp_move_data[piece.game_piece.id] = 1;
+        this.move_data[piece.game_piece.id] = 1;
       }
-      piece.game_piece.units_added = this.temp_move_data[piece.game_piece.id];
-      this.moves_left--;
-      $('#reinforcements-remaining').text(this.moves_left);
+      this.moves_made++;
+      $('#reinforcements-remaining').text(this.moves_allowed-this.moves_made);
 
-      if (this.moves_left == 0) {
-        this.move_data.commands = [];
-        for (var key in this.temp_move_data) {
-          if (this.temp_move_data.hasOwnProperty(key)) {
-            this.move_data.commands.push({
+      if (this.moves_made == this.moves_allowed) {
+        var move_data_final = {};
+        move_data_final.commands = [];
+        for (var key in this.move_data) {
+          if (this.move_data.hasOwnProperty(key)) {
+            move_data_final.commands.push({
               id : key,
-              units : this.temp_move_data[key]
+              units : this.move_data[key]
             });
           }
 
         }
-        this.move_data.meta = {
+        move_data_final.meta = {
           team : me.team,
           team_index : me.team_index,
           key : "my_super_secret_key"
         };
-        console.log('sending reinforcement data', this.move_data);
-        this.socket.emit('reinforcement move', this.move_data);
-        this.move_data = {};
+        console.log('sending reinforcement data', move_data_final);
+        this.socket.emit('reinforcement move', move_data_final);
         $('#panel-reinforcement-info').hide();
       }
     }
@@ -365,7 +376,7 @@ StateHandler.prototype = {
       } else {
         var init_slider_force = max_force;
         arrow.setUnits(max_force);
-        start_piece.units = init_start_pt_force - init_slider_force;
+        world.state_handler.current.state[start_id].units = init_start_pt_force - init_slider_force;
       }
 
       $('#attack-panel .from').text(start_id);
@@ -384,7 +395,7 @@ StateHandler.prototype = {
         slide : function(event, ui) {
           $("#attack-unit-count").text('units: ' + ui.value);
           arrow.setUnits(ui.value);
-          start_piece.units = total_force - ui.value;
+          world.state_handler.current.state[start_id].units = total_force - ui.value;
         }
       });
 
@@ -395,7 +406,7 @@ StateHandler.prototype = {
 
       $('#attack-panel .button.cancel').click( function() {
         arrow.setUnits(prev_arrow_units);
-        start_piece.units = init_start_pt_force;
+        world.state_handler.current.state[start_id].units = init_start_pt_force;
         $('#attack-panel').hide();
       }.bind({
         prev_arrow_units : prev_arrow_units,
@@ -405,17 +416,17 @@ StateHandler.prototype = {
       $('#attack-panel .button.okay').unbind('click');
       $('#attack-panel .button.okay').click( function() {
         // initialize move data map [<from> : <to>]
-        if (!this.temp_move_data[this.start_id]) {
-          this.temp_move_data[this.start_id] = {};
+        if (!this.move_data[this.start_id]) {
+          this.move_data[this.start_id] = {};
         }
-        this.temp_move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
+        this.move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
 
         // undo selection
         this.start_piece.unhighlight();
         this.start_piece = undefined;
         $('#attack-panel').hide();
       }.bind({
-        temp_move_data : this.temp_move_data,
+        move_data : this.move_data,
         start_piece : start_piece,
         start_id : start_id,
         end_id : end_id,
@@ -477,6 +488,11 @@ StateHandler.prototype = {
   showWaitingOnWindow : function(waiting_on) {
     // show only after getting data from server
     // prevents window from flashing when no waiting-on left
+    
+    // hide buttons always
+    $('#button-done').hide();
+    $('#button-continue').hide();
+
     $('#waiting-on').show();
     this.waiting = true;
     $('#waiting-on-list').empty();
