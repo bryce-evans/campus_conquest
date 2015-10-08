@@ -237,12 +237,12 @@ Game.prototype = {
 
   applyReinforcementMoves : function(){
      
-     console.log("APPLY_REINFORCEMENT", this.all_move_data);
       for (var i = 0; i < this.all_move_data.length; i++) {
         var com = this.all_move_data[i];
         var piece_id = com.id;
         var units = this.state[com.id].units + com.units;
-        
+        this.state[com.id].units = units;
+
         this.db.query('UPDATE state."' + this.id + '" SET units=' + units + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
           if (err) {
             console.error('ERROR cannot update state in initReinforcementStage()');
@@ -326,9 +326,10 @@ Game.prototype = {
       this.resetWaitingOn();
 
       //
-      var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
-
-      this.io.to(this.id).emit('orders update', results);
+     // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
+      var new_state = conflictHandler.genUpdatedState(this.all_move_data, this.state);
+      this.updatePartialState(new_state);
+      this.io.to(this.id).emit('orders update', new_state);
       this.all_move_data = [];
       //  update all client sockets
       for (var i = 0; i < this.clients.length; i++) {
@@ -336,6 +337,34 @@ Game.prototype = {
         socket.removeAllListeners('orders move');
         this.initReinforcementStage(socket);
       }
+  },
+
+  updatePartialState : function(updates) {
+    var keys = Object.keys(updates);
+    for(var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var update = updates[key];
+      if(update.team){
+        this.state[key].team = update.team;
+   
+        this.db.query('UPDATE state."' + this.id + '" SET team=' + update.team + ' WHERE piece_name=\'' + key + '\'', function(err, result) {
+          if (err) {
+            console.error('ERROR cannot update state in initReinforcementStage()');
+          }
+        });
+
+
+      }
+      if(update.units){
+        this.state[key].units = update.units;
+       this.db.query('UPDATE state."' + this.id + '" SET units=' + update.units + ' WHERE piece_name=\'' + key + '\'', function(err, result) {
+          if (err) {
+            console.error('ERROR cannot update state in initReinforcementStage()');
+          }
+        });
+
+     }
+    }
   },
 
   /**

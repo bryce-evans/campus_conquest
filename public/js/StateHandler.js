@@ -101,15 +101,16 @@ StateHandler.prototype = {
 
       console.log('orders update data', data);
 
-      for (var team in data.commands) {
-        for (var start_id in data.commands[team]) {
-          for (var end_id in data.commands[team][start_id]) {
-            var arrow = world.map.getArrow(start_id, end_id);
-            arrow.setUnits(data.commands[team][start_id][end_id]);
+      //for (var team in data.commands) {
+       // for (var start_id in data.commands[team]) {
+        //  for (var end_id in data.commands[team][start_id]) {
+         //   var arrow = world.map.getArrow(start_id, end_id);
+          //  arrow.setUnits(data.commands[team][start_id][end_id]);
             //  arrow.mesh.material.color.copy(new THREE.Color(this.getTeamColorFromIndex(team)));
-          }
-        }
-      }
+         // }
+       // }
+     // }
+     this.updatePartialState(data);
 
       $('#button-continue').show();
       this.waiting_on = true;
@@ -448,7 +449,22 @@ StateHandler.prototype = {
     // unsure if needed?
 
   },
-  
+ 
+  updatePartialState : function(updates) {
+    var keys = Object.keys(updates);
+    for(var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var update = updates[key];
+      if(update.team){
+        this.current.state[key].team = update.team;
+        world.map.game_pieces[key].setTeam(update.team);
+      }
+      if(update.units){
+        this.current.state[key].units = update.units;
+      }
+    }
+  },
+ 
   /**
    * fetches the most recent state and runs callback
    */

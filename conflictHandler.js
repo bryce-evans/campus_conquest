@@ -8,7 +8,72 @@
 
 // Takes an instance of move_data and returns a ConflictSetResult
 // move data : [{start : {end}}]
+var deepcopy = require('deepcopy');
+var cdf = require('binomial-cdf');
+
 module.exports = {
+  genUpdatedState : function(move_data, state) {
+    var new_state = {};
+    var keys;
+    for(var i = 0; i<move_data.length; i++){
+      console.log("b");
+      var com = move_data[i];
+      keys = Object.keys(com);
+      if(keys.length === 0) {continue;}
+      start = keys[0];
+      var ends = com[start];
+      var total_attacking = 0;
+      keys = Object.keys(ends);
+      for(var j in keys){
+        var end = keys[j];
+        total_attacking += ends[end];
+      }
+      new_state[start] = {};
+      new_state[start].units = state[start].units - total_attacking;
+    
+    
+    }
+    while (move_data.length > 0){
+      var com = move_data.pop();
+      console.log(move_data.length);
+      var keys = Object.keys(com);
+     
+     if(keys.length === 0) continue;
+      start = keys[0];
+      var ends = com[start];
+      keys = Object.keys(ends);
+      for(var i in keys){
+        var end = keys[i];
+        if(!new_state[end]){
+          new_state[end] = {};
+          new_state[end].units = state[end].units;
+        }
+
+        var attacking = ends[end];
+        var defending = new_state[end].units;
+        //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
+        while(attacking > 0 && defending > 0) {
+          var r = Math.random();
+          if(r>0.5){
+            defending--;
+          } else {
+            attacking--;
+          }
+          console.log(attacking,defending);
+        }
+        if(attacking > 0){
+          new_state[end].units = attacking;
+          new_state[end].team = state[start].team;
+        }else{
+          new_state[end].units = defending;
+        }
+      }
+    }
+    console.log("NEW STATE", new_state);
+
+  return new_state;
+
+  },
   genAllAttackResults : function(move_data, state) {
 
     console.log('GEN ALL ATTACK RESULTS CALLED', move_data);
