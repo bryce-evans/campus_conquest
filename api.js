@@ -161,7 +161,11 @@ Api.prototype = {
   },
 getOpenGames : function(callback){
  this.db.query('SELECT "id","desc" FROM "global"."games"', function(err, result){
-    callback(result.rows);
+    var ret = result.rows;
+    ret.sort(function(a,b) {
+      return a.id > b.id;
+    });
+    callback(ret);
   });
 },
 

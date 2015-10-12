@@ -51,7 +51,7 @@ OnReady.init = function() {
         $.ajax({
           url : "/open-games",
         }).done(function(data) {
-
+          console.log(data);
           for (var i = 0; i < data.length; i++) {
             var game = data[i];
             var row = $('<tr/>');
