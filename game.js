@@ -14,7 +14,8 @@ function Game(state, game_manager) {
   this.stage = state.stage;
 
   // ordering of teams, e.g. ["eng","ilr", ...]
-  this.team_order = state.team_order;
+  this.original_team_order = state.team_order;  
+  this.team_order = this.original_team_order.clone();
   this.current_team_index = state.current_team;
 
   // teams[team_id <string>] contains team data
@@ -425,6 +426,57 @@ Game.prototype = {
     // }
     // }.bind(this));
   },
+  /**
+   * handles case where player is destroyed
+   */
+  checkForEliminated : function() {
+    var size = this.team_order.length;
+    var eliminated = new Array();
+    while(size--) eliminated.push(false);
+
+    var keys = Object.keys(this.state);
+    for(var i = 0; i< keys.length(); i++){
+      var piece_id = keys[i];
+      var piece = this.state[piece_id];
+      var team = piece.team;
+ 
+      // death condition
+      var eliminated = piece.units < 1;
+
+      eliminated[team] = eliminated[team] || eliminated;
+    }
+    for(var j in eliminated){
+      if(eliminated[j]){
+        this.eliminateTeam(j);  
+      }
+    }
+  },
+
+  eliminateTeam(team_idx) {
+    if(this.isEliminated(team_idx){
+      return;
+    }
+    this.eliminated.push(team_idx);
+
+    var state_changes = {};
+    var keys = Object.keys(this.state);
+    for(var i in keys){
+      var piece_id = keys[i];
+      var state = this.state[piece_id];
+      if(state.team == team_idx){
+        state_changes[piece_id] = {team: -1};
+      }
+    }
+    this.updatePartialState(state_changes);
+  },
+  isEliminated(team_idx) {
+    var idx = this.eliminated.indexOf(team_idx);
+    return idx > -1;
+  },
+  endGame(victor_idx){
+    this.io.to(this.id).emit('end game', {victor: victor_idx});
+  },
+
   /**
    * Gets the index of the next player to move
    */

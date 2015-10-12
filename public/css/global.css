@@ -20,6 +20,9 @@ header > .team.icon {
 header > .team.icon.as, header > .team.icon.aap, header > .team.icon.cals, header > .team.icon.humec {
   margin: 8px 12px 0px 5px;
 }
+.hidden {
+  display: none;
+}
 .icon {
   background-position: center;
   background-size: cover;
