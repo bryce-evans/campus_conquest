@@ -338,16 +338,20 @@ Game.prototype = {
         this.initReinforcementStage(socket);
       }
   },
-
+  /**
+   * Takes a set of changes and applies them to the state
+   * {<piece_id> : {<int> team: <team>, <int> units: <units>}}
+   */
   updatePartialState : function(updates) {
+    console.log(updates);
     var keys = Object.keys(updates);
     for(var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var update = updates[key];
+      var piece_id = keys[i];
+      var update = updates[piece_id];
       if(update.team){
-        this.state[key].team = update.team;
+        this.state[piece_id].team = update.team;
    
-        this.db.query('UPDATE state."' + this.id + '" SET team=' + update.team + ' WHERE piece_name=\'' + key + '\'', function(err, result) {
+        this.db.query('UPDATE state."' + this.id + '" SET team=' + update.team + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
           if (err) {
             console.error('ERROR cannot update state in initReinforcementStage()');
           }
@@ -356,8 +360,8 @@ Game.prototype = {
 
       }
       if(update.units){
-        this.state[key].units = update.units;
-       this.db.query('UPDATE state."' + this.id + '" SET units=' + update.units + ' WHERE piece_name=\'' + key + '\'', function(err, result) {
+        this.state[piece_id].units = update.units;
+       this.db.query('UPDATE state."' + this.id + '" SET units=' + update.units + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
           if (err) {
             console.error('ERROR cannot update state in initReinforcementStage()');
           }
@@ -365,6 +369,7 @@ Game.prototype = {
 
      }
     }
+    this.io.to(this.id).emit('update partial state', updates);
   },
 
   /**

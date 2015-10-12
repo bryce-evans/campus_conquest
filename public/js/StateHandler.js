@@ -128,6 +128,10 @@ StateHandler.prototype = {
       }.bind(this));
     }.bind(this));
 
+    this.socket.on("update partial state", function(data) {
+      console.log(data);
+      this.updatePartialState(data);
+    }.bind(this));
   },
 
   // takes a list of pieces with units added, adds those units and resets added to 0
@@ -455,11 +459,11 @@ StateHandler.prototype = {
     for(var i = 0; i < keys.length; i++) {
       var key = keys[i];
       var update = updates[key];
-      if(update.team){
+      if('team' in update){
         this.current.state[key].team = update.team;
         world.map.game_pieces[key].setTeam(update.team);
       }
-      if(update.units){
+      if('units' in update){
         this.current.state[key].units = update.units;
       }
     }

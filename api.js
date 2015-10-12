@@ -255,8 +255,8 @@ getOpenGames : function(callback){
     }
   },
   /**
-    A set of overrides for debugging
-  */
+   * A set of overrides for debugging
+   */
   handleMasterRequest : function(req, callback) {
     console.log("MASTER REQUEST RECEIVED");
     var game_id = req.game_id;
@@ -276,6 +276,15 @@ getOpenGames : function(callback){
         break;
       case "next-turn":
         g.forceNextTurn();
+        break;
+      case "set-piece-state":
+        var p = data.piece;
+        var new_state = {};
+        new_state[p] = {
+          "units": parseInt(data.units), 
+          "team": parseInt(data.team),
+        };
+        g.updatePartialState(new_state);
         break;
     }
     callback({success: true});

@@ -165,6 +165,21 @@
 			</div>
 				  <ul class="button-set">
 				    <li><div class="button one-col server-sync">Sync to Server</div></li>
+            <li>
+              <div class="button one-col force-piece-state">Set Piece State
+                <div class="force-piece-state-menu hidden">
+                  <select  class="pieces">
+                    <option value="duffield_phillips">Duffield Phillips</option>
+                    <option value="barton">Barton</option>
+                  </select>
+                  <select class="teams">
+                    <option value=0>Engineering</option>
+                    <option value=1>CALS</option>
+                  </select>
+                  <input type="number" min="1" max="100"  class="units" value="1"/>
+                </div>
+              </div>
+            </li>
 				    <li><div class="button one-col force-reset">Reset Turn</div></li>
 				    <li><div class="button one-col force-next"> Next Turn</div></li>
 				    <li><div class="button one-col toggle-edges">Toggle Edges</div></li>
