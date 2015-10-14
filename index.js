@@ -22,13 +22,11 @@ var GameManager = require('./gameManager.js')
 
 var debug = require('./debug.js');
 
-
 var api = new Api(io,db);
 var gm = new GameManager(api);
 
 api.setGameManager(gm);
 gm.initGames();
-
 
 GLOBAL.CC_GLOBALS = {};
 var clients = [];
@@ -97,11 +95,20 @@ app.get('/remove-game', function(req, res) {
   res.sendFile(__dirname + '/public/remove.html');
 });
 
+app.get('/fork', function(req, res) {
+  res.sendFile(__dirname + '/public/fork.html');
+});
+
 app.post('/create-game', function(req, res) {
   console.log(req.body);
-  api.createGame(req.body, function(id, state) {
-    gm.getGame(id) = new Game(state, io, db);
-  })
+  api.createGame(req.body, function(new_game) {
+    console.log("Created game " + new_game.id);
+  });
+});
+
+app.post('/fork-game', function(req, res) {
+  console.log(req.body);
+  api.forkGame(req.body.id);
 });
 
 app.post('/delete-game', function(req, res) {

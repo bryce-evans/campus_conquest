@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+
+	<head>
+
+		<title>Fork Game</title>
+
+		<meta charset="utf-8">
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/fonts.css" />
+		<link rel="stylesheet" href="css/global.css" />
+		<link rel="stylesheet" href="css/signin.css" />
+
+	</head>
+
+	<body>
+
+		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+
+		<div id='removal-pane' style="display: block;">
+			<div class='card'>
+				<div class='card-contents'>
+
+					<h1> Fork Game</h1>
+					<form id="fork-game-form">
+						<div>
+							Game ID: <select id='input-game-id' name = 'id'></select>
+						</div>
+
+						<div>
+							<a href="#" class="button" id="fork-game-button" >Fork Game</a>
+						</div>
+					</form>
+				</div>
+
+			</div>
+		</div>
+
+		<script>
+      $(document).ready(function() {
+
+        $.ajax({
+          url : "/open-games",
+        }).done(function(data) {
+          for (var i = 0; i < data.length; i++) {
+            var id = data[i].id;
+            $('#input-game-id').append('<option value="' + id + '">' + id + '</option>')
+          }
+        });
+        
+        $('#fork-game-form').submit(function(e) {
+          e.preventDefault();
+          // Prevents the page from refreshing
+          var $this = $(this);
+          // `this` refers to the current form element
+          console.log($this);
+          $.post("/fork-game", $(this).serialize(), function(data) {
+
+          }, "json" // The format the response should be in
+          );
+        });
+
+        $("#fork-game-button").click(function(e) {
+          $('#fork-game-form').submit();
+          var removed = $('#input-game-id').val();
+          for(c in $('#input-game-id').children()){
+          	var child = $($('#input-game-id').children()[c]);
+          	if(child.val() == removed){
+          		child.remove();
+          	}
+          }
+        });
+        
+        
+      });
+
+		</script>
+	</body>
+
+</html>
+

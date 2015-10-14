@@ -47,7 +47,7 @@ StateHandler.prototype = {
     this.socket.on(CONSTANTS.IO.GRAB_UPDATE, function(data) {
       var team = data.team_index;
       var building_id = data.piece;
-      var building = world.map.buildings[building_id];
+      var building = world.map.game_pieces[building_id].mesh;
       var new_color = new THREE.Color(world.state_handler.getTeamColorFromIndex(team));
       building.material.color.copy(new_color);
 

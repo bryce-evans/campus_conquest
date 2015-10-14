@@ -14,8 +14,11 @@ function Game(state, game_manager) {
   this.stage = state.stage;
 
   // ordering of teams, e.g. ["eng","ilr", ...]
-  this.original_team_order = state.team_order;  
-  this.team_order = this.original_team_order.clone();
+  this.team_order = state.team_order;
+ 
+  // list of indices of teams that were destroyed
+  this.eliminated = [];
+
   this.current_team_index = state.current_team;
 
   // teams[team_id <string>] contains team data
@@ -132,6 +135,8 @@ Game.prototype = {
   handleGrabMove : function(socket, move_data) {
     if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
       console.log('invalid move data');
+      console.log("this.current_team_index: " , this.current_team_index);
+      console.log("this.state[move_data.piece]: ", this.state[move_data.piece].team);
       return false;
     }
 
@@ -140,7 +145,7 @@ Game.prototype = {
     this.nextTeamIndex();
     this.turn++;
 
-    var query_string = 'UPDATE "state"."' + this.id + '" SET team =\'' + move_data.team_index + '\', player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
+    var query_string = 'UPDATE "state"."' + this.id + '" SET team =\'' + move_data.team_index + '\', units=1, player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
 
     // update server  state
     this.state[move_data.piece].team = move_data.team_index;
@@ -165,7 +170,6 @@ Game.prototype = {
           this.db.query(query_string);
           this.io.to(this.id).emit('stage update', {
             stage : 'reinforcement',
-            reinforcements : 20
           });
           //  update all client sockets
           for (var i = 0; i < this.clients.length; i++) {
@@ -340,8 +344,39 @@ Game.prototype = {
       }
   },
   /**
+   * takes full data and updates everything
+   */
+  updateGameData : function(data){
+   
+    if ("id" in data) {
+      this.id = data.id;
+    }
+    if ("map" in data) {
+      this.map = data.map;
+    }
+    if("stage" in data) {
+      this.stage = data.stage;
+    }
+    if("turn" in data) {
+      this.turn = data.turn;
+    }
+    if("team_order" in data) {
+      this.team_order = data.team_order;
+    }
+    if ("state" in data) {
+      this.state = data.state;
+    }
+    if("eliminated" in data) {
+      this.eliminated = data.eliminated;
+    }
+    if("current_team" in data) {
+      this.current_team_index = data.current_team;
+    }
+
+  },
+  /**
    * Takes a set of changes and applies them to the state
-   * {<piece_id> : {<int> team: <team>, <int> units: <units>}}
+   * {<piece_id> : { team: <int>, units: <int>}}
    */
   updatePartialState : function(updates) {
     console.log(updates);
@@ -452,8 +487,8 @@ Game.prototype = {
     }
   },
 
-  eliminateTeam(team_idx) {
-    if(this.isEliminated(team_idx){
+  eliminateTeam: function(team_idx) {
+    if(this.isEliminated(team_idx)) {
       return;
     }
     this.eliminated.push(team_idx);
@@ -469,11 +504,11 @@ Game.prototype = {
     }
     this.updatePartialState(state_changes);
   },
-  isEliminated(team_idx) {
+  isEliminated: function(team_idx) {
     var idx = this.eliminated.indexOf(team_idx);
     return idx > -1;
   },
-  endGame(victor_idx){
+  endGame: function(victor_idx){
     this.io.to(this.id).emit('end game', {victor: victor_idx});
   },
 

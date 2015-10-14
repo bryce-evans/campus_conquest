@@ -108,6 +108,13 @@
             return;
           }
 
+/*        for (var id in TEAM_DATA) {
+            data[id] = undefined;
+          }
+          data.teams = selected;
+  */        
+
+
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);
             

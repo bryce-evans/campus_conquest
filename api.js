@@ -6,6 +6,8 @@ var debug = require('./debug.js');
 function Api(io, db) {
   this.io = io;
   this.db = db;
+  // circular dependency with api
+  // set with setGameManager()
   this.gm = undefined;
 }
 
@@ -23,8 +25,8 @@ Api.prototype = {
 	},
 
 
-  createGame : function(data,callback){
-		
+  createGame : function(data, callback){
+		console.log(data);
 		if (data.game_id == undefined) {
 		  return false;
 		}
@@ -138,11 +140,25 @@ Api.prototype = {
 				      }
 				    });
 				  }
-       //get the state of the game and add it to index.js games[]
-			this.getState(GAME_ID, function(state){callback(GAME_ID,state);});	
-				}
-
+        // XXX TODO FIXME game manage requires game be in db
+        // db requires it be in game manager...
+        // CIRCULAR DEPENDENCY!! :'(
+        this.getDbState(GAME_ID, function(state) {
+          var new_game = this.gm.createGame(state);
+          callback(new_game);
+        }.bind(this));
+      }
 		}.bind(this));
+  },
+  forkGame : function(GAME_ID) {
+    var game_info = {game_id : GAME_ID + " (copy)" , game_desc: "Copy of " + GAME_ID};
+    this.getState(GAME_ID, function(state_to_copy) {
+      console.log('forkGame: state_to_copy', state_to_copy);
+      
+      this.createGame(game_info, function(new_game){
+        new_game.updateGameData(state_to_copy);
+      }.bind(this));
+    }.bind(this));
   },
   deleteGame : function(GAME_ID){
   	var query = "\
@@ -185,7 +201,6 @@ getOpenGames : function(callback){
     var ret = {
       status : 200
     };
-
     this.db.query('SELECT * FROM "global"."games" WHERE id=\'' + id + '\'', function(err, result) {
 
       var data = result.rows[0];
@@ -195,7 +210,6 @@ getOpenGames : function(callback){
         });
         return;
       }
-
       ret.id = data.id;
       ret.map = data.map;
       ret.stage = data.stage;
@@ -235,17 +249,18 @@ getOpenGames : function(callback){
             var r = result.rows[i];
             order[r.index] = r.id;
 	        }
-
 	        callback(ret);
 	      }.bind(this));
       }.bind(this));
     }.bind(this));
   },
 
+
 // TODO  make reinforcment count dynamic
   getReinforcements : function(game_id, team_id, callback){
   	if(!this.gm.gameExists(game_id)){
   		console.log('GAME DOES NOT EXIST');
+      callback({status: 500, error: "game not found"});
   	}
     var team_index = this.gm.getGame(game_id).getTeamIndexFromId(team_id);
     if(team_index < 0) {

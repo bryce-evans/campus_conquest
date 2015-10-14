@@ -29,10 +29,10 @@ GameManager.prototype = {
    */
   initGames : function() {
 
-    this.api.getOpenGames( function(game_data) {
-      for (var i in game_data) {
+    this.api.getOpenGames(function(game_data) {
+      for (var i = 0; i< game_data.length; i++) {
         var data = game_data[i];
-
+         
         this.api.getDbState(data.id, function(state) {
 
           // reset passed in bind vars
@@ -51,10 +51,13 @@ GameManager.prototype = {
 
     }.bind(this));
   },
-
-  addNewGame : function(id, state) {
-
+  createGame : function(game_data) {
+    var game = new Game(game_data, this);
+    var id = game_data.id;
+    this.games[id] = game;
+    return game;
   },
+
   gameExists : function(id) {
   	return id in this.games;
   },
@@ -62,7 +65,9 @@ GameManager.prototype = {
   getGame : function(id) {
     var ret = this.games[id];
     if (!ret) {
-      console.error('getGame() called on invalid ID ' + id);
+      var e = new Error('getGame() called on invalid ID ' + id);
+      throw e;
+      //console.error('gameManager: getGame() called on invalid ID ' + id);
     }
     return ret;
   },
