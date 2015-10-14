@@ -47,7 +47,12 @@ module.exports = {
 
     return array;
 
-  }
+  },
+  logIfError : function(err) {
+    if(err){
+      console.error(err);
+    }
+  },
 }
 
 Array.prototype.clone = function(){return this.slice(0);}

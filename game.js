@@ -3,10 +3,12 @@
  */
 
 var conflictHandler = require('./conflictHandler.js');
+var utils = require('./utils.js');
 
 function Game(state, game_manager) {
 
   this.id = state.id;
+  this.map = state.map;
   this.gm = game_manager;
   this.io = game_manager.io;
   this.db = game_manager.db;
@@ -348,23 +350,44 @@ Game.prototype = {
    */
   updateGameData : function(data){
    
-    if ("id" in data) {
-      this.id = data.id;
+    if ("map" in data && this.map != data.map) {
+      console.error("must update game with same map");
+      console.log(data.map + " " + this.map);
+      return;
     }
-    if ("map" in data) {
-      this.map = data.map;
+    if ("id" in data && this.id != data.id) {
+      console.log('overwriting ' + this.id + " with " + data.id);
     }
     if("stage" in data) {
+      this.db.query('UPDATE global.games SET stage = \'orders\'WHERE id = \'' + this.id + '\'', function(err, result) {
+        if (err) {
+          console.error('ERROR: cannot switch to orders stage');
+        }
+        this.stage = 'orders';
+      }.bind(this));
+
+      this.resetWaitingOn();
       this.stage = data.stage;
     }
     if("turn" in data) {
       this.turn = data.turn;
     }
     if("team_order" in data) {
+
       this.team_order = data.team_order;
+
+      this.waiting_on = new Array(this.team_order.length);
+      for (var i = 0; i < this.team_order.length; i++) {
+        this.waiting_on[i] = true;
+      }
+
+      for (var i = 0; i < this.team_order.length; i++) {
+        var query = "INSERT INTO teams.\"" + this.id + "\" VALUES (" + i + ",'"+ this.team_order[i] + "',1,TRUE,'')";
+        this.db.query(query, utils.logIfError);
+      }
     }
     if ("state" in data) {
-      this.state = data.state;
+      this.updatePartialState(data.state);
     }
     if("eliminated" in data) {
       this.eliminated = data.eliminated;
@@ -384,7 +407,7 @@ Game.prototype = {
     for(var i = 0; i < keys.length; i++) {
       var piece_id = keys[i];
       var update = updates[piece_id];
-      if(update.team){
+      if("team" in update){
         this.state[piece_id].team = update.team;
    
         this.db.query('UPDATE state."' + this.id + '" SET team=' + update.team + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
@@ -395,7 +418,7 @@ Game.prototype = {
 
 
       }
-      if(update.units){
+      if("units" in update){
         this.state[piece_id].units = update.units;
        this.db.query('UPDATE state."' + this.id + '" SET units=' + update.units + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
           if (err) {

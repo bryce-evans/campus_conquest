@@ -113,7 +113,8 @@
           }
           data.teams = selected;
   */        
-
+          // TODO fix this
+          data.map = "Cornell";
 
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);

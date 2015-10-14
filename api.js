@@ -34,10 +34,10 @@ Api.prototype = {
 		var GAME_ID = data.game_id;
 		var GAME_DESC = data.game_desc || "";
 		var GAME_PRIVACY = 2; //data.privacy
-
+    var GAME_MAP = data.map || "Cornell";
 
     var query = "\
-			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy,stage) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+",'grab' );\
+			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy,stage,map) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+",'grab',\'"+GAME_MAP+"\');\
 			\
 			SET search_path = teams, pg_catalog;\
 			\
