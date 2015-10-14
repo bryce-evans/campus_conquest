@@ -9,9 +9,9 @@ OverrideController.prototype = {
       world.state_handler.syncToServer();
     });
     $(".debug .force-piece-state").click(function(){
-      $('.force-piece-state-menu').show();
+      $('.force-piece-state-menu').toggleClass('hidden');
     });
-    $('.force-piece-state-menu').click(function(){
+    $('.force-piece-state-menu .submit').click(function(){
       var piece = $('.force-piece-state-menu .pieces').val();
       var team = $('.force-piece-state-menu .teams').val();
       var units = $('.force-piece-state-menu .units').val();
