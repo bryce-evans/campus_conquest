@@ -173,6 +173,10 @@ Game.prototype = {
           this.io.to(this.id).emit('stage update', {
             stage : 'reinforcement',
           });
+
+          // tell clients to pull the new data
+          this.io.to(this.id).emit('server sync');
+
           //  update all client sockets
           for (var i = 0; i < this.clients.length; i++) {
             var socket = this.clients[i];

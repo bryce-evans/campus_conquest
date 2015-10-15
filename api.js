@@ -151,11 +151,15 @@ Api.prototype = {
 		}.bind(this));
   },
   forkGame : function(GAME_ID) {
-    var game_info = {game_id : GAME_ID + " (copy)" , game_desc: "Copy of " + GAME_ID};
+    var game_info = {game_id : GAME_ID + " - copy" , game_desc: "Copy of " + GAME_ID};
     this.getState(GAME_ID, function(state_to_copy) {
       console.log('forkGame: state_to_copy', state_to_copy);
-      
+      // avoid name collisions for multiple copies of same game
+      if(this.gm.gameExists(GAME_ID)){
+        state_to_copy.id += "*";
+      }
       this.createGame(game_info, function(new_game){
+        
         new_game.updateGameData(state_to_copy);
       }.bind(this));
     }.bind(this));

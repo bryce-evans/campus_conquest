@@ -43,6 +43,13 @@
 							Description:
 							<input type="text" name="game_desc" >
 						</div>
+            <div>
+							Map:
+							<select name="game_map" >
+                <option value="Cornell">Cornell</option>
+              </select>
+						</div>
+
 						<div style="display: none;">
 							Public
 							<div class='checkbox'>
@@ -113,9 +120,6 @@
           }
           data.teams = selected;
   */        
-          // TODO fix this
-          data.map = "Cornell";
-
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);
             
