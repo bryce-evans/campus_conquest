@@ -161,6 +161,7 @@ StateHandler.prototype = {
     // resets if change of stage
     if(this.current.stage != state.stage) {
       this.resetTempData();
+      this.renderUIForStage(state.stage);
       this.current.stage = state.stage;
     }
     this.current.state = state.state;
@@ -208,6 +209,14 @@ StateHandler.prototype = {
     this.moves_made = 0;
     world.map.removeAllArrows();
   },
+  renderUIForStage : function(stage) {
+    if (stage === CONSTANTS.STAGES.REINFORCEMENT){
+      $('.show-on-reinforcement').show();
+    } else {
+      $('.show-on-reinforcement').hide();
+    }
+
+  },
 
   initStartStage : function() {
     this.move = this.moveStart;
@@ -223,7 +232,7 @@ StateHandler.prototype = {
     this.moves_made = 0;
     this.move = this.moveReinforcement;
 
-    $('#panel-reinforcement-info').show();
+    $('.show-on-reinforcement').show();
     $.ajax({
       url : CONSTANTS.URL.REINFORCEMENTS,
       data : {
@@ -335,7 +344,7 @@ StateHandler.prototype = {
         };
         console.log('sending reinforcement data', move_data_final);
         this.socket.emit('reinforcement move', move_data_final);
-        $('#panel-reinforcement-info').hide();
+        $('#show-on-reinforcement').hide();
       }
     }
   },

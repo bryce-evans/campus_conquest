@@ -41,10 +41,13 @@ module.exports = {
       start = keys[0];
       var ends = com[start];
       keys = Object.keys(ends);
-      for(var i in keys){
+      for(var i = 0; i < keys.length; i++){
         var end = keys[i];
         if(!new_state[end]){
           new_state[end] = {};
+          console.log("state" + state);
+          console.log("end" + end);
+          console.log("state[end]" + state[end]);
           new_state[end].units = state[end].units;
         }
 
