@@ -27,6 +27,10 @@ function doHashCheck() {
 }
 
 function initGame(data) {
+  
+  // set title of the tab for reference
+  document.title = data.game_id + " | Campus Conquest";
+
   $('.pane').hide();
   $('#game-window').show();
 
