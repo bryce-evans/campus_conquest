@@ -363,9 +363,9 @@ Game.prototype = {
       console.log('overwriting ' + this.id + " with " + data.id);
     }
     if("stage" in data) {
-      this.db.query('UPDATE global.games SET stage = \'orders\'WHERE id = \'' + this.id + '\'', function(err, result) {
+      this.db.query('UPDATE global.games SET stage = \''+ data.stage +'\'WHERE id = \'' + this.id + '\'', function(err, result) {
         if (err) {
-          console.error('ERROR: cannot switch to orders stage');
+          console.log(err);
         }
         this.stage = 'orders';
       }.bind(this));

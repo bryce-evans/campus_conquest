@@ -15,30 +15,29 @@ module.exports = {
   genUpdatedState : function(move_data, state) {
     var new_state = {};
     var keys;
-    for(var i = 0; i<move_data.length; i++){
-      console.log("b");
+    for (var i = 0; i < move_data.length; i++) {
       var com = move_data[i];
       keys = Object.keys(com);
-      if(keys.length === 0) {continue;}
+      if (keys.length === 0) {continue;}
       start = keys[0];
       var ends = com[start];
       var total_attacking = 0;
       keys = Object.keys(ends);
-      for(var j in keys){
+      for (var j in keys) {
         var end = keys[j];
         total_attacking += ends[end];
       }
       new_state[start] = {};
       new_state[start].units = state[start].units - total_attacking;
-    
-    
     }
     while (move_data.length > 0){
       var com = move_data.pop();
       console.log(move_data.length);
       var keys = Object.keys(com);
      
+     // pass over empty objects 
      if(keys.length === 0) continue;
+
       start = keys[0];
       var ends = com[start];
       keys = Object.keys(ends);
@@ -52,19 +51,19 @@ module.exports = {
         var attacking = ends[end];
         var defending = new_state[end].units;
         //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
-        while(attacking > 0 && defending > 0) {
+        while (attacking > 0 && defending > 0) {
           var r = Math.random();
-          if(r>0.5){
+          if (r>0.5){
             defending--;
           } else {
             attacking--;
           }
           console.log(attacking,defending);
         }
-        if(attacking > 0){
+        if (attacking > 0) {
           new_state[end].units = attacking;
           new_state[end].team = state[start].team;
-        }else{
+        } else {
           new_state[end].units = defending;
         }
       }
