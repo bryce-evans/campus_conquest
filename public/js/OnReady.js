@@ -52,25 +52,37 @@ OnReady.init = function() {
           url : "/open-games",
         }).done(function(data) {
           console.log(data);
+          
+          var waiting_on = data.length;
+          var rows = new Array(waiting_on);
           for (var i = 0; i < data.length; i++) {
             var game = data[i];
             var row = $('<tr/>');
             row.append('<td>' + game.id + '</td>');
             row.append('<td>' + game.desc + '</td>');
-
+            
             $.ajax({
               url : "/state",
               data : {
                 id : game.id
               }
             }).done( function(data) {
-              var row = this;
+              var row = this.row;
+              var rows = this.rows;
+              var i = this.i;
               row.append('<td>' + data.team_order.length + '</td>');
               row.append('<td>' + data.stage + '</td>');
               teams_in_games[data.id] = data.team_order;
-              $('#open-games').append(row);
+              rows[i] = row;
+              
+              waiting_on--;
+              if(waiting_on == 0) {
+                for(var j in rows) {
+                  $('#open-games').append(rows[j]);
+                }
+              }
 
-            }.bind(row));
+            }.bind({row: row, rows: rows, i: i}));
 
           }
           $('#open-games').on('click', 'tr', function() {
