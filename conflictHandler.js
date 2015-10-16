@@ -23,16 +23,16 @@ module.exports = {
       var ends = com[start];
       var total_attacking = 0;
       keys = Object.keys(ends);
-      for (var j in keys) {
+      for (var j = 0; j < keys.length; j++) {
         var end = keys[j];
         total_attacking += ends[end];
       }
       new_state[start] = {};
       new_state[start].units = state[start].units - total_attacking;
+      
     }
     while (move_data.length > 0){
       var com = move_data.pop();
-      console.log(move_data.length);
       var keys = Object.keys(com);
      
      // pass over empty objects 
@@ -43,11 +43,10 @@ module.exports = {
       keys = Object.keys(ends);
       for(var i = 0; i < keys.length; i++){
         var end = keys[i];
-        if(!new_state[end]){
+        
+        // add endpoints to modified state as they are affected
+        if (!new_state[end]) {
           new_state[end] = {};
-          console.log("state" + state);
-          console.log("end" + end);
-          console.log("state[end]" + state[end]);
           new_state[end].units = state[end].units;
         }
 
@@ -61,7 +60,6 @@ module.exports = {
           } else {
             attacking--;
           }
-          console.log(attacking,defending);
         }
         if (attacking > 0) {
           new_state[end].units = attacking;
@@ -71,7 +69,6 @@ module.exports = {
         }
       }
     }
-    console.log("NEW STATE", new_state);
 
   return new_state;
 

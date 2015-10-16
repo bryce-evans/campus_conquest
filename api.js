@@ -207,9 +207,10 @@ getOpenGames : function(callback){
     this.db.query('SELECT * FROM "global"."games" WHERE id=\'' + id + '\'', function(err, result) {
 
       var data = result.rows[0];
-      if (err) {
+      if (err || data === undefined) {
         callback({
-          status : 500
+          status : 500, 
+          message : "game not found",
         });
         return;
       }

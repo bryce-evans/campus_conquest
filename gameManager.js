@@ -63,6 +63,9 @@ GameManager.prototype = {
   },
   
   getGame : function(id) {
+    if(!("id" in this.games)) {
+       return undefined;
+    }
     var ret = this.games[id];
     if (!ret) {
       var e = new Error('getGame() called on invalid ID ' + id);
