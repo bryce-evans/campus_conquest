@@ -3,3 +3,4 @@ TODO.txt
 .project
 /lib/*
 /node_modules/*
+/run

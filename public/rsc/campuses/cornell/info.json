@@ -1,0 +1,7 @@
+{
+  cornell: {
+    id : "cornell",
+    name : "Cornell",
+    name_full : "Cornell University",
+  }
+}
