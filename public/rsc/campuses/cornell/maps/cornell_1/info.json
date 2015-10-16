@@ -1,0 +1,8 @@
+{
+  "cornell_1" : {
+    "id" : "cornell_1",
+    "name" : "Cornell (1)",
+    "desc" : "The first map ever made!",
+    "released" : true, 
+  }
+}

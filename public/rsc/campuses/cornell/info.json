@@ -1,7 +1,8 @@
 {
-  cornell: {
-    id : "cornell",
-    name : "Cornell",
-    name_full : "Cornell University",
+  "cornell": {
+    "id" : "cornell",
+    "name" : "Cornell",
+    "name_full" : "Cornell University",
+    "released" : true,
   }
 }
