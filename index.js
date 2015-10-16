@@ -44,10 +44,11 @@ app.get('/open-games', function(req, res) {
 });
 
 app.get('/state', function(req, res) {
-  if (req.query.id) {
-    api.getState(req.query.id, utils.curry(utils.writeData, res));
+  var game_id = req.query.id;
+  if (game_id && gm.gameExists(game_id)) {
+    api.getState(game_id, utils.curry(utils.writeData, res));
   } else {
-    res.end('{"status":500}');
+    res.end('{"status":500,"message":"Game does not exist"}');
   }
 
 });

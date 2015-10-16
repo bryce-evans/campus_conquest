@@ -63,14 +63,15 @@ GameManager.prototype = {
   },
   
   getGame : function(id) {
-    if(!("id" in this.games)) {
-       return undefined;
-    }
+    /*if(!(id in this.games)) {
+      console.log("id is not in games");
+      console.log(Object.keys(this.games));
+      return undefined;
+    }*/
     var ret = this.games[id];
-    if (!ret) {
+    if (ret === undefined) {
       var e = new Error('getGame() called on invalid ID ' + id);
       throw e;
-      //console.error('gameManager: getGame() called on invalid ID ' + id);
     }
     return ret;
   },
