@@ -14,7 +14,7 @@ var cdf = require('binomial-cdf');
 module.exports = {
   genUpdatedState : function(move_data, state) {
     var ret = {};
-    ret.move_data = move_data;
+    ret.commands = move_data;
     ret.new_state = {};
     ret.conflicts = [];
 

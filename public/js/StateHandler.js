@@ -101,30 +101,38 @@ StateHandler.prototype = {
 
       console.log('orders update data', data);
 
-      //for (var team in data.commands) {
-       // for (var start_id in data.commands[team]) {
-        //  for (var end_id in data.commands[team][start_id]) {
-         //   var arrow = world.map.getArrow(start_id, end_id);
-          //  arrow.setUnits(data.commands[team][start_id][end_id]);
-            //  arrow.mesh.material.color.copy(new THREE.Color(this.getTeamColorFromIndex(team)));
-         // }
-       // }
-     // }
-     this.updatePartialState(data);
+      for (var team in data.commands) {
+        for (var start_id in data.commands[team]) {
+          for (var end_id in data.commands[team][start_id]) {
+            var arrow = world.map.getArrow(start_id, end_id);
+            arrow.setUnits(data.commands[team][start_id][end_id]);
+            arrow.mesh.material.color.copy(new THREE.Color(this.getTeamColorFromIndex(team)));
+          }
+        }
+     }
+     world.notifier.note("press space to continue");
+     $(window).keypress(function(event){
+       if(event.which === 32) {
+         event.preventDefault();
+            
+         this.updatePartialState(data.new_state);
 
-      $('#button-continue').show();
-      this.waiting_on = true;
-      $('#button-continue').unbind('click');
-      $('#button-continue').click( function() {
-        this.waiting_on = false;
+         $('#button-continue').show();
+         this.waiting_on = true;
+         $('#button-continue').unbind('click');
+         $('#button-continue').click( function() {
+           this.waiting_on = false;
 
-        // TODO show battles
-        // TODO show end results
+           // TODO show battles
+           // TODO show end results
 
-        world.map.removeAllArrows();
+           world.map.removeAllArrows();
 
-        $('#button-continue').hide();
-        this.initReinforcementStage();
+           $('#button-continue').hide();
+           this.initReinforcementStage(); 
+         }.bind(this));
+         $(window).unbind(keypress);
+        }
       }.bind(this));
     }.bind(this));
 
