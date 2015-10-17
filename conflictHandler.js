@@ -23,6 +23,8 @@ module.exports = {
     var keys;
     for (var i = 0; i < move_data.length; i++) {
       var com = move_data[i];
+      // error handling
+      if(com == undefined) {com = {};}
       keys = Object.keys(com);
       if (keys.length === 0) {continue;}
       start = keys[0];

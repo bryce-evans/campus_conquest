@@ -106,7 +106,8 @@ StateHandler.prototype = {
           for (var end_id in data.commands[team][start_id]) {
             var arrow = world.map.getArrow(start_id, end_id);
             arrow.setUnits(data.commands[team][start_id][end_id]);
-            arrow.mesh.material.color.copy(new THREE.Color(this.getTeamColorFromIndex(team)));
+            var color = new THREE.Color(this.getTeamColorFromIndex(team));
+            arrow.mesh.material.color.set(color);
           }
         }
      }
@@ -131,7 +132,7 @@ StateHandler.prototype = {
            $('#button-continue').hide();
            this.initReinforcementStage(); 
          }.bind(this));
-         $(window).unbind(keypress);
+         $(window).unbind("keypress");
         }
       }.bind(this));
     }.bind(this));
