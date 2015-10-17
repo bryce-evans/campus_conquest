@@ -53,6 +53,9 @@ module.exports = {
       console.error(err);
     }
   },
+  
+  clone : function(arr){
+    return arr.slice(0);
+  },
 }
 
-Array.prototype.clone = function(){return this.slice(0);}

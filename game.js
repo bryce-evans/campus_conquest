@@ -324,7 +324,11 @@ Game.prototype = {
   },
 
   applyOrdersMoves : function() {
-    
+        //
+     // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
+      var results = conflictHandler.genUpdatedState(this.all_move_data, this.state);
+      this.updatePartialState(results.new_state);
+            
       // set up for reinforcement  stage
       this.db.query('UPDATE global.games SET stage = \'reinforcement\' WHERE id = \'' + this.id + '\'', function(err, result) {
         if (err) {
@@ -336,12 +340,9 @@ Game.prototype = {
 
       this.resetWaitingOn();
 
-      //
-     // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
-      var new_state = conflictHandler.genUpdatedState(this.all_move_data, this.state);
-      this.updatePartialState(new_state);
-      this.io.to(this.id).emit('orders update', new_state);
+      this.io.to(this.id).emit('orders update', results);
       this.all_move_data = [];
+
       //  update all client sockets
       for (var i = 0; i < this.clients.length; i++) {
         var socket = this.clients[i];

@@ -13,7 +13,13 @@ var cdf = require('binomial-cdf');
 
 module.exports = {
   genUpdatedState : function(move_data, state) {
+    var ret = {};
+    ret.move_data = move_data;
+    ret.new_state = {};
+    ret.conflicts = [];
+
     var new_state = {};
+
     var keys;
     for (var i = 0; i < move_data.length; i++) {
       var com = move_data[i];
@@ -31,46 +37,71 @@ module.exports = {
       new_state[start].units = state[start].units - total_attacking;
       
     }
-    while (move_data.length > 0){
-      var com = move_data.pop();
-      var keys = Object.keys(com);
-     
-     // pass over empty objects 
-     if(keys.length === 0) continue;
+    
+    debugger; 
 
-      start = keys[0];
-      var ends = com[start];
-      keys = Object.keys(ends);
-      for(var i = 0; i < keys.length; i++){
-        var end = keys[i];
-        
-        // add endpoints to modified state as they are affected
+    for (var atk_team = 0; atk_team < move_data.length; atk_team++) {
+      var move_set = move_data[atk_team];
+      
+      for(var start in move_set) {
+        if (!move_set.hasOwnProperty(start)){continue;}
+
+      //var ends = move_set[start];
+      // var end_keys = Object.keys(ends);
+      for (var end in move_set[start]) {
+        if (!move_set[start].hasOwnProperty(end)){continue;}
+ 
+        // add endpoints to modified state 
         if (!new_state[end]) {
           new_state[end] = {};
           new_state[end].units = state[end].units;
         }
 
-        var attacking = ends[end];
-        var defending = new_state[end].units;
+        debugger;
+
+        var victor = -1;
+        var units = -1;
+        var teams = [];
+        var pieces = [start,end];
+        var playout = [];
+
+        var atk_units = move_set[start][end];
+
+        var dfd_team = state[end].team;
+        var dfd_units = new_state[end].units;
+        
+        teams.push(atk_team);
+        teams.push(dfd_team);
+
         //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
-        while (attacking > 0 && defending > 0) {
+        while (atk_units > 0 && dfd_units > 0) {
           var r = Math.random();
           if (r>0.5){
-            defending--;
+            dfd_units--;
+            playout.push(teams[1]);
           } else {
-            attacking--;
+            atk_units--;
+            playout.push(teams[0]);
           }
         }
-        if (attacking > 0) {
-          new_state[end].units = attacking;
+        if (atk_units > 0) {
+          new_state[end].units = atk_units;
           new_state[end].team = state[start].team;
+          victor = state[start].team;
+          units = atk_units;
         } else {
-          new_state[end].units = defending;
+          new_state[end].units = dfd_units;
+          units = dfd_units;
         }
+      
+      ret.conflicts.push(new ConflictResult(victor, units, teams, pieces, playout));
       }
     }
+  }
 
-  return new_state;
+  ret.new_state = new_state;
+  debugger;
+  return ret;
 
   },
   genAllAttackResults : function(move_data, state) {
@@ -175,7 +206,6 @@ module.exports = {
 
           // XXX TODO handle case where many different teams attack a building
 
-          debugger;
           var results = genMultiAttackResults(attackers, defender);
           ret.multi.push(results);
 
