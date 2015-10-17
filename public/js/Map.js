@@ -102,6 +102,7 @@ Map.prototype = {
       this.selectable_objects.push(mesh);
       mesh.computeCenter();
 
+      mesh.name = piece_id;
       world.graphics.scene.add(mesh);
 
     }.bind(this));
@@ -116,7 +117,8 @@ Map.prototype = {
       });
 
       var mesh = new THREE.Mesh(geometry, material);
-
+      mesh.name = "ground";
+ 
       mesh.scale.set(this.scale, this.scale, this.scale);
       mesh.position.y = 0;
       try {
@@ -153,7 +155,8 @@ Map.prototype = {
 
     var line = new THREE.Line(geo, mat);
     this.edges[sorted[0] + sorted[1]] = line;
-
+    
+    line.name = sorted[0] + "--" + sorted[1];
     world.graphics.scene.add(line);
   },
   getEdge : function(id1, id2) {
@@ -248,8 +251,6 @@ GamePiece = function(map, id, name, mesh, connected) {
 
   mesh.scale.set(map.scale, map.scale, map.scale);
   mesh.position.y = 0;
-
- 
 }
 
 
@@ -382,7 +383,9 @@ Arrow = function(id1, id2) {
   });
 
   var mesh = new THREE.Mesh(geometry, material);
+  mesh.name = id1 + "=>" + id2;
   this.mesh = mesh;
+
 
   mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
 
