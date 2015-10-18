@@ -92,7 +92,7 @@ Map.prototype = {
       geometry.computeMorphNormals();
 
       var material = new THREE.MeshLambertMaterial({
-        shading : THREE.FlatShading,
+        blending : THREE.FlatShading,
       });
 
       var mesh = new THREE.Mesh(geometry, material);
