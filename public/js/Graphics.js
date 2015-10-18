@@ -13,6 +13,7 @@ Graphics = function() {
   this.camera = undefined;
   this.projector = undefined;
 
+  this.animation_handler = new AnimationHandler();
   this.current_hover_obj = undefined;
 
   this.container = undefined;
@@ -35,6 +36,7 @@ Graphics = function() {
     requestAnimationFrame(this.animate);
     this.render();
     this.stats.update();
+    this.animation_handler.updateAll();
   }.bind(this);
 }
 
@@ -158,17 +160,15 @@ Graphics.prototype = {
         
         ctx2d.fillText(units_displayed, coord.x, coord.y);
         // XXX TODO
-        if (world.state_handler.current.stage === "reinforcement"){
-        var to_be_added = world.state_handler.move_data[piece.id];
-        if (to_be_added > 0) {
-        
-          ctx2d.fillStyle = "#ff3811";
-          ctx2d.textAlign = 'left';
-          ctx2d.fillText("+" + to_be_added, coord.x + ctx2d.measureText(piece_state.units).width, coord.y);
+        if (world.state_handler.current.stage === "reinforcement") {
+          var to_be_added = world.state_handler.move_data[piece.id];
+          if (to_be_added > 0) {
+            ctx2d.fillStyle = "#ff3811";
+            ctx2d.textAlign = 'left';
+            ctx2d.fillText("+" + to_be_added, coord.x + ctx2d.measureText(piece_state.units).width, coord.y);
+          }
         }
-}
       }
-
     }
 
     ctx2d.font = "22px" + font;
@@ -190,7 +190,6 @@ Graphics.prototype = {
         }
       }
     }
-
   },
 
   toScreenXY : function(pos) {

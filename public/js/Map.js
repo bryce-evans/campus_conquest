@@ -229,6 +229,10 @@ Map.prototype = {
     }
     this.arrows = {};
   },
+  newExplosion : function(center) {
+    var explosion = new Explosion(center);
+    world.graphics.animation_handler.addAnimation(explosion, explosion.update);
+  }
 }
 
 Region = function(id, name, pieces, value) {
@@ -428,7 +432,53 @@ Arrow.prototype = {
 
   }
 }
-THREE.Mesh.prototype.computeCenter = function(){
+
+Explosion = function(center) {
+  //////////////settings/////////
+  this.point_cloud = undefined;  
+  this.point_count= 500;
+  this.dirs = [];
+
+  // only used on init
+  var center = center.clone();
+  var objectSize = 10;
+  var movementSpeed = 1;
+  var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF];
+
+  var geometry = new THREE.Geometry();
+  
+  for (i = 0; i < this.point_count; i ++) { 
+    geometry.vertices.push( center );
+    this.dirs.push({x:(Math.random() * movementSpeed)-(movementSpeed/2),y:(Math.random() * movementSpeed)-(movementSpeed/2),z:(Math.random() * movementSpeed)-(movementSpeed/2)});
+  }
+  var material = new THREE.PointCloudMaterial( { size: objectSize,  color: colors[Math.round(Math.random() * colors.length)] });
+  this.point_cloud = new THREE.PointCloud( geometry, material );
+  
+  this.status = true;
+  
+  this.xDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  this.yDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  this.zDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  
+  world.graphics.scene.add(this.point_cloud); 
+}
+
+Explosion.prototype = {
+ update: function() {
+    if (this.status == true){
+      var pCount = this.point_count;
+      while(pCount--) {
+        var particle =  this.point_cloud.geometry.vertices[pCount]
+        particle.y += this.dirs[pCount].y;
+        particle.x += this.dirs[pCount].x;
+        particle.z += this.dirs[pCount].z;
+      }
+      this.point_cloud.geometry.verticesNeedUpdate = true;
+    }
+  },
+}
+
+THREE.Mesh.prototype.computeCenter = function() {
   var sumx = 0;
   var sumy = 0;
   var sumz = 0;
