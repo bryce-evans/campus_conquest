@@ -1,5 +1,6 @@
 TODO.txt
 *.swp
+*.pyc
 .project
 /lib/*
 /node_modules/*
