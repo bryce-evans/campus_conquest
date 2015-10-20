@@ -37,6 +37,7 @@ def deleteKey(paths, key_path, to_delete):
       if key in obj and not err:
         obj = obj[key]
       else:
+        print("key",key, "missing in ", obj)
         err = True
     if err:
       print("error in ", p)

@@ -435,24 +435,24 @@ Arrow.prototype = {
 
 Explosion = function(center) {
   //////////////settings/////////
-  this.point_cloud = undefined;  
+  this.points = undefined;  
   this.point_count= 500;
   this.dirs = [];
+  this.lifetime = 12;
 
   // only used on init
-  var center = center.clone();
-  var objectSize = 10;
-  var movementSpeed = 1;
-  var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF];
+  var objectSize = 3;
+  var movementSpeed = 7;
+  var colors = [0xFFFFFF];
 
   var geometry = new THREE.Geometry();
-  
+ 
   for (i = 0; i < this.point_count; i ++) { 
-    geometry.vertices.push( center );
+    geometry.vertices.push( center.clone() );
     this.dirs.push({x:(Math.random() * movementSpeed)-(movementSpeed/2),y:(Math.random() * movementSpeed)-(movementSpeed/2),z:(Math.random() * movementSpeed)-(movementSpeed/2)});
   }
-  var material = new THREE.PointCloudMaterial( { size: objectSize,  color: colors[Math.round(Math.random() * colors.length)] });
-  this.point_cloud = new THREE.PointCloud( geometry, material );
+  var material = new THREE.PointsMaterial( { size: objectSize,  color: colors[Math.round(Math.random() * colors.length)] });
+  this.points = new THREE.Points( geometry, material );
   
   this.status = true;
   
@@ -460,7 +460,7 @@ Explosion = function(center) {
   this.yDir = (Math.random() * movementSpeed)-(movementSpeed/2);
   this.zDir = (Math.random() * movementSpeed)-(movementSpeed/2);
   
-  world.graphics.scene.add(this.point_cloud); 
+  world.graphics.scene.add(this.points); 
 }
 
 Explosion.prototype = {
@@ -468,12 +468,17 @@ Explosion.prototype = {
     if (this.status == true){
       var pCount = this.point_count;
       while(pCount--) {
-        var particle =  this.point_cloud.geometry.vertices[pCount]
+        var particle =  this.points.geometry.vertices[pCount];
         particle.y += this.dirs[pCount].y;
         particle.x += this.dirs[pCount].x;
         particle.z += this.dirs[pCount].z;
       }
-      this.point_cloud.geometry.verticesNeedUpdate = true;
+      this.points.geometry.verticesNeedUpdate = true;
+      this.lifetime--;
+      if(this.lifetime < 0){
+        world.graphics.scene.remove(this.points);
+        this.status == false;
+      }
     }
   },
 }
