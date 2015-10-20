@@ -64,39 +64,40 @@ module.exports = {
         var victor = -1;
         var units = -1;
         var teams = [];
-        var pieces = [start,end];
+        var pieces = [end, start];
         var playout = [];
 
         var atk_units = move_set[start][end];
 
         var dfd_team = state[end].team;
         var dfd_units = new_state[end].units;
-        
-        teams.push(atk_team);
+       
+        // index 0 is always defender
+        // allows for multiple attackers
         teams.push(dfd_team);
+        teams.push(atk_team);
 
         //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
         while (atk_units > 0 && dfd_units > 0) {
           var r = Math.random();
           if (r>0.5){
             dfd_units--;
-            playout.push(teams[1]);
+            playout.push(teams[0]);
           } else {
             atk_units--;
-            playout.push(teams[0]);
+            playout.push(teams[1]);
           }
         }
         if (atk_units > 0) {
           new_state[end].units = atk_units;
           new_state[end].team = state[start].team;
-          victor = state[start].team;
-          units = atk_units;
         } else {
           new_state[end].units = dfd_units;
-          units = dfd_units;
         }
-      
-      ret.conflicts.push(new ConflictResult(victor, units, teams, pieces, playout));
+       var state_change = {};
+       state_change[start] = new_state[start];
+       state_change[end] = new_state[end];
+       ret.conflicts.push(new ConflictResult(pieces, playout, state_change));
       }
     }
   }
@@ -333,12 +334,10 @@ Defender = function(team, units, piece) {
  * <string[]>  pieces : piece_ids involved. match indices to teams that own them
  * <int[]>  playout : index of pieces[] that loses in each kerfuffle.
  */
-ConflictResult = function(victor, units, teams, pieces, results) {
-  this.victor = victor;
-  this.units = units;
-  this.teams = teams;
+ConflictResult = function(pieces, playout, state_change) {
   this.pieces = pieces;
-  this.playout = results;
+  this.playout = playout;
+  this.new_state = state_change;
 };
 
 // similiar to ConflictResult

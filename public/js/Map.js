@@ -223,7 +223,7 @@ Map.prototype = {
     for (var start in this.arrows) {
       for (var end in this.arrows[start]) {
         var arrow = this.arrows[start][end];
-        world.graphics.scene.remove(arrow.mesh);
+        arrow.setUnits(0);
         delete arrow;
       }
     }
@@ -415,6 +415,14 @@ Arrow.prototype = {
   setUnits : function(u) {
     var prev_units = this.units;
     this.units = u;
+    
+    var diff = u - prev_units;
+    if (diff >= world.state_handler.current.state[this.start]) {
+      // set max cap
+      this.units = diff - 1;
+    }
+
+    world.state_handler.current.state[this.start].units -= diff;
 
     if (this.mesh) {
       this.mesh.scale.z = Math.min(300, u * world.map.scale);
@@ -430,7 +438,13 @@ Arrow.prototype = {
       world.graphics.scene.add(this.mesh);
     }
 
+  },
+
+  highlight : function() {
+    this.mesh.material.color.set(new THREE.Color(1,0,0));
   }
+
+
 }
 
 Explosion = function(center) {

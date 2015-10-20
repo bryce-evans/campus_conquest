@@ -110,30 +110,78 @@ StateHandler.prototype = {
             arrow.mesh.material.color.set(color);
           }
         }
-     }
-     world.notifier.note("press space to continue");
-     $(window).keypress(function(event){
-       if(event.which === 32) {
-         event.preventDefault();
-            
-         this.updatePartialState(data.new_state);
+      }
+      world.notifier.note("click continue");
+     
+      function displayNextConflict(data) {
+        var conflicts = data.conflicts;
+        if (conflicts.length == 0) {
+          this.updatePartialState(data.new_state);
 
-         $('#button-continue').show();
-         this.waiting_on = true;
-         $('#button-continue').unbind('click');
-         $('#button-continue').click( function() {
-           this.waiting_on = false;
+          $('#button-continue').show();
+          this.waiting_on = true;
+          $('#button-continue').unbind('click');
+          $('#button-continue').click( function() {
+            this.waiting_on = false;
 
-           // TODO show battles
-           // TODO show end results
-
-           world.map.removeAllArrows();
-
-           $('#button-continue').hide();
-           this.initReinforcementStage(); 
-         }.bind(this));
-         $(window).unbind("keypress");
+            world.map.removeAllArrows();
+ 
+            $('#button-continue').hide();
+            $('#button-continue').unbind("click");
+            this.initReinforcementStage(); 
+          }.bind(this));
+          return;
         }
+       
+        var conflict = data.conflicts.shift();
+        var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
+        arr.highlight();
+        $('#button-continue').unbind("click");
+        $('#button-continue').click(function(event) {
+          displayNextKurfuffle.bind(this)(conflict, data);
+        }.bind(this));
+      }
+
+      function displayNextKurfuffle(conflict, data) {
+        if(conflict.playout.length == 0) {
+          var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
+          arr.setUnits(0);
+
+          this.updatePartialState(conflict.new_state);
+
+          $('#button-continue').click(function(event) {
+            displayNextConflict.bind(this)(data);
+          }.bind(this));
+          return;
+        }
+        var loser = conflict.pieces[conflict.playout.shift()];
+        var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
+        
+        var state = world.state_handler.current.state[loser];
+        state.units--;
+        
+        var center;
+        // attacker loses
+        if(loser === arr.start) {
+          center = arr.center; 
+          arr.setUnits(arr.units - 1);
+        //defender loses
+        } else {
+          center = world.map.game_pieces[loser].mesh.center;
+        }
+        world.map.newExplosion(center);
+
+        $('#button-continue').unbind('click');
+        $('#button-continue').show();
+          $('#button-continue').click(function(event) {
+            displayNextKurfuffle.bind(this)(conflict, data);
+          }.bind(this));
+      }
+      
+      $('#button-continue').unbind('click');
+      $('#button-continue').show();
+      $('#button-continue').click(function(event) {
+        displayNextConflict.bind(this)(data);    
       }.bind(this));
     }.bind(this));
 
@@ -399,7 +447,6 @@ StateHandler.prototype = {
       } else {
         var init_slider_force = max_force;
         arrow.setUnits(max_force);
-        world.state_handler.current.state[start_id].units = init_start_pt_force - init_slider_force;
       }
 
       $('#attack-panel .from').text(start_id);
@@ -418,7 +465,6 @@ StateHandler.prototype = {
         slide : function(event, ui) {
           $("#attack-unit-count").text('units: ' + ui.value);
           arrow.setUnits(ui.value);
-          world.state_handler.current.state[start_id].units = total_force - ui.value;
         }
       });
 
@@ -429,7 +475,6 @@ StateHandler.prototype = {
 
       $('#attack-panel .button.cancel').click( function() {
         arrow.setUnits(prev_arrow_units);
-        world.state_handler.current.state[start_id].units = init_start_pt_force;
         $('#attack-panel').hide();
       }.bind({
         prev_arrow_units : prev_arrow_units,

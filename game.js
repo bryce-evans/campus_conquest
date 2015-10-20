@@ -301,7 +301,8 @@ Game.prototype = {
       // invalid move
       if (total >= this.state[start]) {
         console.log('INVALID MOVE, (total sent, total possible)', total, this.state[start]);
-        return;
+        // remove all orders from the piece that's cheating
+        delete move_data.commands[start];
       }
     }
 
@@ -327,7 +328,7 @@ Game.prototype = {
         //
      // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
       var results = conflictHandler.genUpdatedState(this.all_move_data, this.state);
-      this.updatePartialState(results.new_state);
+      this.updatePartialState(results.new_state, false);
             
       // set up for reinforcement  stage
       this.db.query('UPDATE global.games SET stage = \'reinforcement\' WHERE id = \'' + this.id + '\'', function(err, result) {
@@ -392,7 +393,7 @@ Game.prototype = {
       }
     }
     if ("state" in data) {
-      this.updatePartialState(data.state);
+      this.updatePartialState(data.state, true);
     }
     if("eliminated" in data) {
       this.eliminated = data.eliminated;
@@ -406,7 +407,7 @@ Game.prototype = {
    * Takes a set of changes and applies them to the state
    * {<piece_id> : { team: <int>, units: <int>}}
    */
-  updatePartialState : function(updates) {
+  updatePartialState : function(updates, update_clients) {
     console.log(updates);
     var keys = Object.keys(updates);
     for(var i = 0; i < keys.length; i++) {
@@ -433,7 +434,9 @@ Game.prototype = {
 
      }
     }
-    this.io.to(this.id).emit('update partial state', updates);
+    if (update_clients) {
+      this.io.to(this.id).emit('update partial state', updates);
+    }
   },
 
   /**
