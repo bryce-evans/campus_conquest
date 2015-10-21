@@ -32,7 +32,14 @@ World.prototype = {
 
     this.state_handler.freshPull(function(state){
       this.state_handler.setState(state);
-      this.map.loadMapFile("cornell_basic.json");
+      this.map.loadMapFile("cornell_basic.json", function(piece_ids) {
+        $.each(piece_ids, function(k, v) {
+          $('select.pieces').append('<option value='+v+'>'+v+'</option>');
+        });
+        $.each(world.state_handler.team_order, function(k, v) {
+          $('select.teams').append('<option value='+k+'>'+v+'</option>');
+        });
+      });
       this.map.loadGeometries();
       //this.control_panel_handler.updateTextFields(init_data);
     }.bind(this));

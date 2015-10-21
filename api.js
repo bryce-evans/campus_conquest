@@ -304,6 +304,7 @@ getOpenGames : function(callback){
           "team": parseInt(data.team),
         };
         g.updatePartialState(new_state);
+        this.io.to(game_id).emit('update partial state', new_state);
         break;
     }
     callback({success: true});

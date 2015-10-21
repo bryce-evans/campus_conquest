@@ -51,7 +51,7 @@ Map = function() {
 Map.prototype = {
     
   // TODO dynamically load different maps
-  loadMapFile : function(filename) {
+  loadMapFile : function(filename, callback) {
     $.ajax({
       url : "/rsc/maps/" + filename,
     }).done( function(data) {
@@ -71,7 +71,7 @@ Map.prototype = {
       if (world.graphics.complex_geometry == true) {
         this.loadGround();
       }
-
+      callback(this.piece_ids);
     }.bind(this));
   },
 

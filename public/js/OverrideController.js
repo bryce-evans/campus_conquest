@@ -1,5 +1,4 @@
-OverrideController = function() {	
-} 
+OverrideController = function() {}; 
 OverrideController.prototype = {
   addListeners : function () {
     world.state_handler.socket.on(CONSTANTS.IO.OVERRIDE, function(data){
