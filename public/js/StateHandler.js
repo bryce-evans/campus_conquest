@@ -489,8 +489,10 @@ StateHandler.prototype = {
         // undo selection
         this.start_piece.unhighlight();
         this.start_piece = undefined;
+        this.state_handler.current_selected = undefined;
         $('#attack-panel').hide();
       }.bind({
+        state_handler : this,
         move_data : this.move_data,
         start_piece : start_piece,
         start_id : start_id,
