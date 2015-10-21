@@ -266,11 +266,26 @@ getOpenGames : function(callback){
   		console.log('GAME DOES NOT EXIST');
       callback({status: 500, error: "game not found"});
   	}
-    var team_index = this.gm.getGame(game_id).getTeamIndexFromId(team_id);
+    var game = this.gm.getGame(game_id);
+    var team_index = game.getTeamIndexFromId(team_id);
+
     if(team_index < 0) {
       callback({status: 500, error: "team id not found"});
     } else {
-      callback({status: 200, id:game_id, team:team_index, reinforcements: 3});
+      var state = game.state;
+      
+      var piece_count = 0;
+      for (var id in state) {
+        if (state.hasOwnProperty(id)) {
+          s = state[id]; 
+          if (s.team === team_index) {
+            piece_count++;
+          }
+        }
+      }
+      debugger;
+      var reinforcements = Math.ceil(piece_count / 3);
+      callback({status: 200, id:game_id, team:team_index, reinforcements: reinforcements});
     }
   },
   /**
