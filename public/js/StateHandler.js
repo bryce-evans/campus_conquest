@@ -213,7 +213,7 @@ StateHandler.prototype = {
     // resets if change of stage
     if(this.current.stage != state.stage) {
       this.resetTempData();
-      this.renderUIForStage(state.stage);
+      this.renderUIForCurrentStage();
       this.current.stage = state.stage;
     }
     this.current.state = state.state;
@@ -261,8 +261,8 @@ StateHandler.prototype = {
     this.moves_made = 0;
     world.map.removeAllArrows();
   },
-  renderUIForStage : function(stage) {
-    if (stage === CONSTANTS.STAGES.REINFORCEMENT){
+  renderUIForCurrentStage : function() {
+    if (this.current.stage === CONSTANTS.STAGES.REINFORCEMENT){
       $('.show-on-reinforcement').show();
     } else {
       $('.show-on-reinforcement').hide();
@@ -284,7 +284,7 @@ StateHandler.prototype = {
     this.moves_made = 0;
     this.move = this.moveReinforcement;
 
-    this.renderUIForStage();
+    this.renderUIForCurrentStage();
     $.ajax({
       url : CONSTANTS.URL.REINFORCEMENTS,
       data : {
@@ -301,7 +301,7 @@ StateHandler.prototype = {
     this.current.stage = 'orders';
     this.showStageIntro('Attack Orders');
 
-    this.renderUIForStage();
+    this.renderUIForCurrentStage();
 
     this.move = this.moveOrders;
 
