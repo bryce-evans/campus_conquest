@@ -80,7 +80,7 @@ module.exports = {
         //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
         while (atk_units > 0 && dfd_units > 0) {
           var r = Math.random();
-          if (r>0.5){
+          if (r > (atk_units / (atk_units + dfd_units))){
             dfd_units--;
             // defender is always index 0
             playout.push(0);
