@@ -32,6 +32,10 @@ StateHandler.prototype = {
   connectToSocket : function(socket) {
     this.socket = socket;
 
+    this.socket.on("disconnect", function() {
+      alert("Server Connection Lost");
+    });
+
     // note that client is out of sync with server 
     this.socket.on(CONSTANTS.IO.SERVER_SYNC, function(data) {
       this.syncToServer();
