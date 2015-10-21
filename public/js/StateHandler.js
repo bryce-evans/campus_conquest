@@ -115,24 +115,7 @@ StateHandler.prototype = {
      
       function displayNextConflict(data) {
         var conflicts = data.conflicts;
-        if (conflicts.length == 0) {
-          this.updatePartialState(data.new_state);
-
-          $('#button-continue').show();
-          this.waiting_on = true;
-          $('#button-continue').unbind('click');
-          $('#button-continue').click( function() {
-            this.waiting_on = false;
-
-            world.map.removeAllArrows();
- 
-            $('#button-continue').hide();
-            $('#button-continue').unbind("click");
-            this.initReinforcementStage(); 
-          }.bind(this));
-          return;
-        }
-       
+              
         var conflict = data.conflicts.shift();
         var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
         arr.highlight();
@@ -148,10 +131,22 @@ StateHandler.prototype = {
           arr.setUnits(0);
 
           this.updatePartialState(conflict.new_state);
-
-          $('#button-continue').click(function(event) {
-            displayNextConflict.bind(this)(data);
-          }.bind(this));
+          
+          // end of orders stage
+          if (data.conflicts.length == 0) {
+            $('#button-continue').hide();
+            $('#button-done').unbind("click");
+            $('#button-done').show();
+            $('#button-done').click(function(event) {
+              this.updatePartialState(data.new_state);
+              world.map.removeAllArrows();
+              this.initReinforcementStage(); 
+            }.bind(this));
+          } else {
+            $('#button-continue').click(function(event) {
+              displayNextConflict.bind(this)(data);
+            }.bind(this));
+          }
           return;
         }
         var loser = conflict.pieces[conflict.playout.shift()];
@@ -289,7 +284,7 @@ StateHandler.prototype = {
     this.moves_made = 0;
     this.move = this.moveReinforcement;
 
-    $('.show-on-reinforcement').show();
+    this.renderUIForStage();
     $.ajax({
       url : CONSTANTS.URL.REINFORCEMENTS,
       data : {
@@ -305,6 +300,8 @@ StateHandler.prototype = {
   initOrdersStage : function() {
     this.current.stage = 'orders';
     this.showStageIntro('Attack Orders');
+
+    this.renderUIForStage();
 
     this.move = this.moveOrders;
 

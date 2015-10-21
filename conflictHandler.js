@@ -82,10 +82,11 @@ module.exports = {
           var r = Math.random();
           if (r>0.5){
             dfd_units--;
-            playout.push(teams[0]);
+            // defender is always index 0
+            playout.push(0);
           } else {
             atk_units--;
-            playout.push(teams[1]);
+            playout.push(1);
           }
         }
         if (atk_units > 0) {
