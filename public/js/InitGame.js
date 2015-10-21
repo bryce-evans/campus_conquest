@@ -107,6 +107,11 @@ function initGame(data) {
   world.control_panel_handler.setTeam(data.player.team);
 
   world.override_controller.addListeners();
+ 
+  key_handler.setKeyListener(key_handler.keys.D, function() {
+    $('.debug').toggleClass('hidden');
+  });
+
   world.graphics.animate();
 
 }

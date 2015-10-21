@@ -5,6 +5,9 @@
 
 var OnReady = {};
 OnReady.init = function() {
+        
+        key_handler = new KeyEventHandler();
+        key_handler.init();
 
         var init_data = {};
 
@@ -12,17 +15,21 @@ OnReady.init = function() {
           window.location.href = '/new-game';
         });
 
-        $('#new-game-form').submit(function(e) {
+        
+        function newGameFormSubmit(e) {
           e.preventDefault();
+         
+          key_handler.unsetKeyListener(key_handler.keys.ENTER);
           // Prevents the page from refreshing
           var $this = $(this);
           // `this` refers to the current form element
           console.log($this);
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);
-          }, "json" // The format the response should be in
-          );
-        });
+          });
+        }
+        $('#new-game-form').submit(newGameFormSubmit);
+        // key_handler.setKeyListener(key_handler.keys.ENTER, newGameFormSubmit);
 
         $("#create-game-button").click(function(e) {
           $('#new-game-form').submit();
