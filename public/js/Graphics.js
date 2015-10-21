@@ -94,7 +94,7 @@ Graphics.prototype = {
   },
 
   render : function() {
-    world.client_listeners.panAuto(this.mouseX, this.mouseY);
+    world.client_listeners.panAuto();
     this.overlayText();
     this.camera.lookAt(this.camera.target);
     this.renderer3D.clear();

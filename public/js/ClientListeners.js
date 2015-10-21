@@ -139,7 +139,10 @@ ClientListeners = function() {
 
   }.bind(this)
 
-  this.panAuto = function(x, y) {
+  this.panAuto = function() {
+    var x = this.mouseX;
+    var y = this.mouseY;
+
     var camera = world.graphics.camera;
     var screen_width = world.window_handler.dimensions.width;
     var screen_height = world.window_handler.dimensions.height;
