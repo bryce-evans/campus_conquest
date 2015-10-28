@@ -569,6 +569,8 @@ Game.prototype = {
     switch (this.stage){
       case "grab":
         this.current_team_index = this.nextTeamIndex();
+        var query_string = 'UPDATE global.games SET cur_team = ' + this.current_team_index + ' WHERE id = \'' + this.id + '\'';
+        this.db.query(query_string, utils.logIfError);
         break;
       case "reinforcement":
         this.applyReinforcementMoves();
