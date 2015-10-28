@@ -113,7 +113,16 @@ Api.prototype = {
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ktb');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('rockefeller');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('goldwin');\
-			";
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('rpcc');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('balch');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('dickson');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ckb');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('low_rises');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('hr5');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('donlon');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('townhouses');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('appel');\
+      ";
 		this.db.query(query, function(err, result) {
 				
 				if (err) {
