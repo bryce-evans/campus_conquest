@@ -199,10 +199,16 @@ StateHandler.prototype = {
         state.units--;
         
         var center;
+        
         // defender loses
         if(loser_idx === 0) {
-          center = world.map.game_pieces[loser_piece].mesh.center;
-        
+          if(attack.type !== "Bidirectional") {
+            center = world.map.game_pieces[loser_piece].mesh.center;
+          } else {
+            var arr = world.map.getArrow(attack.pieces[0], attack.pieces[1]);
+            center = arr.center; 
+            arr.setUnits(arr.units - 1);
+          }
         // attacker loses 
         } else {
           var arr = world.map.getArrow(attack.pieces[loser_idx], attack.pieces[0]);

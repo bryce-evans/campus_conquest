@@ -342,9 +342,10 @@ GamePiece.prototype = {
  *
  * id1- string id of start building
  * id2- string id of end building
- * strength- thickness of arrow
+ * half_size: half the length if true
  */
-Arrow = function(id1, id2) {
+Arrow = function(id1, id2, half_size) {
+  half_size = half_size || false;
 
   var start_mesh = world.map.game_pieces[id1].mesh;
   var end_mesh = world.map.game_pieces[id2].mesh;
@@ -372,6 +373,10 @@ Arrow = function(id1, id2) {
   var mag = Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.z - p1.z), 2));
   var theta = -(Math.atan((p2.z - p1.z) / (p2.x - p1.x)));
 
+  if (half_size) {
+    mag /= 2;
+  }
+
   //correct for atan range
   if (p2.x > p1.x) {
     theta += Math.PI;
@@ -389,7 +394,6 @@ Arrow = function(id1, id2) {
   var mesh = new THREE.Mesh(geometry, material);
   mesh.name = id1 + "=>" + id2;
   this.mesh = mesh;
-
 
   mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
 
