@@ -110,34 +110,70 @@ StateHandler.prototype = {
           for (var end_id in data.commands[team][start_id]) {
             var arrow = world.map.getArrow(start_id, end_id);
             arrow.setUnits(data.commands[team][start_id][end_id]);
-            var color = new THREE.Color(this.getTeamColorFromIndex(team));
-            arrow.mesh.material.color.set(color);
           }
         }
       }
       world.notifier.note("click continue");
      
       function displayNextConflict(data) {
-        var conflicts = data.conflicts;
+        var attacks = data.attacks;
               
-        var conflict = data.conflicts.shift();
-        var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
-        arr.highlight();
-        $('#button-continue').unbind("click");
+        var attack = data.attacks.shift();
+        
+        var defender = attack.pieces[0];
+        var attackers = attack.pieces.slice(1);
+
+        for(var i = 0; i<attackers.length; i++) {
+          var arr = world.map.getArrow(attackers[i], defender);
+          arr.highlight();
+        }
+        if (attack.type === "Bidirectional") {
+          world.map.getArrow(defender, attackers[0]).highlight();
+        }
+
+       $('#button-continue').unbind("click");
         $('#button-continue').click(function(event) {
-          displayNextKurfuffle.bind(this)(conflict, data);
+          displayNextKurfuffle.bind(this)(attack, data);
         }.bind(this));
       }
 
-      function displayNextKurfuffle(conflict, data) {
-        if(conflict.playout.length == 0) {
-          var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
-          arr.setUnits(0);
+      function displayNextKurfuffle(attack, data) {
+        if(attack.playout.length == 0) {
+          var defender = attack.pieces[0];
+          var attackers = attack.pieces.slice(1);
+          var updated_state = {}
+          if (attack.resolved) {
+            // remove arrows
+            for (var i = 0; i< attackers.length; i++) {
+              var arr = world.map.getArrow(attackers[i], defender);
+              arr.setUnits(0);
+            }
+            
+            // update state
+            for (var i = 0; i < attack.pieces.length; i++){
+              var piece = attack.pieces[i];
+              updated_state[piece] = {};
+              updated_state[piece] = data.new_state[piece];
+            }
+            this.updatePartialState(updated_state);
 
-          this.updatePartialState(conflict.new_state);
-          
+          } else {
+            for (var i = 0; i< attackers.length; i++) {
+              var arr = world.map.getArrow(attackers[i], defender);
+              arr.unhighlight();
+            }
+            if(attack.type === "Bidirectional") {
+              world.map.getArrow(defender, attackers[0]).unhighlight();
+            } else if(attack.type === "Multi") {
+              var new_state = {};
+              new_state[defender] = {};
+              new_state[defender].team = -1;
+              new_state[defender].units = 0;
+              this.updatePartialState(new_state);
+            }
+          }
           // end of orders stage
-          if (data.conflicts.length == 0) {
+          if (data.attacks.length == 0) {
             $('#button-continue').hide();
             $('#button-done').unbind("click");
             $('#button-done').show();
@@ -153,27 +189,32 @@ StateHandler.prototype = {
           }
           return;
         }
-        var loser = conflict.pieces[conflict.playout.shift()];
-        var arr = world.map.getArrow(conflict.pieces[1], conflict.pieces[0]);
+
+        // standard case - a piece loses a unit
+        var loser_idx = attack.playout.shift();
+        var loser_piece = attack.pieces[loser_idx];
         
-        var state = world.state_handler.current.state[loser];
+        // state stores sum of all arrow units
+        var state = world.state_handler.current.state[loser_piece];
         state.units--;
         
         var center;
-        // attacker loses
-        if(loser === arr.start) {
+        // defender loses
+        if(loser_idx === 0) {
+          center = world.map.game_pieces[loser_piece].mesh.center;
+        
+        // attacker loses 
+        } else {
+          var arr = world.map.getArrow(attack.pieces[loser_idx], attack.pieces[0]);
           center = arr.center; 
           arr.setUnits(arr.units - 1);
-        //defender loses
-        } else {
-          center = world.map.game_pieces[loser].mesh.center;
         }
         world.map.newExplosion(center);
 
         $('#button-continue').unbind('click');
         $('#button-continue').show();
           $('#button-continue').click(function(event) {
-            displayNextKurfuffle.bind(this)(conflict, data);
+            displayNextKurfuffle.bind(this)(attack, data);
           }.bind(this));
       }
       
@@ -610,6 +651,13 @@ StateHandler.prototype = {
     }
     return TEAM_DATA[this.team_order[index]].colors.primary;
   },
+  getSecondaryTeamColorFromIndex : function(index) {
+    if (index < 0) {
+      return 0xffffff;
+    }
+    return TEAM_DATA[this.team_order[index]].colors.secondary;
+  },
+
   getTeamColorFromId : function(id) {
     return TEAM_DATA[id].colors.primary;
   },

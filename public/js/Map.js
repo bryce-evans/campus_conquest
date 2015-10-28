@@ -401,6 +401,9 @@ Arrow = function(id1, id2) {
   x = mesh.position.x;
   z = mesh.position.z;
 
+  // set the appropriate color
+  this.unhighlight();
+
   // get center for displaying text at this point
   this.center = new THREE.Vector3(x - mag * Math.cos(theta) / 2, .015 * mag + 5, z + mag * Math.sin(theta) / 2);
 
@@ -442,6 +445,13 @@ Arrow.prototype = {
 
   highlight : function() {
     this.mesh.material.color.set(new THREE.Color(1,0,0));
+  },
+
+  unhighlight : function() {
+     var team = world.state_handler.current.state[this.start].team;
+
+     var color = new THREE.Color(world.state_handler.getSecondaryTeamColorFromIndex(team));
+     this.mesh.material.color.set(color);
   }
 
 

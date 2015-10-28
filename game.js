@@ -327,7 +327,7 @@ Game.prototype = {
   applyOrdersMoves : function() {
         //
      // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
-      var results = conflictHandler.genUpdatedState(this.all_move_data, this.state);
+      var results = conflictHandler.resolveAttacks(this.all_move_data, this.state);
       this.updatePartialState(results.new_state, false);
             
       // set up for reinforcement  stage

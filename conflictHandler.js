@@ -70,7 +70,7 @@ ConflictHandler.prototype = {
         total_attacking += ends[end];
       }
       this.new_state[start] = {};
-      this.new_state[start].units = state[start].units - total_attacking;
+      this.new_state[start].units = this.state[start].units - total_attacking;
     }
 
     for (var atk_team = 0; atk_team < this.move_data.length; atk_team++) {
@@ -91,7 +91,7 @@ ConflictHandler.prototype = {
           // add endpoints to modified state
           if (!new_state[end]) {
             this.new_state[end] = {};
-            this.new_state[end].units = state[end].units;
+            this.new_state[end].units = this.state[end].units;
           }
 
           var victor = -1;
@@ -102,7 +102,7 @@ ConflictHandler.prototype = {
 
           var atk_units = move_set[start][end];
 
-          var dfd_team = state[end].team;
+          var dfd_team =  this.state[end].team;
           var dfd_units = new_state[end].units;
 
           // index 0 is always defender
@@ -127,7 +127,7 @@ ConflictHandler.prototype = {
           }
           if (atk_units > 0) {
             this.new_state[end].units = atk_units;
-            this.new_state[end].team = state[start].team;
+            this.new_state[end].team = this.state[start].team;
           } else {
             this.new_state[end].units = dfd_units;
           }
@@ -220,15 +220,6 @@ ConflictHandler.prototype = {
   },
 
   processMultiAttacks : function() {
-    // find multi attack
-
-    // remove moves from move_data
-
-    // get results
-
-    // push results
-    // if more than two teams, push ffa move
-
     var defender_ids = Object.keys(this.inverse_orders);
 
     for (var i = 0; i < defender_ids.length; i++) {
@@ -250,16 +241,17 @@ ConflictHandler.prototype = {
 
         // push
         var attacker = this.inverse_orders[defender_id][attacker_id];
-        attackers.push(new Attacker(this.state[attacker_id].team, this.state[attacker_id].units, attacker_id, defender_id));
+        attackers.push(new Attacker(attacker.team, attacker.units, attacker_id, defender_id));
 
       }
 
-      var defender = new Defender(state[defender_id].team, state[defender_id].units, defender_id);
+      var defender = new Defender(this.state[defender_id].team, this.state[defender_id].units, defender_id);
 
       // multi attack
       if (attackers.length > 1 && defender.units > 0) {
 
         // XXX case where many different teams attack a building
+        debugger;
 
         var multi_attack = new MultiAttack(attackers, defender);
         var results = this.getMultiAttackResult(multi_attack);
@@ -309,11 +301,11 @@ ConflictHandler.prototype = {
 
         // push
         var attacker = this.inverse_orders[defender_id][attacker_id];
-        attackers.push(new Attacker(this.state[attacker_id].team, this.state[attacker_id].units, attacker_id, defender_id));
+        attackers.push(new Attacker(attacker.team, attacker.units, attacker_id, defender_id));
 
       }
 
-      var defender = new Defender(state[defender_id].team, state[defender_id].units, defender_id);
+      var defender = new Defender(this.state[defender_id].team, this.state[defender_id].units, defender_id);
 
       // ffa attack
       if (attackers.length > 1 && defender.units == 0) {
@@ -330,7 +322,7 @@ ConflictHandler.prototype = {
     }
 
   },
-  processSingleAttacks : function(move_data, state) {
+  processSingleAttacks : function() {
 
     var defender_ids = Object.keys(this.inverse_orders);
 
@@ -417,14 +409,14 @@ ConflictHandler.prototype = {
     var playout = [];
     while (defender.units > 0 && total_units > defender.units) {
       // someone loses a unit
+      total_units--;
       var destroyed = Math.ceil(Math.random() * total_units);
       // defender loses
       if (destroyed <= defender.units) {
         defender.units--;
-        total_units--;
         playout.push(0);
 
-        // attacker loses
+      // attacker loses
       } else {
         destroyed -= defender.units;
 
@@ -432,7 +424,6 @@ ConflictHandler.prototype = {
           destroyed -= attackers[i].units;
           if (destroyed <= 0) {
             attackers[i].units--;
-            total_units--;
             playout.push(i + 1);
             break;
           }
@@ -600,9 +591,6 @@ ConflictHandler.prototype = {
       state_change[defender.piece] = {};
       state_change[defender.piece].units = dfd_units;
     }
-    // else {
-    // this.state[end].units = dfd_units;
-    // }
 
     this.updateState(state_change);
     return new SingleAttackResult(pieces, teams, playout, state_change);
@@ -675,19 +663,17 @@ SingleAttackResult = function(pieces, teams, playout, new_state) {
   this.teams = teams;
   this.playout = playout;
   this.new_state = new_state;
+  this.type = "Single";
+  this.resolved = true;
 };
-SingleAttackResult.prototype = {
-  resolved : true,
-}
 
 BidirectionalAttackResult = function(pieces, teams, playout, new_state) {
   this.pieces = pieces;
   this.teams = teams;
   this.playout = playout;
   this.new_state = new_state;
-}
-BidirectionalAttackResult.prototype = {
-  resolved : false,
+  this.type = "Bidirectional";
+  this.resolved = false;
 }
 
 // similiar to ConflictResult
@@ -698,6 +684,7 @@ MultiAttackResult = function(pieces, teams, playout, new_state, resolved) {
   this.teams = teams;
   this.playout = playout;
   this.new_state = new_state;
+  this.type = "Multi";
   this.resolved = resolved || false;
 };
 
@@ -721,9 +708,8 @@ FFAAttackResult = function(pieces, teams, playout, new_state) {
   this.teams = teams;
   this.playout = playout;
   this.new_state = new_state;
-}
-FFAAttackResult.prototype = {
-  resolved : true,
+  this.type = "FFA";
+  this.resolved = true;
 }
 /**
  * Results for a full set of conflicts in a turn
