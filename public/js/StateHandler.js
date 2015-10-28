@@ -99,7 +99,6 @@ StateHandler.prototype = {
 
     this.socket.on(CONSTANTS.IO.ORDERS_UPDATE, function(data) {
 
-      console.log('received orders update', data);
       this.hideWaitingOnWindow();
       world.map.removeAllArrows();
 
@@ -108,7 +107,16 @@ StateHandler.prototype = {
       for (var team in data.commands) {
         for (var start_id in data.commands[team]) {
           for (var end_id in data.commands[team][start_id]) {
-            var arrow = world.map.getArrow(start_id, end_id);
+            
+            var half_size = false;
+            for (var team2 in data.commands) {
+              if (data.commands[team2][end_id] && data.commands[team2][end_id][start_id]) {
+                half_size = true;
+                break;
+              }
+            }
+
+            var arrow = world.map.getArrow(start_id, end_id, half_size);
             arrow.setUnits(data.commands[team][start_id][end_id]);
           }
         }
@@ -163,7 +171,13 @@ StateHandler.prototype = {
               arr.unhighlight();
             }
             if(attack.type === "Bidirectional") {
-              world.map.getArrow(defender, attackers[0]).unhighlight();
+              // unhighlight the backedge
+              var arr = world.map.getArrow(defender, attackers[0]);
+              arr.unhighlight();
+              arr.setFullLength();
+
+              var arr = world.map.getArrow(attackers[0], defender);
+              arr.setFullLength();
             } else if(attack.type === "Multi") {
               var new_state = {};
               new_state[defender] = {};

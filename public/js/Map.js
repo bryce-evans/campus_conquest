@@ -212,11 +212,11 @@ Map.prototype = {
 
   // gets an arrow from start_id to end_id.
   // creates one if one doesn't exist
-  getArrow : function(start_id, end_id) {
+  getArrow : function(start_id, end_id, half_size) {
     if (this.arrows[start_id] && this.arrows[start_id][end_id]) {
       return this.arrows[start_id][end_id];
     } else {
-      return new Arrow(start_id, end_id);
+      return new Arrow(start_id, end_id, half_size);
     }
   },
   removeAllArrows : function() {
@@ -373,10 +373,6 @@ Arrow = function(id1, id2, half_size) {
   var mag = Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.z - p1.z), 2));
   var theta = -(Math.atan((p2.z - p1.z) / (p2.x - p1.x)));
 
-  if (half_size) {
-    mag /= 2;
-  }
-
   //correct for atan range
   if (p2.x > p1.x) {
     theta += Math.PI;
@@ -395,7 +391,12 @@ Arrow = function(id1, id2, half_size) {
   mesh.name = id1 + "=>" + id2;
   this.mesh = mesh;
 
-  mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
+  if (!half_size) {
+    mesh.scale.set(mag - .5 * (scale), .1 * mag, this.units * scale + .5);
+  } else {
+    mag /= 2;
+    mesh.scale.set(mag, 0.1* mag, this.units * scale + .5);
+  }
 
   mesh.position.x = start_mesh.center.x;
   mesh.position.z = start_mesh.center.z;
@@ -456,9 +457,16 @@ Arrow.prototype = {
 
      var color = new THREE.Color(world.state_handler.getSecondaryTeamColorFromIndex(team));
      this.mesh.material.color.set(color);
-  }
-
-
+  },
+  setFullLength : function() {
+    if (!this.full_length) {
+      var scale = world.map.scale;
+      this.mesh.scale.x *= 2;
+      this.mesh.scale.x += 0.5 * scale;
+      this.mesh.scale.y *= 2;
+    }
+    this.full_length = true;
+  },
 }
 
 Explosion = function(center) {

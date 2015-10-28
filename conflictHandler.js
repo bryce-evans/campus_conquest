@@ -209,11 +209,10 @@ ConflictHandler.prototype = {
           delete this.inverse_orders[attacker_id][defender_id];
 
           // piece_ids of pieces that won and lost
-          var victor = result_data.teams[0] == result_data.victor ? result_data.pieces[0] : result_data.pieces[1];
-          var victim = result_data.teams[0] != result_data.victor ? result_data.pieces[0] : result_data.pieces[1];
-
+          var winner = result_data.new_state[attacker_id] ? attacker_id : defender_id;
+          var loser = result_data.new_state[attacker_id] ? defender_id : attacker_id;
           // add new command for the army to continue to attack the piece
-          this.inverse_orders[victim][victor] = new Attacker(result_data.pieces.indexOf(victor), result_data.new_state[victor], victor, victim);
+          this.inverse_orders[loser][winner] = new Attacker(result_data.pieces.indexOf(winner), result_data.new_state[winner].units, winner, loser);
         }
       }
     }
