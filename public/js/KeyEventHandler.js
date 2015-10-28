@@ -81,6 +81,10 @@ KeyEventHandler = function() {
 KeyEventHandler.prototype = {
   init: function() {
     $(window).keypress(function(e) {
+      // allow normal activity on input fields
+      if ($(e.target).is("input")) {
+        return;
+      }
       e.preventDefault();
       var key = e.keyCode;
       if (!e.ctrlKey) {
