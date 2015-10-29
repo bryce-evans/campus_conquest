@@ -151,6 +151,7 @@ Game.prototype = {
 
     // update server  state
     this.state[move_data.piece].team = move_data.team_index;
+    this.state[move_data.piece].units = 1;
 
     this.db.query(query_string);
     var query_string = 'UPDATE global.games SET turn = ' + this.turn + ', cur_team = ' + this.current_team_index + ' WHERE id = \'' + this.id + '\'';
@@ -328,6 +329,7 @@ Game.prototype = {
         //
      // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
       var results = conflictHandler.resolveAttacks(this.all_move_data, this.state);
+      debugger;
       this.updatePartialState(results.new_state, false);
             
       // set up for reinforcement  stage

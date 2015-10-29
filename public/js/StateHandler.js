@@ -121,8 +121,8 @@ StateHandler.prototype = {
           }
         }
       }
-      world.notifier.note("click continue");
-     
+      $('#instructions').text("click continue"); 
+
       function displayNextConflict(data) {
         var attacks = data.attacks;
               
@@ -139,7 +139,8 @@ StateHandler.prototype = {
           world.map.getArrow(defender, attackers[0]).highlight();
         }
 
-       $('#button-continue').unbind("click");
+        $('#button-continue').text("continue attack");
+        $('#button-continue').unbind("click");
         $('#button-continue').click(function(event) {
           displayNextKurfuffle.bind(this)(attack, data);
         }.bind(this));
@@ -188,10 +189,9 @@ StateHandler.prototype = {
           }
           // end of orders stage
           if (data.attacks.length == 0) {
-            $('#button-continue').hide();
-            $('#button-done').unbind("click");
-            $('#button-done').show();
-            $('#button-done').click(function(event) {
+            $('#button-continue').text("End Stage");
+            $('#button-continue').unbind("click");
+            $('#button-continue').click(function(event) {
               this.updatePartialState(data.new_state);
               world.map.removeAllArrows();
               this.initReinforcementStage(); 
@@ -231,13 +231,14 @@ StateHandler.prototype = {
         }
         world.map.newExplosion(center);
 
+        $('#button-continue').text("continue attack");
         $('#button-continue').unbind('click');
         $('#button-continue').show();
           $('#button-continue').click(function(event) {
             displayNextKurfuffle.bind(this)(attack, data);
           }.bind(this));
       }
-      
+      $('#button-continue').text('next attack');
       $('#button-continue').unbind('click');
       $('#button-continue').show();
       $('#button-continue').click(function(event) {
@@ -383,11 +384,11 @@ StateHandler.prototype = {
 
     // show submit button before any attacks given
     // allow to submit no attacks
-    $('#button-done').show();
-    $('#button-done').unbind('click');
-
+    $('#button-continue').show();
+    $('#button-continue').text("Submit Orders");
+    $('#button-continue').unbind('click');
     // submit all orders
-    $('#button-done').click( function() {
+    $('#button-continue').click( function() {
       //var commands = [];
 
       // format for sending
@@ -408,7 +409,7 @@ StateHandler.prototype = {
       };
       this.socket.emit('orders move', move_data_final);
       this.move_data = {};
-      $('#button-done').hide();
+      $('#button-continue').hide();
     }.bind(this));
   },
   // takes a clicked piece and handles the change in state on the client only until turn is over
@@ -639,8 +640,7 @@ StateHandler.prototype = {
     // show only after getting data from server
     // prevents window from flashing when no waiting-on left
     
-    // hide buttons always
-    $('#button-done').hide();
+    // hide button always
     $('#button-continue').hide();
 
     $('#waiting-on').show();
