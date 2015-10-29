@@ -10,7 +10,8 @@
     "morgan": "^1.4.1",
     "pg": "^3.6.2",
     "serve-static": "^1.7.1",
-    "socket.io": "^1.2.0"
+    "socket.io": "^1.2.0",
+    "nunjucks": "0.1.8",
   },
   "devDependencies": {},
   "scripts": {
@@ -24,16 +25,14 @@
     "campus",
     "conquest",
     "game",
-    "cornell",
-    "university",
     "webgl",
     "3d",
-    "board"
+    "strategy",
   ],
   "author": "Bryce Evans",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bae43/campus_conquest/issues"
   },
-  "homepage": "https://github.com/bae43/campus_conquest"
+  "homepage": "campusconquest.com/about"
 }
