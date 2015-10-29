@@ -332,7 +332,7 @@ ConflictHandler.prototype = {
       if (attacker_ids.length == 1) {
         var attacker_id = attacker_ids[0];
         var attacker = this.inverse_orders[defender_id][attacker_id];
-        var defender = new Defender(this.state[defender_id].team, this.state[attacker_id].units, defender_id, attacker_id);
+        var defender = new Defender(this.state[defender_id].team, this.state[defender_id].units, defender_id);
 
         var single_attack = new SingleAttack(attacker, defender);
         var result = this.getSingleAttackResult(single_attack);
@@ -569,6 +569,8 @@ ConflictHandler.prototype = {
     var playout = [];
 
     //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
+    console.log(pieces);
+
     while (atk_units > 0 && dfd_units > 0) {
       var r = Math.random();
       if (r < (atk_units / (atk_units + dfd_units))) {
@@ -579,6 +581,7 @@ ConflictHandler.prototype = {
         atk_units--;
         playout.push(1);
       }
+      console.log(atk_units, dfd_units, r);
     }
     // attacker won!
     if (atk_units > 0) {
