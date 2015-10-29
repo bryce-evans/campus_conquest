@@ -230,13 +230,13 @@ StateHandler.prototype = {
           arr.setUnits(arr.units - 1);
         }
         world.map.newExplosion(center);
-
-        $('#button-continue').text("continue attack");
-        $('#button-continue').unbind('click');
-        $('#button-continue').show();
-          $('#button-continue').click(function(event) {
-            displayNextKurfuffle.bind(this)(attack, data);
-          }.bind(this));
+        if (attack.playout.length === 0) {
+          $('#button-continue').text("Next Attack");
+        } else {
+          $('#button-continue').text("Continue Attack");
+        }
+        // this function already bound to the button
+        // will run if clicked again
       }
       $('#button-continue').text('next attack');
       $('#button-continue').unbind('click');
