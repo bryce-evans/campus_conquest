@@ -363,7 +363,7 @@ ConflictHandler.prototype = {
     var winner = true;
     while (attacker1.units > 0 && attacker2.units > 0) {
       // random unit lost
-      attacker2_lost_unit = Math.random() < attacker2.units / (attacker1.units + attacker2.units);
+      attacker2_lost_unit = Math.random() > attacker2.units / (attacker1.units + attacker2.units);
       if (attacker2_lost_unit) {
         attacker2.units--;
       } else {
