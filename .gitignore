@@ -5,3 +5,4 @@ TODO.txt
 /lib/*
 /node_modules/*
 /run
+constants.js
