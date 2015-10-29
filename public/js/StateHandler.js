@@ -84,7 +84,10 @@ StateHandler.prototype = {
         world.map.game_pieces[data[i].id].mesh.units_added = data[i].units;
         this.move_data[data[i].id] = data[i].units;
       }
+      $('.instructions').addClass('hidden');
 
+      // proceed to orders state
+      $('#button-continue').text('Next Stage');
       $('#button-continue').show();
       this.waiting_on = true;
       $('#button-continue').unbind('click');
@@ -330,8 +333,12 @@ StateHandler.prototype = {
   renderUIForCurrentStage : function() {
     if (this.current.stage === CONSTANTS.STAGES.REINFORCEMENT){
       $('.show-on-reinforcement').show();
+      $('#button-continue').hide();
+      $('.instructions').removeClass('hidden');
+      $('.instructions').text('Place reinforcements');         
     } else {
       $('.show-on-reinforcement').hide();
+      $('.instructions').addClass('hidden');
     }
 
   },
