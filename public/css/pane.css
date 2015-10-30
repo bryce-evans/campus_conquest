@@ -20,10 +20,10 @@ h1 {
 }
 
 form > div {
-  margin: 20px 0;
+  margin-top: 20px;
 }
 
-input[type=text], input[type=select], input[type=search] {
+input[type=text], input[type=select], select, input[type=search] {
   -webkit-appearance: none;
   -webkit-transition: all .2s linear;
   transition: all .2s linear;
@@ -33,11 +33,13 @@ input[type=text], input[type=select], input[type=search] {
   padding: 5px 9px;
   margin: 0;
   border-radius: 4px;
-  width: 45%;
+  min-width: 12em;
   font-size: 13px;
   height: 32px;
   font-size: 18px;
   font-family: Goudy Trajan Regular;
+}
+select {
 }
 
 .checkbox > input[type=checkbox] {
@@ -181,7 +183,9 @@ ul.margin{
   width: 100%;
   text-align: left;
   padding: 30px;
+  font-size: 13pt;
 }
+
 #open-games tr {
   height: 35px;
   padding: 5px;
@@ -197,7 +201,9 @@ ul.margin{
   padding-bottom: 0;
 }
 #open-games tr:not(:first-child):hover {
-  background-color: #cceeff;
+  background-color: rgb(239, 250, 255);
+  /*background-color: #cceeff;*/
+  /*background-color: rgb(253, 247, 218);*/
   cursor: pointer;
 }
 #open-games th:hover {

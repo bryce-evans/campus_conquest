@@ -12,10 +12,37 @@
 		<link rel="stylesheet" href="css/global.css" />
 		<link rel="stylesheet" href="css/pane.css" />
 		<style>
+      html{
+        font-family: Roboto;
+      }
       .warning {
         padding: 10px 0 0;
         color: red;
         font-size: 12px;
+      }
+      .label {
+        float: left;
+        font-size: 16pt;
+        line-height: 2em;
+      }
+      .input-field  {
+        width: 70%;
+        height: 2em;
+        font-family: Roboto;
+      }
+      input[type=text], select {
+        font-family: Roboto;
+        font-weight: 500;
+        float: right;
+        width: 20em;
+        margin: 0;
+        -ms-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        -webkit-box-sizing: content-box;
+        box-sizing: content-box; 
+      }
+      #teams-label {
+        float: none;
       }
 		</style>
 		<script src="js/Constants.js"></script>
@@ -26,25 +53,31 @@
 
 		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 
-		<div id='create-pane' style="display: block;">
+		<div id='create-pane' class="pane">
 			<div class='card'>
 				<div class='card-contents'>
 
 					<h1> Create Game</h1>
 					<form id="create-game-form" style='margin-top: 5em;'>
-						<div>
-							Name:
+						<div class="input-field">
+							<div class="label">
+                Name:
+              </div>
 							<div id="game-id-warning" class='warning' style="display: none;">
 								*Required*
 							</div>
 							<input id="game_id" type="text" name="game_id" >
 						</div>
-						<div>
-							Description:
+						<div class="input-field">
+							<div class="label">
+							  Description:
+              </div>
 							<input type="text" name="game_desc" >
 						</div>
-            <div>
-							Map:
+            <div class="input-field">
+							<div class="label">
+							  Map:
+              </div>
 							<select name="game_map" >
                 <option value="Cornell">Cornell</option>
               </select>
@@ -66,7 +99,9 @@
 							</select>
 						</div>
 						<div>
-							Teams
+							<div id="teams-label" class="label"> 
+                Teams:
+              </div> 
 							<div id="team-min-warning" class='warning' style="display: none;">
 								At least two teams must be selected
 							</div>

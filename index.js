@@ -39,6 +39,10 @@ app.use('/rsc', express.static(__dirname + '/public/rsc'));
 app.use('/js', express.static(__dirname + '/public/js'));
 app.use('/css', express.static(__dirname + '/public/css'));
 
+app.get('/template', function(req, res) {
+  res.sendFile(__dirname + '/public/template.html');
+});
+
 app.get('/open-games', function(req, res) {
   api.getOpenGames(utils.curry(utils.writeData, res));
 });
