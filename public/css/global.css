@@ -160,6 +160,7 @@ header > .team.name.as:after, header > .team.name.humec:after, header > .team.na
   background-color: #bb0677;
 }
 .card {
+  margin-bottom: 2em;
   box-shadow: 2px 5px 10px rgba(0,0,0,.3);
   max-width: 920px;
   margin-left: auto;

@@ -76,6 +76,10 @@ app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/public/about.html');
 });
 
+app.get('/sound-test', function(req, res) {
+  res.sendFile(__dirname + '/public/sound-test.html');
+});
+
 app.get('/design-doc', function(req, res) {
   res.sendFile(__dirname + '/public/DESIGN_DOC.html');
 });
