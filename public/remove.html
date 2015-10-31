@@ -10,6 +10,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" href="css/fonts.css" />
 		<link rel="stylesheet" href="css/global.css" />
+		<link rel="stylesheet" href="css/pane.css" />
 		<link rel="stylesheet" href="css/signin.css" />
 
 	</head>
@@ -17,25 +18,25 @@
 	<body>
 
 		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-
-		<div id='removal-pane' style="display: block;">
+		<div id='removal-pane' class='pane' style='display: block;'>
 			<div class='card'>
 				<div class='card-contents'>
 
 					<h1> Remove Game</h1>
 					<form id="remove-game-form">
-						<div>
-							Game ID: <select id='input-game-id' name = 'id'></select>
+						<div class='input-field'>
+							<div class="label">
+                Game ID:
+              </div>
+              <select id='input-game-id' name = 'id'></select>
 						</div>
-
-						<div>
+						<div class="button-set right">
 							<a href="#" class="button" id="remove-game-button" >Remove Game</a>
 						</div>
 					</form>
-				</div>
 
-			</div>
 		</div>
+    </div>
 
 		<script>
       $(document).ready(function() {
