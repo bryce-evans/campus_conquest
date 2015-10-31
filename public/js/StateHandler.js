@@ -349,10 +349,16 @@ StateHandler.prototype = {
 
   initGrabStage : function() {
     this.move = this.moveGrab;
+    this.current.stage = CONSTANTS.STAGES.GRAB;
+    this.showStageIntro(this.current.stage);
+    $('.instructions').removeClass('hidden');
+    $('.instructions').text('Select a piece to claim it');
   },
   initReinforcementStage : function() {
     this.current.stage = CONSTANTS.STAGES.REINFORCEMENT;
     this.showStageIntro(this.current.stage);
+
+    $('.instructions').text('Place new reinforcements');
 
     this.moves_made = 0;
     this.move = this.moveReinforcement;
