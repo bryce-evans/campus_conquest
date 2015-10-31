@@ -312,7 +312,7 @@ StateHandler.prototype = {
       case CONSTANTS.STAGES.ORDERS:
         this.initOrdersStage();
         break;
-  }
+    }
   },
   // for single move updates
   updateState : function(state) {
@@ -416,6 +416,10 @@ StateHandler.prototype = {
       };
       this.socket.emit('orders move', move_data_final);
       this.move_data = {};
+      
+      // don't allow more orders to be made
+      this.move = this.movePlayout;
+      
       $('#button-continue').hide();
     }.bind(this));
   },
@@ -574,6 +578,11 @@ StateHandler.prototype = {
 
     }
   },
+
+  movePlayout : function(piece) {
+    // should anything happen?
+  },
+
   /**
    * handles every move
    * is set to point to moveStart, moveGrab, moveReinforcement, or moveOrders
