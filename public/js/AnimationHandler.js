@@ -6,8 +6,8 @@ AnimationHandler = function() {
 };
 
 AnimationHandler.prototype = {
-  addAnimation : function (animatable, updateFn) {
-    var anim = new Animation(animatable, updateFn);
+  addAnimation : function (animatable) {
+    var anim = new Animation(animatable);
     this.animations.push(anim);
   },
   updateAll : function() {
@@ -18,10 +18,10 @@ AnimationHandler.prototype = {
   },
 };
 
-Animation = function (animatable, update) {
+Animation = function (animatable) {
   // an object with a mesh and fields used for updating
   this.animatable = animatable;
-  this.update = update;
+  this.update = animatable.update;
 }
 Animation.prototype  = {
 }

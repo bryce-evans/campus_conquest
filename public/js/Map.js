@@ -30,7 +30,9 @@ Map = function() {
   this.selectable_objects = [];
 
   // list of geometries for frequently created objects like arrows
+  // {<string> id : <geometry>}
   this.geometries = {};
+
 
   // Arrow lookup map- <string> start-id : {<string> end-id : Arrow}
   this.arrows = {};
@@ -231,8 +233,20 @@ Map.prototype = {
   },
   newExplosion : function(center) {
     var explosion = new Explosion(center);
-    world.graphics.animation_handler.addAnimation(explosion, explosion.update);
-  }
+    world.graphics.animation_handler.addAnimation(explosion);
+  },
+  newAttackRadius : function(piece_id) {
+    // singleton
+    if (world.map.attack_radius) {
+      world.map.attack_radius.resetTo(piece_id);
+      return;
+    }
+
+   // add geometry to expand, showing attack radius
+    var atk_rad = new AttackRadius(piece_id);
+    world.graphics.animation_handler.addAnimation(atk_rad);
+    this.attack_radius = atk_rad;
+  },
 }
 
 Region = function(id, name, pieces, value) {
@@ -517,6 +531,76 @@ Explosion.prototype = {
       }
     }
   },
+}
+
+AttackRadius = function(piece_id) {
+  this.max_radius = 2;
+  this.frames = 20;
+  this.looping = false;
+  
+  this.frames_remaining;
+  this.center_piece; 
+  this.pieces_enclosed;
+
+  var geometry = new THREE.CircleGeometry(30,64);
+  var material = new THREE.MeshLambertMaterial({
+    color: new THREE.Color(1,0,0),
+    transparent: true,
+    opacity: 0.4, 
+  });
+  this.mesh = new THREE.Mesh(geometry, material);
+  this.mesh.rotation.x = -Math.PI/2;
+ 
+  this.resetTo(piece_id);
+ 
+  world.graphics.scene.add(this.mesh);
+}
+AttackRadius.prototype = {
+  update : function() {
+    if (this.frames_remaining > 0) {
+      this.mesh.scale.addScalar(1/this.frames * this.max_radius);
+      this.frames_remaining--;
+      var cur_rad = (1 -this.frames_remaining/this.frames) * 35 * this.max_radius;
+      
+      var i  = 0;
+      while (this.pieces_enclosed[i].distance < cur_rad) {
+        this.pieces_enclosed[i].piece.mesh.material.color.set(new THREE.Color(0,1,0));
+      i++;
+      } 
+    }
+  },
+  resetTo : function(piece_id) {
+    this.center_piece = world.map.game_pieces[piece_id];
+
+    var center = this.center_piece.mesh.center;
+    this.mesh.position.copy(center);
+    this.mesh.position.y = -1;
+
+    var small = 0.001;
+    this.mesh.scale.set(small, small, small);
+    
+    // TODO reset highlighting of previous pieces
+    // for (piece in this.pieceS_enclosed) ...
+
+    this.getPiecesEnclosed(center);
+
+    this.frames_remaining = 20;
+  },
+  getPiecesEnclosed : function(center) {
+    this.pieces_enclosed = [];
+   
+    var keys = Object.keys(world.map.game_pieces); 
+    for (var i = 0; i < keys.length; i++) {
+      var piece = world.map.game_pieces[keys[i]];
+      var dist = piece.mesh.center.distanceTo(this.center_piece.mesh.center);
+      if (dist < world.map.scale * 5) {
+        this.pieces_enclosed.push({piece: piece, distance: dist});
+      }
+    }
+    this.pieces_enclosed.sort(function(a,b) {
+      return a.distance - b.distance;
+    });
+  }
 }
 
 THREE.Mesh.prototype.computeCenter = function() {
