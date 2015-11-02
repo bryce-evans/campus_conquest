@@ -244,7 +244,6 @@ Map.prototype = {
 
    // add geometry to expand, showing attack radius
     var atk_rad = new AttackRadius(piece_id);
-    world.graphics.animation_handler.addAnimation(atk_rad);
     this.attack_radius = atk_rad;
   },
   unsetAttackRadius : function(piece_id) { 
@@ -253,6 +252,7 @@ Map.prototype = {
   newAnimatedEdge : function(piece1, piece2) {
     var edge = new AnimatedEdge(piece1, piece2);
     world.graphics.animation_handler.addAnimation(edge);
+    return edge;
   },
 }
 
@@ -560,6 +560,7 @@ AttackRadius = function(piece_id) {
   this.frames_remaining;
   this.center_piece; 
   this.pieces_enclosed;
+  this.animated_edges = [];
 
   var geometry = new THREE.CircleGeometry(30,64);
   var material = new THREE.MeshLambertMaterial({
@@ -581,14 +582,21 @@ AttackRadius.prototype = {
       
       // skip over i=0 (center_piece)
       var i  = 1;
-      while (this.pieces_enclosed[i].distance < cur_rad) {
-        world.map.newAnimatedEdge(this.center_piece, this.pieces_enclosed[i].piece);
+      var piece = this.pieces_enclosed[i];
+      while (piece && piece.distance < cur_rad) {
+        var edge = world.map.newAnimatedEdge(this.center_piece, piece.piece);
+        this.animated_edges.push(edge);
         //this.pieces_enclosed[i].piece.mesh.material.color.set(new THREE.Color(0,1,0));
       i++;
-      } 
+      piece = this.pieces_enclosed[i];
+      }
+      return false;
+    } else {
+      return true;
     }
   },
   setTo : function(piece_id) {
+    world.graphics.animation_handler.addAnimation(this);
     this.center_piece = world.map.game_pieces[piece_id];
 
     var center = this.center_piece.mesh.center;
@@ -600,6 +608,8 @@ AttackRadius.prototype = {
     
     // TODO reset highlighting of previous pieces
     // for (piece in this.pieceS_enclosed) ...
+    
+    this.removeAnimatedEdges();
 
     this.getPiecesEnclosed(center);
 
@@ -607,7 +617,16 @@ AttackRadius.prototype = {
     world.graphics.scene.add(this.mesh);
   },
   unset : function() {
+    this.removeAnimatedEdges();
     world.graphics.scene.remove(this.mesh);
+  },
+  removeAnimatedEdges : function() {
+    for(var i = 0; i < this.animated_edges.length; i++) {
+      var is_animated = this.animated_edges[i].clear();
+      if (is_animated) {
+        world.graphics.animation_handler.addAnimation(this.animated_edges[i]);
+      }
+    }
   },
   getPiecesEnclosed : function(center) {
     this.pieces_enclosed = [];
@@ -673,7 +692,26 @@ AnimatedEdge.prototype = {
     } else {
       return true;
     }
-  }
+  },
+  
+  clear : function() {
+    this.current_frame = 0;
+    var speed = 2;
+    this.delta.multiplyScalar(speed);
+    this.lifetime = Math.floor(this.lifetime/speed);
+    this.update = function() {
+      if (this.current_frame < this.lifetime) {
+        this.cur_pt.sub(this.delta);
+        this.mesh.geometry.verticesNeedUpdate = true;
+        this.current_frame++;
+        return false;
+      } else {
+        world.graphics.scene.remove(this.mesh);
+        return true;
+      }
+    };
+    return true;
+  },
 }
 
 THREE.Mesh.prototype.computeCenter = function() {
