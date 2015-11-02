@@ -235,6 +235,10 @@ Map.prototype = {
     var explosion = new Explosion(center);
     world.graphics.animation_handler.addAnimation(explosion);
   },
+  newFountain : function(piece_id) {
+    var fountain = new Fountain(piece_id);
+    world.graphics.animation_handler.addAnimation(fountain);
+  },
   newAttackRadius : function(piece_id) {
     // singleton
     if (world.map.attack_radius) {
@@ -534,6 +538,59 @@ Explosion = function(center) {
 
 Explosion.prototype = {
  update: function() {
+    if (this.status == true) {
+      var pCount = this.point_count;
+      while(pCount--) {
+        var particle =  this.points.geometry.vertices[pCount];
+        particle.y += this.dirs[pCount].y;
+        particle.x += this.dirs[pCount].x;
+        particle.z += this.dirs[pCount].z;
+      }
+      this.points.geometry.verticesNeedUpdate = true;
+      this.lifetime--;
+      if(this.lifetime < 0){
+        world.graphics.scene.remove(this.points);
+        this.status == false;
+      }
+      return false;
+    } else {
+      return true;
+    }
+  },
+}
+
+Fountain = function(piece_id) {
+  //////////////settings/////////
+  this.points = undefined;  
+  this.point_count= 500;
+  this.dirs = [];
+  this.lifetime = 12;
+
+  // only used on init
+  var objectSize = 3;
+  var movementSpeed = 7;
+  var colors = [0xFFFFFF];
+
+  var geometry = new THREE.Geometry();
+ 
+  for (i = 0; i < this.point_count; i ++) { 
+    geometry.vertices.push( center.clone() );
+    this.dirs.push({x:(Math.random() * movementSpeed)-(movementSpeed/2),y: movementSpeed, z:(Math.random() * movementSpeed)-(movementSpeed/2)});
+  }
+  var material = new THREE.PointsMaterial( { size: objectSize,  color: colors[Math.round(Math.random() * colors.length)] });
+  this.points = new THREE.Points( geometry, material );
+  
+  this.status = true;
+  
+  this.xDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  this.yDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  this.zDir = (Math.random() * movementSpeed)-(movementSpeed/2);
+  
+  world.graphics.scene.add(this.points); 
+
+}
+Fountain.prototype = {
+  update: function() {
     if (this.status == true){
       var pCount = this.point_count;
       while(pCount--) {
@@ -549,7 +606,7 @@ Explosion.prototype = {
         this.status == false;
       }
     }
-  },
+  }, 
 }
 
 AttackRadius = function(piece_id) {
