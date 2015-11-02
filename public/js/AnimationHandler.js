@@ -13,7 +13,10 @@ AnimationHandler.prototype = {
   updateAll : function() {
     for (var i = 0; i < this.animations.length; i++) {
       var anim = this.animations[i];
-      anim.update.bind(anim.animatable)();
+      var is_done =  anim.update.bind(anim.animatable)();
+      if (is_done) {
+        this.animations.splice(i, 1);
+      }
     }
   },
 };

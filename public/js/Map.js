@@ -98,13 +98,13 @@ Map.prototype = {
       });
 
       var mesh = new THREE.Mesh(geometry, material);
-      
+      mesh.name = piece_id;
+
       this.game_pieces[piece_id] = new GamePiece(this, piece_id, name, mesh, connected);
       
       this.selectable_objects.push(mesh);
       mesh.computeCenter();
 
-      mesh.name = piece_id;
       world.graphics.scene.add(mesh);
 
     }.bind(this));
@@ -249,7 +249,11 @@ Map.prototype = {
   },
   unsetAttackRadius : function(piece_id) { 
     this.attack_radius.unset();
-  }
+  },
+  newAnimatedEdge : function(piece1, piece2) {
+    var edge = new AnimatedEdge(piece1, piece2);
+    world.graphics.animation_handler.addAnimation(edge);
+  },
 }
 
 Region = function(id, name, pieces, value) {
@@ -486,6 +490,18 @@ Arrow.prototype = {
   },
 }
 
+/**
+ * 
+ */
+Animateable = function() {
+  this.mesh;
+  this.current_frame;
+  this.lifetime;
+}
+Animateable.prototype = {
+  update : function(){},
+}
+
 Explosion = function(center) {
   //////////////settings/////////
   this.points = undefined;  
@@ -563,9 +579,11 @@ AttackRadius.prototype = {
       this.frames_remaining--;
       var cur_rad = (1 -this.frames_remaining/this.frames) * 35 * this.max_radius;
       
-      var i  = 0;
+      // skip over i=0 (center_piece)
+      var i  = 1;
       while (this.pieces_enclosed[i].distance < cur_rad) {
-        this.pieces_enclosed[i].piece.mesh.material.color.set(new THREE.Color(0,1,0));
+        world.map.newAnimatedEdge(this.center_piece, this.pieces_enclosed[i].piece);
+        //this.pieces_enclosed[i].piece.mesh.material.color.set(new THREE.Color(0,1,0));
       i++;
       } 
     }
@@ -608,7 +626,62 @@ AttackRadius.prototype = {
   }
 }
 
+AnimatedEdge = function(piece1, piece2) {
+
+  this.start_piece = piece1;
+  this.end_piece = piece2;
+
+  var mesh1 = piece1.mesh;
+  var mesh2 = piece2.mesh;
+
+  var geo = new THREE.Geometry();
+  this.start_pt = new THREE.Vector3(mesh1.center.x, 2 * mesh1.center.y + 5, mesh1.center.z);
+  
+  this.cur_pt = new THREE.Vector3();
+  this.cur_pt.copy(this.start_pt);
+
+  this.end_pt = new THREE.Vector3(mesh2.center.x, 2 * mesh2.center.y + 5, mesh2.center.z);
+  geo.vertices.push(this.start_pt);
+  geo.vertices.push(this.cur_pt);
+
+  var mat = new THREE.LineBasicMaterial({
+    color : world.map.colors.edge,
+  });
+
+  var line = new THREE.Line(geo, mat);
+    
+  line.name = "anim: " + piece1.id + "--" + piece2.id;
+  world.graphics.scene.add(line);
+
+  this.mesh = line;
+  this.current_frame = 0;
+  this.lifetime = Math.floor(this.start_pt.distanceTo(this.end_pt) / 5); 
+  
+  this.delta = new THREE.Vector3();
+  this.delta.copy(this.end_pt);
+  this.delta.sub(this.start_pt);
+  this.delta.multiplyScalar(1/this.lifetime);
+}
+
+AnimatedEdge.prototype = {
+  update : function() {
+    if (this.current_frame < this.lifetime) {
+      this.cur_pt.add(this.delta);
+      this.mesh.geometry.verticesNeedUpdate = true;
+      this.current_frame++;
+      return false;
+    } else {
+      return true;
+    }
+  }
+}
+
 THREE.Mesh.prototype.computeCenter = function() {
+  this.geometry.computeBoundingBox();
+  this.center = this.geometry.boundingBox.center().multiplyScalar(15);
+  return;
+
+  // old code
   var sumx = 0;
   var sumy = 0;
   var sumz = 0;

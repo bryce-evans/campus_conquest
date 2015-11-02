@@ -13,8 +13,7 @@
         "morphTargets"  : 0
     },
 
-    "scale" : 15.000000,
-    "center" : [0.0, 0.0, 0.0],
+    "scale" : 1.000000,
 
     "materials": [	{
 	"DbgColor" : 15658734,
