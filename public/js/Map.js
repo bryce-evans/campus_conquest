@@ -238,7 +238,7 @@ Map.prototype = {
   newAttackRadius : function(piece_id) {
     // singleton
     if (world.map.attack_radius) {
-      world.map.attack_radius.resetTo(piece_id);
+      world.map.attack_radius.setTo(piece_id);
       return;
     }
 
@@ -247,6 +247,9 @@ Map.prototype = {
     world.graphics.animation_handler.addAnimation(atk_rad);
     this.attack_radius = atk_rad;
   },
+  unsetAttackRadius : function(piece_id) { 
+    this.attack_radius.unset();
+  }
 }
 
 Region = function(id, name, pieces, value) {
@@ -551,9 +554,7 @@ AttackRadius = function(piece_id) {
   this.mesh = new THREE.Mesh(geometry, material);
   this.mesh.rotation.x = -Math.PI/2;
  
-  this.resetTo(piece_id);
- 
-  world.graphics.scene.add(this.mesh);
+  this.setTo(piece_id);
 }
 AttackRadius.prototype = {
   update : function() {
@@ -569,7 +570,7 @@ AttackRadius.prototype = {
       } 
     }
   },
-  resetTo : function(piece_id) {
+  setTo : function(piece_id) {
     this.center_piece = world.map.game_pieces[piece_id];
 
     var center = this.center_piece.mesh.center;
@@ -585,6 +586,10 @@ AttackRadius.prototype = {
     this.getPiecesEnclosed(center);
 
     this.frames_remaining = 20;
+    world.graphics.scene.add(this.mesh);
+  },
+  unset : function() {
+    world.graphics.scene.remove(this.mesh);
   },
   getPiecesEnclosed : function(center) {
     this.pieces_enclosed = [];

@@ -58,8 +58,6 @@ OnReady.init = function() {
         $.ajax({
           url : "/open-games",
         }).done(function(data) {
-          console.log(data);
-          
           var waiting_on = data.length;
           var rows = new Array(waiting_on);
           for (var i = 0; i < data.length; i++) {

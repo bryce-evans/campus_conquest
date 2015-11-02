@@ -498,12 +498,14 @@ StateHandler.prototype = {
         //undo selection
         if (this.current_selected === piece) {
           this.current_selected = undefined;
+          world.map.unsetAttackRadius(piece.id);
           return;
         }
       }
 
       this.current_selected = piece;
       this.current_selected.highlight();
+      world.map.newAttackRadius(piece.id);
 
       // issue attack
     } else {
