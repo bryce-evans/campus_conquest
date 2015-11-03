@@ -180,7 +180,7 @@ Map.prototype = {
   addEdges : function() {
     this.edges = {};
     $.each(this.game_pieces, function(piece_id, piece) {
-      var connections = piece.connected;
+      var connections = Object.keys(piece.connected);
       for (var i = 0; i < connections.length; i++) {
         this.addEdge(piece_id, connections[i]);
       }
