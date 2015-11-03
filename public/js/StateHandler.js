@@ -536,7 +536,8 @@ StateHandler.prototype = {
 
       // init force changes
       // same changes occur on slider.slide
-      $("#attack-unit-count").text('units: ' + (init_slider_force));
+      $("#attack-unit-count").text(init_slider_force);
+      $('#attack-range-multiplier').text(start_piece.connected[end_id]);
 
       $("#attack-slider").slider("destroy");
       $("#attack-slider").slider({
@@ -545,7 +546,7 @@ StateHandler.prototype = {
         min : 0,
         max : max_force,
         slide : function(event, ui) {
-          $("#attack-unit-count").text('units: ' + ui.value);
+          $("#attack-unit-count").text(ui.value);
           arrow.setUnits(ui.value);
         }
       });
