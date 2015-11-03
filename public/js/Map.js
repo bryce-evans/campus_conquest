@@ -774,7 +774,6 @@ AnimatedEdge.prototype = {
 THREE.Mesh.prototype.computeCenter = function() {
   this.geometry.computeBoundingBox();
   this.center = this.geometry.boundingBox.center().multiplyScalar(15);
-  return;
 
   // old code
   var sumx = 0;

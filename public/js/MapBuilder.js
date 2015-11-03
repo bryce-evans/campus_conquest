@@ -96,7 +96,31 @@ MapBuilder.prototype = {
    * Auto generates a map by finding close buildings
    */
   autoBuild : function() {
+    var pieces = Object.keys(this.mesh_lookup);
+    for (var i = 0; i < pieces.length; i++) {
+      var p1 = pieces[i];
+      for (var j = 0; j < pieces.length; j++) {
+        var p2 = pieces[j];
+        
+        if (i === j || p1 > p2) continue;
+        
+        var m1 = this.mesh_lookup[p1];
+        var m2 = this.mesh_lookup[p2];
 
+        var dist = m1.center.distanceTo(m2.center);
+        if(dist < 70) {
+          var weight = Math.ceil(dist / 5) / 10;
+          weight = Math.min(1.0, weight);
+          this.setWeight(p1, p2, weight);
+            m1.material = new THREE.MeshLambertMaterial({
+              color : this.colors.included,
+            });
+            m2.material = new THREE.MeshLambertMaterial({
+              color : this.colors.included,
+            });
+        }
+      }
+    }
   },
 
   addConnection : function(id1, id2, weight) {
@@ -105,8 +129,8 @@ MapBuilder.prototype = {
 
   addEdge : function(mesh1, mesh2) {
     var geo = new THREE.Geometry();
-    geo.vertices.push(new THREE.Vector3(mesh2.center[0], 2 * mesh2.center[1] + 5, mesh2.center[2]));
-    geo.vertices.push(new THREE.Vector3(mesh1.center[0], 2 * mesh1.center[1] + 5, mesh1.center[2]));
+    geo.vertices.push(mesh2.center);
+    geo.vertices.push(mesh1.center);
 
     var mat = new THREE.LineBasicMaterial({
       color : this.colors.edge,
@@ -511,19 +535,9 @@ MapBuilder.prototype = {
 
       ///////////////////////////////////////////
 
-      var sumx = 0;
-      var sumy = 0;
-      var sumz = 0;
-      var counter = 0;
-      var verts = mesh.geometry.vertices;
-      var center = new Array(3);
-      for (var i = 0; i < verts.length; i++) {
-        sumx += verts[i].x;
-        sumy += verts[i].y;
-        sumz += verts[i].z;
-      }
-
-      mesh.center = new Array(this.scale * sumx / i, this.scale * sumy / i, this.scale * sumz / i);
+      geometry.computeBoundingBox();
+      mesh.center = geometry.boundingBox.center().multiplyScalar(15);
+      mesh.center.y += 10;
 
       ///////////////////////////////////////////
       mesh.id = model;
