@@ -189,7 +189,7 @@ Map.prototype = {
   },
   removeEdges : function() {
     $.each(this.game_pieces, function(piece_id, piece) {
-      var connections = piece.connected;
+      var connections = Object.keys(piece.connected);
       for (var i = 0; i < connections.length; i++) {
         this.removeEdge(piece_id, connections[i]);
       }
