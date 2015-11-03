@@ -163,6 +163,12 @@ MapBuilder.prototype = {
 
       } else {
 
+          // open editor to edit weight
+        if (event.ctrlKey) {
+          this.openWeightEditor(this.cur_building.id, hitobj.game_piece.id);
+          return;
+        }
+
         //deselect current building
         if (hitobj == this.cur_building.mesh) {
 
@@ -200,102 +206,112 @@ MapBuilder.prototype = {
           });
 
           this.prev_mat = new THREE.Color(this.colors.connected);
-          
-          if (!(this.cur_building.id in this.map.pieces)) {
-            this.map.pieces[this.cur_building.id] = {};
-          }
-          this.map.pieces[this.cur_building.id][hitobj.game_piece.id] = 1.0;
 
           hitobj.game_piece.included = true;
           hitobj.game_piece.connected = true;
 
           // create non-directed graph
+          this.setWeight(this.cur_building.id, hitobj.game_piece.id, 1.0);
 
-          //add connected to main list
-          if (!(hitobj.game_piece.id in this.map.pieces)) {
-            this.map.pieces[hitobj.game_piece.id] = {};
-          }
-
-          //append the cur_building to list of connected of this building
-         if (!(hitobj.game_piece.id in this.map.pieces)) {
-           this.map.pieces[hitobj.game_piece.id] = {};
-         }
-         this.map.pieces[hitobj.game_piece.id][this.cur_building.id] = 1.0;
-
-          //add line
-          this.addEdge(this.cur_building.mesh, hitobj);
-
-          // open editor to edit weight
-          if (event.ctrlKey) {
-            this.openWeightEditor();
-          }
           // deselect connected
         } else {
-          delete this.map.pieces[this.cur_building.id][hitobj.game_piece.id];
-          delete this.map.pieces[hitobj.game_piece.id][this.cur_building.id];
-
-          this.removeEdge(this.cur_building.id, hitobj.game_piece.id);
-
-          // remove from map entirely
-          if (Object.keys(this.map.pieces[hitobj.game_piece.id]).length == 0) {
-            hitobj.material = new THREE.MeshLambertMaterial({
-              color : this.colors.excluded
-            });
-            this.prev_mat = new THREE.Color(this.colors.excluded);
-            delete this.map.pieces[hitobj.game_piece.id];
-
-          } else {
-            hitobj.material = new THREE.MeshLambertMaterial({
-              color : this.colors.included
-            });
-            this.prev_mat = new THREE.Color(this.colors.included);
-          }
-
+          this.deselectConnected(this.cur_building.id, hitobj.game_piece.id);
         }
       }
     }
   },
-  onMouseMove : function(event) {
+  deselectConnected : function(id_fst, id_snd) {
+    var hitobj = this.mesh_lookup[id_snd];
+    delete this.map.pieces[id_fst][id_snd];
+    delete this.map.pieces[id_snd][id_fst];
 
-    const highlight = new THREE.Color(this.colors.highlight);
+    this.removeEdge(id_fst, id_snd);
 
-    //refresh mouse location for use in other functions
-    this.mouseX = event.x;
-    this.mouseY = event.y;
+    // remove from map entirely
+    if (Object.keys(this.map.pieces[id_snd]).length == 0) {
+      hitobj.material = new THREE.MeshLambertMaterial({
+        color : this.colors.excluded
+      });
+      this.prev_mat = new THREE.Color(this.colors.excluded);
+      delete this.map.pieces[id_snd];
 
-    //*****highlights hovered
-    var cur_obj = this.getHitObject();
-
-    // mouse is over a new object
-    // make sure you:
-    // have a current object
-    // either don't have an old one (was over nothing previously)
-    // or the old object isnt the same as the current
-    if (cur_obj && cur_obj !== this.prev_obj) {
-
-      if (this.prev_obj) {
-        this.prev_obj.material.color = this.prev_mat;
-      }
-
-      this.prev_obj = cur_obj;
-
-      var c = cur_obj.material.color;
-      this.prev_mat = new THREE.Color(c.r, c.g, c.b);
-
-      this.blend(cur_obj.material.color, highlight);
-
-    }
-
-    //undoes highlight if no obj hovered over
-    else if (!cur_obj && this.prev_obj) {
-      this.prev_obj.material.color = this.prev_mat;
-
-      this.prev_mat = null;
-      this.prev_obj = null;
+    } else {
+      hitobj.material = new THREE.MeshLambertMaterial({
+        color : this.colors.included
+      });
+      this.prev_mat = new THREE.Color(this.colors.included);
     }
   },
+  setWeight : function(id1, id2, weight) {
+    var prev_weight = this.map.pieces[id1] && this.map.pieces[id1][id2];
+    this.setOneWeight(id1, id2, weight);
+    this.setOneWeight(id2, id1, weight);
+    if (!prev_weight && weight > 0) {
+      this.addEdge(this.mesh_lookup[id1], this.mesh_lookup[id2]);
+      this.prev_mat = new THREE.Color(this.colors.connected);
+      this.mesh_lookup[id2].material = new THREE.MeshLambertMaterial({
+        color : this.colors.connected,
+      });
+    } else if (prev_weight && weight === 0) {
+      this.removeEdge(id1, id2);
+      delete this.map.pieces[id1][id2];
+      delete this.map.pieces[id2][id1];
+      // not connected at all
+      if (Object.keys(this.map.pieces[id2]).length === 0) {
+        this.mesh_lookup[id2].material = new THREE.MeshLambertMaterial({
+          color : this.colors.excluded,
+        });
+    
+        }
+      }
+    },
+    setOneWeight : function(id_fst, id_snd, weight) {
+     if (!(id_fst in this.map.pieces)) {
+        this.map.pieces[id_fst] = {};
+      }
+      this.map.pieces[id_fst][id_snd] = weight;
+    },
+    onMouseMove : function(event) {
 
-  panAuto : function(x, y) {
+      const highlight = new THREE.Color(this.colors.highlight);
+
+      //refresh mouse location for use in other functions
+      this.mouseX = event.x;
+      this.mouseY = event.y;
+
+      //*****highlights hovered
+      var cur_obj = this.getHitObject();
+
+      // mouse is over a new object
+      // make sure you:
+      // have a current object
+      // either don't have an old one (was over nothing previously)
+      // or the old object isnt the same as the current
+      if (cur_obj && cur_obj !== this.prev_obj) {
+
+        if (this.prev_obj) {
+          this.prev_obj.material.color = this.prev_mat;
+        }
+
+        this.prev_obj = cur_obj;
+
+        var c = cur_obj.material.color;
+        this.prev_mat = new THREE.Color(c.r, c.g, c.b);
+
+        this.blend(cur_obj.material.color, highlight);
+
+      }
+
+      //undoes highlight if no obj hovered over
+      else if (!cur_obj && this.prev_obj) {
+        this.prev_obj.material.color = this.prev_mat;
+
+        this.prev_mat = null;
+        this.prev_obj = null;
+      }
+    },
+
+    panAuto : function(x, y) {
 
     if (x > (1 - this.border) * window.innerWidth) {
       this.camera.position.x += this.scroll_sensitivity;
@@ -317,7 +333,12 @@ MapBuilder.prototype = {
 
   },
 
-  openWeightEditor : function() {
+  openWeightEditor : function(start_id, end_id) {
+     
+      var prev_weight = this.map.pieces[start_id][end_id] || 1;
+
+      this.setWeight(start_id, end_id, prev_weight);
+      
       $('#attack-panel').show();
 
       $('#attack-panel .from').text(start_id);
@@ -325,49 +346,44 @@ MapBuilder.prototype = {
 
       // init force changes
       // same changes occur on slider.slide
-      $("#attack-unit-count").text('units: ' + (init_slider_force));
+      $("#attack-unit-count").text('Range Multiplier: ' + (prev_weight));
 
-      $("#attack-slider").slider("destroy");
       $("#attack-slider").slider({
         range : "min",
-        value : init_slider_force,
-        min : 0.0,
-        max : 1.0,
+        value : prev_weight * 10,
+        min : 0,
+        max : 10,
+        step: 1,
         slide : function(event, ui) {
-          $("#attack-unit-count").text('Range Multiplier: ' + ui.value);
-          arrow.setUnits(ui.value);
-        }
+          var weight = ui.value / 10;
+          $("#attack-unit-count").text('Range Multiplier: ' + weight);
+          this.setWeight(start_id, end_id, weight);
+        }.bind(this),
       });
-
-      $('#attack-panel').show();
 
       // remove old listener so canceling doesnt clear everything!
       $('#attack-panel .button.cancel').unbind('click');
 
       $('#attack-panel .button.cancel').click( function() {
-        arrow.setUnits(prev_arrow_units);
         $('#attack-panel').hide();
-      }.bind({
-        prev_arrow_units : prev_arrow_units,
-        init_start_pt_force : init_start_pt_force,
-      }));
-      $('#attack-panel .button.okay').unbind('click');
-      $('#attack-panel .button.okay').click( function() {
-        // initialize move data map [<from> : <to>]
-        if (!this.map.pieces[this.start_id]) {
-          this.map.pieces[this.start_id] = {};
-        }
-        this.move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
+        $("#attack-slider").slider("destroy");
+      }.bind(this));
 
-        // undo selection
-        this.start_piece.unhighlight();
-        this.start_piece = undefined;
-        this.state_handler.current_selected = undefined;
+      $('#attack-panel .button.okay').unbind('click');
+      $('#attack-panel .button.okay').click(function() {
+        var start_id = this.start_id;
+        var end_id = this.end_id;
+
+        // initialize move data map [<from> : <to>]
+        if (this.pieces[start_id][end_id] == 0.0) {
+          this.this_var.deselectConnected(start_id, end_id);
+        }
+
         $('#attack-panel').hide();
+        $("#attack-slider").slider("destroy");
       }.bind({
-        state_handler : this,
-        move_data : this.move_data,
-        start_piece : start_piece,
+        this_var : this,
+        pieces : this.map.pieces,
         start_id : start_id,
         end_id : end_id,
       }));

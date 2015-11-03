@@ -560,7 +560,6 @@ StateHandler.prototype = {
         $('#attack-panel').hide();
       }.bind({
         prev_arrow_units : prev_arrow_units,
-        init_start_pt_force : init_start_pt_force,
       }));
 
       $('#attack-panel .button.okay').unbind('click');
