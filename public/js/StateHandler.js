@@ -513,6 +513,10 @@ StateHandler.prototype = {
       var start_id = start_piece.id;
       var end_id = piece.id;
 
+      // only allow attack to connected
+      if (!start_piece.connected[end_id]) {
+        return;
+      }
       var arrow = world.map.getArrow(start_id, end_id);
       var prev_arrow_units = arrow.units;
 
