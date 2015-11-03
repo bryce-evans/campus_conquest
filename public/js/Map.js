@@ -617,8 +617,9 @@ AttackRadius = function(piece_id) {
   this.frames_remaining;
   this.center_piece = world.map.game_pieces[piece_id]; 
   this.connections;  
- 
-    var geometry = new THREE.CircleGeometry(30,64);
+  this.animated_edges = [];
+
+  var geometry = new THREE.CircleGeometry(30,64);
   var material = new THREE.MeshLambertMaterial({
     color: new THREE.Color(1,0,0),
     transparent: true,
@@ -651,6 +652,9 @@ AttackRadius.prototype = {
     }
   },
   setTo : function(piece_id) {
+
+    this.removeAnimatedEdges();
+
     world.graphics.animation_handler.addAnimation(this);
     this.center_piece = world.map.game_pieces[piece_id];
 
@@ -678,7 +682,6 @@ AttackRadius.prototype = {
     // TODO reset highlighting of previous pieces
     // for (piece in this.pieceS_enclosed) ...
     
-    this.removeAnimatedEdges();
 
     //this.getPiecesEnclosed(center);
 
