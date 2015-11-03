@@ -20,6 +20,9 @@
   font-family: consolas;
   color: #FFFFFF;
   padding: 20px;
+  width: 760px;
+  height: 320px;
+  overflow: scroll;
 }
 #cancel-button{
 	padding: 10px;
