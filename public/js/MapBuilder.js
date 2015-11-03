@@ -13,15 +13,21 @@ MapBuilder = function() {
   this.dir = "rsc/models/map/buildings/";
 
   this.models = ["sage", "mcgraw_uris", "uris", "ad_white_house", "alumni", "appel", "bailey", "baker_olin", "balch", "barnes", "barton", "bio_tech", "bradfield", "caldwell", "carpenter", "ccc", "ckb", "comstock", "day", "dickson", "donlon", "duffield_phillips", "friedmen", "goldwin", "h_newman", "hollister", "hoy", "hr5", "ives", "jameson", "johnson", "kane", "ktb", "low_rises", "lr_conference", "malott", "mann", "morill", "morris", "mudd_corson", "newman", "observatory", "olive_taiden", "plant_sci", "psb_clarke", "rand", "roberts_kennedy", "rockefeller", "sage_chapel", "schoellkopf", "snee", "statler", "stimson", "teagle", "townhouses", "upson", "van_ren", "warren", "white", "willard_straight"];
+  
+  // <string> id : <THREE.Mesh>
   this.mesh_lookup = {};
+ 
+  // <THREE.Mesh[]> - used for intersection on click
   this.mesh_list = [];
+
+  // <string> id1+id2 (sorted) : <THREE.Line>
   this.edges = {};
 
   this.map = {
-    area : 'Cornell',
-    continents : {},
-    pieces : {}
-  }
+    map : 'Cornell',
+    regions : {},
+    pieces : {},
+  };
 
   this.colors = {
     current : 0xffc038,
@@ -33,9 +39,9 @@ MapBuilder = function() {
   };
 
   this.scroll_sensitivity = 6;
-  this.border = .08;
+  this.border = .02;
 
-  this.scale = 15
+  this.scale = 15;
 
   this.allowPanning = true;
 
@@ -49,12 +55,14 @@ MapBuilder = function() {
     //document.oncontextmenu = new Function("return false")
 
     //Add Listeners
-    $('#canvas3D').mouseup( function() {
-      this.onMouseDown();
+    $('#canvas3D').mouseup(function(event) {
+      this.onMouseDown(event);
     }.bind(this));
 
-    //document.addEventListener('mousewheel', zoom(), false);
-    $(document).mousemove( function() {
+     //document.addEventListener('mousewheel', this.zoom, false);
+    
+    // don't include event as a fn parameter
+    $(document).mousemove(function() {
       this.onMouseMove(event);
     }.bind(this));
 
@@ -82,6 +90,17 @@ MapBuilder.prototype = {
     //if (event.preventDefault)
     //  event.preventDefault();
     //event.returnValue = false;
+  },
+
+  /**
+   * Auto generates a map by finding close buildings
+   */
+  autoBuild : function() {
+
+  },
+
+  addConnection : function(id1, id2, weight) {
+    new Connection(id1, id2, weight);
   },
 
   addEdge : function(mesh1, mesh2) {
@@ -125,16 +144,18 @@ MapBuilder.prototype = {
         this.cur_building = hitobj.game_piece;
 
         // new addition to map
-        if (!this.map.pieces.contains(this.cur_building.id)) {
-          this.map.pieces[this.cur_building.id] = []
+        if (!(this.cur_building.id in this.map.pieces)) {
+          this.map.pieces[this.cur_building.id] = {};
           this.cur_building.included = true;
 
           // already exists in map
         } else {
 
           //change color of all connected
-          for (var i = 0; i < this.map.pieces[this.cur_building.id].length; i++) {
-            this.mesh_lookup[this.map.pieces[this.cur_building.id][i]].material = new THREE.MeshLambertMaterial({
+          var keys = Object.keys(this.map.pieces[this.cur_building.id]);
+          for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            this.mesh_lookup[key].material = new THREE.MeshLambertMaterial({
               color : this.colors.connected
             });
           }
@@ -146,14 +167,16 @@ MapBuilder.prototype = {
         if (hitobj == this.cur_building.mesh) {
 
           //change back color of all connected
-          for (var i = 0; i < this.map.pieces[this.cur_building.id].length; i++) {
-            this.mesh_lookup[this.map.pieces[this.cur_building.id][i]].material = new THREE.MeshLambertMaterial({
-              color : this.colors.included
+          var keys = Object.keys(this.map.pieces[this.cur_building.id]);
+          for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            this.mesh_lookup[key].material = new THREE.MeshLambertMaterial({
+              color : this.colors.included,
             });
           }
 
           // remove from map entirely if not connected to anything
-          if (this.map.pieces[hitobj.game_piece.id].length == 0) {
+          if (Object.keys(this.map.pieces[hitobj.game_piece.id]).length == 0) {
             var new_color = this.colors.excluded;
             delete this.map.pieces[hitobj.game_piece.id];
           } else {
@@ -169,7 +192,7 @@ MapBuilder.prototype = {
           this.cur_building = null;
 
           //add connected to current building
-        } else if ($.inArray(hitobj.game_piece.id, this.map.pieces[this.cur_building.id]) == -1) {
+        } else if (!(hitobj.game_piece.id in this.map.pieces[this.cur_building.id])) {
 
           // TODO RESUME remove connected building to current
           hitobj.material = new THREE.MeshLambertMaterial({
@@ -177,33 +200,44 @@ MapBuilder.prototype = {
           });
 
           this.prev_mat = new THREE.Color(this.colors.connected);
+          
+          if (!(this.cur_building.id in this.map.pieces)) {
+            this.map.pieces[this.cur_building.id] = {};
+          }
+          this.map.pieces[this.cur_building.id][hitobj.game_piece.id] = 1.0;
 
-          this.map.pieces[this.cur_building.id].push(hitobj.game_piece.id);
           hitobj.game_piece.included = true;
           hitobj.game_piece.connected = true;
 
           // create non-directed graph
 
           //add connected to main list
-          if (!this.map.pieces.contains(hitobj.game_piece.id)) {
-            this.map.pieces[hitobj.game_piece.id] = [];
+          if (!(hitobj.game_piece.id in this.map.pieces)) {
+            this.map.pieces[hitobj.game_piece.id] = {};
           }
 
-          //append the cur_buildinging to list of connected of this building
-          this.map.pieces[hitobj.game_piece.id].push(this.cur_building.id);
+          //append the cur_building to list of connected of this building
+         if (!(hitobj.game_piece.id in this.map.pieces)) {
+           this.map.pieces[hitobj.game_piece.id] = {};
+         }
+         this.map.pieces[hitobj.game_piece.id][this.cur_building.id] = 1.0;
 
           //add line
           this.addEdge(this.cur_building.mesh, hitobj);
 
+          // open editor to edit weight
+          if (event.ctrlKey) {
+            this.openWeightEditor();
+          }
           // deselect connected
         } else {
-          this.map.pieces[this.cur_building.id].remove(hitobj.game_piece.id);
-          this.map.pieces[hitobj.game_piece.id].remove(this.cur_building.id);
+          delete this.map.pieces[this.cur_building.id][hitobj.game_piece.id];
+          delete this.map.pieces[hitobj.game_piece.id][this.cur_building.id];
 
           this.removeEdge(this.cur_building.id, hitobj.game_piece.id);
 
           // remove from map entirely
-          if (this.map.pieces[hitobj.game_piece.id].length == 0) {
+          if (Object.keys(this.map.pieces[hitobj.game_piece.id]).length == 0) {
             hitobj.material = new THREE.MeshLambertMaterial({
               color : this.colors.excluded
             });
@@ -280,6 +314,63 @@ MapBuilder.prototype = {
       this.camera.position.z -= this.scroll_sensitivity;
       this.camera.target.z -= this.scroll_sensitivity;
     }
+
+  },
+
+  openWeightEditor : function() {
+      $('#attack-panel').show();
+
+      $('#attack-panel .from').text(start_id);
+      $('#attack-panel .to').text(end_id);
+
+      // init force changes
+      // same changes occur on slider.slide
+      $("#attack-unit-count").text('units: ' + (init_slider_force));
+
+      $("#attack-slider").slider("destroy");
+      $("#attack-slider").slider({
+        range : "min",
+        value : init_slider_force,
+        min : 0.0,
+        max : 1.0,
+        slide : function(event, ui) {
+          $("#attack-unit-count").text('Range Multiplier: ' + ui.value);
+          arrow.setUnits(ui.value);
+        }
+      });
+
+      $('#attack-panel').show();
+
+      // remove old listener so canceling doesnt clear everything!
+      $('#attack-panel .button.cancel').unbind('click');
+
+      $('#attack-panel .button.cancel').click( function() {
+        arrow.setUnits(prev_arrow_units);
+        $('#attack-panel').hide();
+      }.bind({
+        prev_arrow_units : prev_arrow_units,
+        init_start_pt_force : init_start_pt_force,
+      }));
+      $('#attack-panel .button.okay').unbind('click');
+      $('#attack-panel .button.okay').click( function() {
+        // initialize move data map [<from> : <to>]
+        if (!this.map.pieces[this.start_id]) {
+          this.map.pieces[this.start_id] = {};
+        }
+        this.move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
+
+        // undo selection
+        this.start_piece.unhighlight();
+        this.start_piece = undefined;
+        this.state_handler.current_selected = undefined;
+        $('#attack-panel').hide();
+      }.bind({
+        state_handler : this,
+        move_data : this.move_data,
+        start_piece : start_piece,
+        start_id : start_id,
+        end_id : end_id,
+      }));
 
   },
 
@@ -436,10 +527,8 @@ MapBuilder.prototype = {
   // MAP BUILDER LOADER
   load : function() {
     //var json = '<?php echo $map?>';
-    // var myObject = JSON.parse(myJSONtext, reviver);
-    var jsonString = '{ "Cornell": { "Continents": { "EngineeringQuad": [ "duffield_phillips", "rhodes", "upson" ], "ArtsQuad": [ "goldwin", "mcgraw_uris", "taylor" ], "Central": [ "statler", "sage" ] }, "Territories": { "duffield_phillips": [ "upson", "hoy", "taylor" ], "taylor": [ "sage", "mcgraw_uris" ], "hoy": [ "upson" ], "sage": [ "statler", "mcgraw_uris", "duffield_phillips" ] } } }';
-
-    var json = eval('(' + jsonString + ')');
+    // var myObject = JSON.parse(myJSONtext, reviver); 
+    var json =  {  "regions": { "EngineeringQuad": [ "duffield_phillips", "rhodes", "upson" ], "ArtsQuad": [ "goldwin", "mcgraw_uris", "taylor" ], "Central": [ "statler", "sage" ] }, "pieces": { "duffield_phillips": [ "upson", "hoy", "taylor" ], "taylor": [ "sage", "mcgraw_uris" ], "hoy": [ "upson" ], "sage": [ "statler", "mcgraw_uris", "duffield_phillips" ] } };
 
     // alert("getBuildingList: " + getBuildingList());
     // alert("getBuilding: " + getBuilding("sage"));
@@ -545,29 +634,6 @@ GamePiece = function(map, id, mesh) {
 }
 GamePiece.prototype = {
   connectTo : function(piece) {
-
   },
 }
-
-Object.prototype.contains = function(key) {
-
-  var ret = false;
-  jQuery.each(this, function(testkey, value) {
-
-    if ((String(testkey)).localeCompare(key) == 0) {
-      ret = true;
-    }
-  }.bind(this));
-
-  return ret;
-}
-
-Array.prototype.remove = function(e) {
-  for (var b in this) {
-    if (this[b] === e) {
-      this.splice(b, 1);
-      break;
-    }
-  }
-  return this;
-}
+ 
