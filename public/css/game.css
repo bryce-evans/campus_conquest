@@ -55,6 +55,13 @@ nav a ul li {
 nav a ul li:hover {
   background-color: #282828;
 }
+.no-games{
+  font-size: 40pt;
+  font-weight: 200;
+  color: #ccc;
+  margin: 2em auto;
+  text-align: center;
+}
 .debug{
 	  margin-top: 5px;
     width: 300px;

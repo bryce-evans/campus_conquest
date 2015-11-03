@@ -59,6 +59,10 @@ OnReady.init = function() {
           url : "/open-games",
         }).done(function(data) {
           var waiting_on = data.length;
+          if (waiting_on === 0) {
+            $('.no-games').removeClass('hidden');
+            return;
+          }
           var rows = new Array(waiting_on);
           for (var i = 0; i < data.length; i++) {
             var game = data[i];
