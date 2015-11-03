@@ -10,7 +10,7 @@
 
 Map = function() {
 
-  this.map_dir = "/rsc/models/map/";
+  this.map_dir = "rsc/campuses/cornell/maps/";
   this.loader = new THREE.JSONLoader();
   
   // id and name for current map loaded
@@ -55,7 +55,7 @@ Map.prototype = {
   // TODO dynamically load different maps
   loadMapFile : function(filename, callback) {
     $.ajax({
-      url : "/rsc/maps/" + filename,
+      url : this.map_dir + filename,
     }).done( function(data) {
       this.id = data.id;
       this.name = data.name;
@@ -64,10 +64,10 @@ Map.prototype = {
         this.regions[id] = new Region(id, r.name, r.connected, r.value);
       }.bind(this));
 
-      $.each(data.pieces, function(id, piece_data) {
-        this.piece_ids.push(id);
+      $.each(data.pieces, function(start_id, connections) {
+        this.piece_ids.push(start_id);
         // pushes to this.game_pieces
-        this.loadPiece({id: id, connected: piece_data});
+        this.loadPiece({id: start_id, connected: connections});
       }.bind(this));
       
       if (world.graphics.complex_geometry == true) {
@@ -88,8 +88,8 @@ Map.prototype = {
       console.log(piece_id + ' not included in this map');
       return;
     }
-
-    this.loader.load(this.map_dir + "buildings/" + piece_id + "/" + piece_id + ".js", function(geometry) {
+    // TODO migrate models to campus directory
+    this.loader.load("rsc/models/map/" + "buildings/" + piece_id + "/" + piece_id + ".js", function(geometry) {
 
       geometry.computeMorphNormals();
 
@@ -615,11 +615,10 @@ AttackRadius = function(piece_id) {
   this.looping = false;
   
   this.frames_remaining;
-  this.center_piece; 
-  this.pieces_enclosed;
-  this.animated_edges = [];
-
-  var geometry = new THREE.CircleGeometry(30,64);
+  this.center_piece = world.map.game_pieces[piece_id]; 
+  this.connections;  
+ 
+    var geometry = new THREE.CircleGeometry(30,64);
   var material = new THREE.MeshLambertMaterial({
     color: new THREE.Color(1,0,0),
     transparent: true,
@@ -635,20 +634,19 @@ AttackRadius.prototype = {
     if (this.frames_remaining > 0) {
       this.mesh.scale.addScalar(1/this.frames * this.max_radius);
       this.frames_remaining--;
-      var cur_rad = (1 -this.frames_remaining/this.frames) * 35 * this.max_radius;
+      var cur_rad = (1 -this.frames_remaining/this.frames) * this.connections[this.connections.length - 1].dist;
       
-      // skip over i=0 (center_piece)
-      var i  = 1;
-      var piece = this.pieces_enclosed[i];
-      while (piece && piece.distance < cur_rad) {
-        var edge = world.map.newAnimatedEdge(this.center_piece, piece.piece);
+      var connection = this.connections[this.cur_conn];
+      while (connection && connection.dist <= cur_rad) {
+        var edge = world.map.newAnimatedEdge(this.center_piece, connection.piece);
         this.animated_edges.push(edge);
         //this.pieces_enclosed[i].piece.mesh.material.color.set(new THREE.Color(0,1,0));
-      i++;
-      piece = this.pieces_enclosed[i];
+        this.cur_conn++;
+        connection = this.connections[this.cur_conn];
       }
       return false;
     } else {
+      this.cur_conn = 0;
       return true;
     }
   },
@@ -656,6 +654,20 @@ AttackRadius.prototype = {
     world.graphics.animation_handler.addAnimation(this);
     this.center_piece = world.map.game_pieces[piece_id];
 
+    this.connections = [];
+    var keys = Object.keys(this.center_piece.connected);
+    for (var i = 0; i < keys.length; i++) {
+      var piece = world.map.game_pieces[keys[i]];
+      this.connections.push({weight: this.center_piece.connected[keys[i]], piece: piece, dist: this.distanceTo(piece)});
+    }
+    this.connections.sort(function(a, b) {
+      return a.dist - b.dist;
+    });
+    
+    // which connection is being drawn on this frame
+    this.cur_conn  = 0;
+    this.animated_edges = [];
+ 
     var center = this.center_piece.mesh.center;
     this.mesh.position.copy(center);
     this.mesh.position.y = -1;
@@ -668,7 +680,7 @@ AttackRadius.prototype = {
     
     this.removeAnimatedEdges();
 
-    this.getPiecesEnclosed(center);
+    //this.getPiecesEnclosed(center);
 
     this.frames_remaining = 20;
     world.graphics.scene.add(this.mesh);
@@ -686,12 +698,13 @@ AttackRadius.prototype = {
     }
   },
   getPiecesEnclosed : function(center) {
+    console.error("getPiecesEnclosed is deprecated");
     this.pieces_enclosed = [];
    
     var keys = Object.keys(world.map.game_pieces); 
     for (var i = 0; i < keys.length; i++) {
       var piece = world.map.game_pieces[keys[i]];
-      var dist = piece.mesh.center.distanceTo(this.center_piece.mesh.center);
+      var dist = this.distanceTo(piece);
       if (dist < world.map.scale * 5) {
         this.pieces_enclosed.push({piece: piece, distance: dist});
       }
@@ -699,7 +712,10 @@ AttackRadius.prototype = {
     this.pieces_enclosed.sort(function(a,b) {
       return a.distance - b.distance;
     });
-  }
+  },
+  distanceTo : function(piece) {
+      return piece.mesh.center.distanceTo(this.center_piece.mesh.center);
+  },
 }
 
 AnimatedEdge = function(piece1, piece2) {

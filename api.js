@@ -122,6 +122,9 @@ Api.prototype = {
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('donlon');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('townhouses');\
 			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('appel');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('h_newman');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('alumni');\
+			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('observatory');\
       ";
 		this.db.query(query, function(err, result) {
 				
