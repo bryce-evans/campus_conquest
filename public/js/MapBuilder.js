@@ -108,8 +108,9 @@ MapBuilder.prototype = {
         var m2 = this.mesh_lookup[p2];
 
         var dist = m1.center.distanceTo(m2.center);
-        if(dist < 70) {
-          var weight = Math.ceil(dist / 5) / 10;
+        const radius = 70;
+        if(dist < radius) {
+          var weight = Math.ceil((radius - dist) / 5 + 4) / 10;
           weight = Math.min(1.0, weight);
           this.setWeight(p1, p2, weight);
             m1.material = new THREE.MeshLambertMaterial({

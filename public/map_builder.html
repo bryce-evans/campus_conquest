@@ -100,6 +100,10 @@
           // });
 
           map_builder.animate();
+          
+          $('#autobuild-button').click(function() {
+            map_builder.autoBuild();
+          });
 
           $('#export-button').click(function() {
             $('#export-window-container').show();
@@ -121,9 +125,13 @@
 				padding: 10px;
 				position: absolute;
 				margin-left: 15px;'>Map Editor</span>
-				<div id='export-button' class='button' style='float: right;
+			<div id='export-button' class='button' style='float: right;
 				margin: 5px;'>
 					Export
+				</div>
+      	<div id='autobuild-button' class='button' style='float: right;
+				margin: 5px;'>
+				AutoBuild
 				</div>
 
 			</nav>
