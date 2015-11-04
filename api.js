@@ -64,72 +64,12 @@ Api.prototype = {
 			);\
 			\
 			 ALTER TABLE state.\""+GAME_ID+"\" OWNER TO ccadmin;\
-			\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('olin_lib');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('sage_chapel');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('barnes');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('day');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('lr_conference');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('comstock');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('sage');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('bradfield');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('teagle');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('bio_tech');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('duffield_phillips');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('carpenter');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('stimson');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('mudd_corson');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ad_white_house');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('olin');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('willard_straight');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('malott');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('caldwell');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ccc');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('taylor');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('hollister');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('morill');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('bailey');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('snee');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('mcgraw_uris');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('newman');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('morris');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('rand');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('friedmen');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('white');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('olive_taiden');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('uris');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('statler');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('hoy');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('barton');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('baker_olin');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('roberts_kennedy');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('mann');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ives');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('warren');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('van_ren');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('schoellkopf');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('johnson');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('plant_sci');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('psb_clarke');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('upson');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ktb');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('rockefeller');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('goldwin');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('rpcc');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('balch');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('dickson');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('ckb');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('low_rises');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('hr5');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('donlon');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('townhouses');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('appel');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('h_newman');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('alumni');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('observatory');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('jameson');\
-			INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('kane');\
-      ";
+			";
+    
+    var pieces = campus.getPieceList();
+    for (var i = 0; i < pieces.length; i++) {
+      query += "INSERT INTO \""+GAME_ID+"\" (piece_name) VALUES ('"+pieces[i]+"');";
+    }
 		this.db.query(query, function(err, result) {
 				
 				if (err) {
