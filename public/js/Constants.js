@@ -36,7 +36,7 @@ TEAM_DATA = {
     name : "ILR",
     colors : {
       primary : 0x0184ba,
-      secondary : 0x3cb04b,
+      secondary : 0x4263ae,
     },
   },
   eng : {

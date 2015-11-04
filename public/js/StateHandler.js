@@ -142,7 +142,7 @@ StateHandler.prototype = {
           world.map.getArrow(defender, attackers[0]).highlight();
         }
 
-        $('#button-continue').text("continue attack");
+        $('#button-continue').text("Continue Attack");
         $('#button-continue').unbind("click");
         $('#button-continue').click(function(event) {
           displayNextKurfuffle.bind(this)(attack, data);
@@ -241,7 +241,7 @@ StateHandler.prototype = {
         // this function already bound to the button
         // will run if clicked again
       }
-      $('#button-continue').text('next attack');
+      $('#button-continue').text('Next Attack');
       $('#button-continue').unbind('click');
       $('#button-continue').show();
       $('#button-continue').click(function(event) {
