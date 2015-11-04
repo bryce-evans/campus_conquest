@@ -7,14 +7,15 @@
  */
 
 module.exports = {
-  resolveAttacks : function(move_data, state) {
-    var ch = new ConflictHandler(move_data, state);
+  resolveAttacks : function(campus_data, state, move_data) {
+    var ch = new ConflictHandler(campus_data, state, move_data);
     return ch.getAllAttackResults();
   },
 }
 
-ConflictHandler = function(campus_manager, state, move_data) {
-  this.cm = campus_manager;
+ConflictHandler = function(campus_data, state, move_data) {
+  debugger;
+  this.campus = campus_data;
 
   this.state = state;
   this.new_state = {};
@@ -571,9 +572,8 @@ ConflictHandler.prototype = {
     var playout = [];
 
     //var liklihood = cdf(defending, attacking+defending, attacking/(attacking+defending));
-    console.log(pieces);
     
-    var range_multiplier = this.cm.getWeightBetween(attacker.piece, defender.piece);
+    var range_multiplier = this.campus.getWeightBetween(attacker.piece, defender.piece);
     while (atk_units > 0 && dfd_units > 0) {
       var r = Math.random();
       if (r < (atk_units * range_multiplier / (atk_units + dfd_units))) {
@@ -584,7 +584,6 @@ ConflictHandler.prototype = {
         atk_units--;
         playout.push(1);
       }
-      console.log(atk_units, dfd_units, r);
     }
     // attacker won!
     if (atk_units > 0) {

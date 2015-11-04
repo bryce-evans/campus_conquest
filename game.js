@@ -12,6 +12,8 @@ function Game(state, game_manager) {
   this.gm = game_manager;
   this.io = game_manager.io;
   this.db = game_manager.db;
+ 
+  this.campus = this.gm.cm.getCampusData(state.map);
 
   this.stage = state.stage;
 
@@ -326,10 +328,7 @@ Game.prototype = {
   },
 
   applyOrdersMoves : function() {
-        //
-     // var results = ConflictHandler.genAllAttackResults(this.all_move_data,this.state);
-      var results = ConflictHandler.resolveAttacks(this.gm.cm, this.state, this.all_move_data);
-      debugger;
+      var results = ConflictHandler.resolveAttacks(this.campus, this.state, this.all_move_data);
       this.updatePartialState(results.new_state, false);
             
       // set up for reinforcement  stage

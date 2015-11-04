@@ -422,21 +422,40 @@ StateHandler.prototype = {
         this.current_selected = undefined;
         world.map.unsetAttackRadius();
       }
-      
-      var move_data_final = {
-        game_id : world.id,
-        team_index : me.team_index,
-        team_id : me.team,
-        commands : this.move_data,
-      };
-      this.socket.emit('orders move', move_data_final);
-      this.move_data = {};
-      
-      // don't allow more orders to be made
-      this.move = this.movePlayout;
-      
-      $('#button-continue').hide();
-    }.bind(this));
+      function submitOrders() {
+        var move_data_final = {
+          game_id : world.id,
+          team_index : me.team_index,
+          team_id : me.team,
+          commands : this.move_data,
+        };
+        this.socket.emit('orders move', move_data_final);
+        this.move_data = {};
+        
+        // don't allow more orders to be made
+        this.move = this.movePlayout;
+        
+        $('#button-continue').hide();
+      }
+
+      // ask to confirm sending no move
+      if (Object.keys(this.move_data).length === 0) {
+        $('#confirm-panel .title').text("Are you sure?");
+        $('#confirm-panel .body').text('You haven\'t made any moves.');
+        $('#confirm-panel .button.cancel').click(function() {
+  $('#confirm-panel').hide();
+        }); 
+        $('#confirm-panel .button.okay').click(function() {
+  $('#confirm-panel').hide();
+        submitOrders.bind(this)();
+        }.bind(this)); 
+        $('#confirm-panel').show();
+        return;
+      } else {
+        submitOrders.bind(this)();
+      }
+
+         }.bind(this));
   },
   // takes a clicked piece and handles the change in state on the client only until turn is over
   // does not always take a full turn if multiple pieces are needed to handle the turn
