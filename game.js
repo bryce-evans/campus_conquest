@@ -2,7 +2,7 @@
  Requires a Game was already created with api.js and records exist in DB
  */
 
-var conflictHandler = require('./conflictHandler.js');
+var ConflictHandler = require('./conflictHandler.js');
 var utils = require('./utils.js');
 
 function Game(state, game_manager) {
@@ -327,8 +327,8 @@ Game.prototype = {
 
   applyOrdersMoves : function() {
         //
-     // var results = conflictHandler.genAllAttackResults(this.all_move_data,this.state);
-      var results = conflictHandler.resolveAttacks(this.all_move_data, this.state);
+     // var results = ConflictHandler.genAllAttackResults(this.all_move_data,this.state);
+      var results = ConflictHandler.resolveAttacks(this.gm.cm, this.state, this.all_move_data);
       debugger;
       this.updatePartialState(results.new_state, false);
             
