@@ -726,6 +726,8 @@ AnimatedEdge = function(piece1, piece2) {
   this.start_piece = piece1;
   this.end_piece = piece2;
 
+  var same_team = piece1.team === piece2.team;
+
   var mesh1 = piece1.mesh;
   var mesh2 = piece2.mesh;
 
@@ -739,9 +741,16 @@ AnimatedEdge = function(piece1, piece2) {
   geo.vertices.push(this.start_pt);
   geo.vertices.push(this.cur_pt);
 
-  var mat = new THREE.LineBasicMaterial({
-    color : world.map.colors.edge,
-  });
+  var mat = !same_team 
+    ? new THREE.LineBasicMaterial({
+      color : world.map.colors.edge,
+    })
+    : new THREE.LineBasicMaterial({
+      color : 0x444444,
+      opacity: 0.6,
+      transparent: true,
+    });
+
 
   var line = new THREE.Line(geo, mat);
     
