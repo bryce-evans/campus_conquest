@@ -13,6 +13,7 @@ var debug = require('./debug.js');
 function GameManager(api) {
   this.io = api.io;
   this.db = api.db;
+  this.cm;
   this.api = api;
   this.games = {};
 
@@ -21,7 +22,10 @@ function GameManager(api) {
 }
 
 GameManager.prototype = {
-
+  setCampusManager : function(cm) {
+    this.cm = cm;
+  },
+   
   /**
    * initiates all of the games in db
    * @param {socket} io : socket io object

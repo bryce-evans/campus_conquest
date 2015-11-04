@@ -19,13 +19,20 @@ db.connect();
 var utils = require('./utils.js');
 var Api = require('./api.js');
 var GameManager = require('./gameManager.js')
+var CampusManager = require('./campusManager.js')
 
 var debug = require('./debug.js');
 
+// resolve circular dependencies
+// initialize, then set fields
 var api = new Api(io,db);
 var gm = new GameManager(api);
+var cm = new CampusManager();
 
+cm.loadAll();
+api.setCampusManager(cm);
 api.setGameManager(gm);
+gm.setCampusManager(cm);
 gm.initGames();
 
 GLOBAL.CC_GLOBALS = {};

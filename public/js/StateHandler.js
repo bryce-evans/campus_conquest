@@ -335,7 +335,7 @@ StateHandler.prototype = {
       $('.show-on-reinforcement').show();
       $('#button-continue').hide();
       $('.instructions').removeClass('hidden');
-      $('.instructions').text('Place reinforcements');         
+      $('.instructions').text('Click to place reinforcements');         
     } else {
       $('.show-on-reinforcement').hide();
       $('.instructions').addClass('hidden');

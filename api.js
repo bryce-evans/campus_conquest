@@ -19,14 +19,13 @@ Api.prototype = {
 	setGameManager : function(gm){
 		this.gm = gm;
 	},
+  setCampusManager : function (cm) {
+    this.cm = cm;
+  },
 	
-	getCornellTeamList : function() {
-	  return ['hotel', 'as', 'aap', 'cals', 'ilr', 'eng', 'humec'];
-	},
-
-
   createGame : function(data, callback){
-		console.log(data);
+		debugger;
+    console.log(data);
 		if (data.game_id == undefined) {
 		  return false;
 		}
@@ -34,7 +33,10 @@ Api.prototype = {
 		var GAME_ID = data.game_id;
 		var GAME_DESC = data.game_desc || "";
 		var GAME_PRIVACY = 2; //data.privacy
-    var GAME_MAP = data.map || "Cornell";
+    var GAME_CAMPUS = data.campus || "cornell";
+    var GAME_MAP = data.map || "cornell";
+
+    var campus = this.cm.getCampusData(GAME_CAMPUS);
 
     var query = "\
 			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy,stage,map) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+",'grab',\'"+GAME_MAP+"\');\
@@ -135,7 +137,7 @@ Api.prototype = {
 				  console.log(err);
 				} else {
 				
-				  var all_teams = this.getCornellTeamList();
+				  var all_teams = campus.getTeamList();
 				  var game_teams = [];
 				  for (var i = 0; i < all_teams.length; i++) {
 				    if (data[all_teams[i]]) {
