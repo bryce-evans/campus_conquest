@@ -355,6 +355,7 @@ StateHandler.prototype = {
     $('.instructions').text('Select a piece to claim it');
   },
   initReinforcementStage : function() {
+      
     this.current.stage = CONSTANTS.STAGES.REINFORCEMENT;
     this.showStageIntro(this.current.stage);
 
@@ -414,6 +415,14 @@ StateHandler.prototype = {
       // });
       // }
       // }
+      
+      // clear selection
+      if (this.current_selected) {
+        this.current_selected.unhighlight();
+        this.current_selected = undefined;
+        world.map.unsetAttackRadius();
+      }
+      
       var move_data_final = {
         game_id : world.id,
         team_index : me.team_index,
@@ -498,7 +507,7 @@ StateHandler.prototype = {
         //undo selection
         if (this.current_selected === piece) {
           this.current_selected = undefined;
-          world.map.unsetAttackRadius(piece.id);
+          world.map.unsetAttackRadius();
           return;
         }
       }
@@ -576,6 +585,7 @@ StateHandler.prototype = {
         this.move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
 
         // undo selection
+        world.map.unsetAttackRadius();
         this.start_piece.unhighlight();
         this.start_piece = undefined;
         this.state_handler.current_selected = undefined;

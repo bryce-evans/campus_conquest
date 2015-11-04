@@ -241,8 +241,8 @@ Map.prototype = {
   },
   newAttackRadius : function(piece_id) {
     // singleton
-    if (world.map.attack_radius) {
-      world.map.attack_radius.setTo(piece_id);
+    if (this.attack_radius) {
+      this.attack_radius.setTo(piece_id);
       return;
     }
 
@@ -250,7 +250,7 @@ Map.prototype = {
     var atk_rad = new AttackRadius(piece_id);
     this.attack_radius = atk_rad;
   },
-  unsetAttackRadius : function(piece_id) { 
+  unsetAttackRadius : function() { 
     this.attack_radius.unset();
   },
   newAnimatedEdge : function(piece1, piece2) {
