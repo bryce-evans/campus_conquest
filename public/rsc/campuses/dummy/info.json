@@ -1,8 +1,0 @@
-{
-  "dummy": {
-    "id" : "dummy",
-    "name" : "Dummy",
-    "name_full" : "Dummy Example",
-    "released" : false,
-  }
-}

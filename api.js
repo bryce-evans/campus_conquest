@@ -239,7 +239,7 @@ getOpenGames : function(callback){
           }
         }
       }
-      var reinforcements = Math.ceil(piece_count / 3);
+      var reinforcements = Math.max(1, Math.ceil(piece_count / 3));
       callback({status: 200, id:game_id, team:team_index, reinforcements: reinforcements});
     }
   },

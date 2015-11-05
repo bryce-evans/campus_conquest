@@ -1,7 +1,108 @@
-/**
- * Styles for Cornell
- */
-html {
-
-
+.team.icon.hotel {
+  background-image: url(/rsc/images/flags/128/hotel.jpg);
 }
+.team.icon.as {
+  background-image: url(/rsc/images/flags/128/as.jpg);
+}
+.team.icon.aap {
+  background-image: url(/rsc/images/flags/128/aap.jpg);
+}
+.team.icon.cals {
+  background-image: url(/rsc/images/flags/128/cals.jpg);
+}
+.team.icon.ilr {
+  background-image: url(/rsc/images/flags/128/ilr.jpg);
+}
+.team.icon.eng {
+  background-image: url(/rsc/images/flags/128/eng.jpg);
+}
+.team.icon.humec {
+  background-image: url(/rsc/images/flags/128/humec.jpg);
+}
+
+.team.name.hotel:after {
+  content: "Hotel";
+}
+.team.name.as:after {
+  content: "Arts & Sciences";
+}
+.team.name.aap:after {
+  content: "Archetecture & Arts Planning";
+}
+.team.name.cals:after {
+  content: "Agriculture & Life Sciences";
+}
+.team.name.eng:after {
+  content: "Engineering";
+}
+.team.name.ilr:after {
+  content: "ILR";
+}
+.team.name.humec:after {
+  content: "Human Ecology";
+}
+
+/* shrink to fit line*/
+header >.team.name.as:after,header > .team.name.humec:after {
+  font-size: 22px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+/* overflow to next line*/
+header >.team.name.aap:after,header > .team.name.cals:after {
+  display: flex;
+  line-height: 26px;
+  padding-top: 2px;
+}
+
+header > .team.name.as:after, header > .team.name.humec:after, header > .team.name.aap:after, header > .team.name.cals:after {
+  font-size: 22px;
+}
+
+/* 'primary' colors */
+.team.colored.hotel {
+  background-color: #b21c1d;
+}
+.team.colored.as {
+  background-color: #f1592a;
+}
+.team.colored.aap {
+  background-color: #ffc010;
+}
+.team.colored.cals {
+  background-color: #00b050;
+}
+.team.colored.ilr {
+  background-color: #0184ba;
+}
+.team.colored.eng {
+  background-color: #474187;
+}
+.team.colored.humec {
+  background-color: #b03c83;
+}
+
+/* 'secondary' colors */
+.team.text-colored.hotel {
+  background-color: #7e0a0b;
+}
+.team.text-colored.as {
+  background-color: #d73520;
+}
+.team.text-colored.aap {
+  background-color: #f5a11a;
+}
+.team.text-colored.cals {
+  background-color: #3cb04b;
+}
+.team.text-colored.ilr {
+  background-color: #3cb04b;
+}
+.team.text-colored.eng {
+  background-color: #43346d;
+}
+.team.text-colored.humec {
+  background-color: #bb0677;
+}
+

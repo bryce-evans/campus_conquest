@@ -14,9 +14,9 @@ module.exports = {
 }
 
 ConflictHandler = function(campus_data, state, move_data) {
-  debugger;
   this.campus = campus_data;
 
+  
   this.state = state;
   this.new_state = {};
 
@@ -166,6 +166,9 @@ ConflictHandler.prototype = {
      *
      */
 
+
+    var live_teams_orig = this.getLivingTeams();
+
     this.processBidirectionalAttacks();
     this.processMultiAttacks();
     this.processFFAAttacks();
@@ -173,6 +176,8 @@ ConflictHandler.prototype = {
 
     this.set_result.setNewState(this.state);
 
+    this.addEliminatedToResults(live_teams_orig, this.set_result.attacks);
+    
     return this.set_result;
 
   },
@@ -598,6 +603,51 @@ ConflictHandler.prototype = {
 
     this.updateState(state_change);
     return new SingleAttackResult(pieces, teams, playout, state_change);
+  },
+  getLivingTeams : function() {
+    // hashset of living teams
+    // use array to int keys instead of string keys
+    var set = [];
+    var pieces = Object.keys(this.state);
+    for (var i = 0; i < pieces.length; i++) {
+      var team = this.state[pieces[i]].team;
+      set[team] = true;
+    }
+
+    // cast string keys to int before returning
+    ret = [];
+    var str_teams  = Object.keys(set).sort();
+    for (var i = 0; i < str_teams.length; i++) {
+      ret.push(parseInt(str_teams[i]));
+    }
+    return ret;
+  },
+  /**
+   * Adds field "eliminated" : <int[]> to the last AttackResult
+   * involving a team if they no pieces at the end of the turn
+   */
+  addEliminatedToResults : function(live_teams_orig, result_list) {
+    debugger;
+    var live_teams_now = this.getLivingTeams();
+    var eliminated = [];
+    for (var i = 0; i < live_teams_orig.length; i++) {
+      if (live_teams_now.indexOf(live_teams_orig[i]) === -1) {
+        eliminated.push(live_teams_orig[i]);
+      }
+    }
+
+    for (var i = 0; i < eliminated.length; i++) {
+      var team = eliminated[i];
+      for (var j = result_list.length - 1; j >= 0; j--) {
+        var result = result_list[j];
+        if (result.teams.indexOf(team) !== -1) {
+          if (!result.eliminated) {
+            result.eliminated = [];
+          }
+          result.eliminated.push(team);
+        }
+      }
+    }
   },
   updateState : function(updates) {
     var keys = Object.keys(updates);

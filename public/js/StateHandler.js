@@ -151,6 +151,14 @@ StateHandler.prototype = {
 
       function displayNextKurfuffle(attack, data) {
         if(attack.playout.length == 0) {
+          // display defeated
+          if (attack.eliminated) {
+            if (attack.eliminated.indexOf(me.team_index) !== -1) {
+              this.showDefeatPanel();
+            } else {
+              this.showDefeated(attack.eliminated);
+            }
+          }
           var defender = attack.pieces[0];
           var attackers = attack.pieces.slice(1);
           var updated_state = {}
@@ -620,10 +628,6 @@ StateHandler.prototype = {
     }
   },
 
-  movePlayout : function(piece) {
-    // should anything happen?
-  },
-
   /**
    * handles every move
    * is set to point to moveStart, moveGrab, moveReinforcement, or moveOrders
@@ -633,12 +637,6 @@ StateHandler.prototype = {
     console.error('StateHandler.move not set');
   },
 
-  // Renders the board to match the current state
-  render : function() {
-    // unsure if needed?
-
-  },
- 
   updatePartialState : function(updates) {
     var keys = Object.keys(updates);
     for(var i = 0; i < keys.length; i++) {
@@ -688,6 +686,16 @@ StateHandler.prototype = {
     window.setTimeout(function() {
       $('#new-stage-intro').hide();
     }, 2000);
+  },
+
+  showDefeatPanel : function() {
+    world.notifier.note("DEFEATED"); 
+  },
+
+  showDefeated : function(eliminated) {
+    for (var i = 0; i < eliminated.length; i++) {
+      world.notifier.note(this.team_order[eliminated[i]] + " eliminated");
+    }
   },
   /**
    * Shows list of players yet to move

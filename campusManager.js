@@ -6,7 +6,7 @@ CampusManager = function() {
 CampusManager.prototype = {
   campus_directory : "public/rsc/campuses/",
   load : function(id) {
-    if (id === "dummy") return;
+    if (id === "example") return;
     if (id in this.campuses) {
       return;
     }
