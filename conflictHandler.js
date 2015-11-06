@@ -629,6 +629,11 @@ ConflictHandler.prototype = {
   addEliminatedToResults : function(live_teams_orig, result_list) {
     debugger;
     var live_teams_now = this.getLivingTeams();
+    // add final victor 
+    if (live_teams_now.length === 1) {
+      result_list[result_list.length - 1].victor = live_teams_now[0];
+    }
+    
     var eliminated = [];
     for (var i = 0; i < live_teams_orig.length; i++) {
       if (live_teams_now.indexOf(live_teams_orig[i]) === -1) {
