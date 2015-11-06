@@ -242,7 +242,8 @@ getOpenGames : function(callback){
           }
         }
       }
-      var reinforcements.piece_count= Math.ceil(piece_count / 3);
+     
+     reinforcements.piece_count = Math.ceil(piece_count / 3);
 
      // contribution from regions
      var regions = game.map.regions;

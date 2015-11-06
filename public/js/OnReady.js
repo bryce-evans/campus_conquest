@@ -139,5 +139,5 @@ OnReady.init = function() {
         $('#start-game-button').click(function() {
 
         });
-  
+
 }

@@ -14,6 +14,7 @@ World = function(id) {
   this.graphics = undefined;
   this.window_handler = undefined;
   this.notifier = undefined;
+  this.sound_handler = undefined;
   this.override_controller = undefined;
   this.nav = {
     height : 50
@@ -71,6 +72,9 @@ World.prototype = {
   },
   setNotifier : function(notifier) {
     this.notifier = notifier;
+  },
+  setSoundHandler : function(sound_handler) {
+    this.sound_handler = sound_handler;
   },
   setOverrideController : function(override_controller) {
     this.override_controller = override_controller;

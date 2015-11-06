@@ -685,7 +685,7 @@ StateHandler.prototype = {
   },
 
   showDefeatPanel : function() {
-    var defeat_sound = $(".sounds .defeat").play();
+    world.sound_handler.playDefeat();
     world.notifier.fadeInOut("Defeated");
   },
 
