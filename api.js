@@ -246,7 +246,8 @@ getOpenGames : function(callback){
      reinforcements.piece_count = Math.ceil(piece_count / 3);
 
      // contribution from regions
-     var regions = game.map.regions;
+     var regions = game.campus.map.regions;
+     debugger;
      var keys =  Object.keys(regions);
      for (var i = 0; i < keys.length; i++) {
        var pieces = regions[keys[i]].pieces;
@@ -276,6 +277,8 @@ getOpenGames : function(callback){
        reinforcements.other = 1;
        total++;
      }
+     
+     reinforcements.total = total;
 
       callback({status: 200, id: game_id, team: team_index, reinforcements : reinforcements});
     }
