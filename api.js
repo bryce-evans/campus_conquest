@@ -229,7 +229,10 @@ getOpenGames : function(callback){
       callback({status: 500, error: "team id not found"});
     } else {
       var state = game.state;
-      
+    
+      var reinforcements = {};
+
+      // contribution from number of pieces owned
       var piece_count = 0;
       for (var id in state) {
         if (state.hasOwnProperty(id)) {
@@ -239,8 +242,41 @@ getOpenGames : function(callback){
           }
         }
       }
-      var reinforcements = Math.max(1, Math.ceil(piece_count / 3));
-      callback({status: 200, id:game_id, team:team_index, reinforcements: reinforcements});
+      var reinforcements.piece_count= Math.ceil(piece_count / 3);
+
+     // contribution from regions
+     var regions = game.map.regions;
+     var keys =  Object.keys(regions);
+     for (var i = 0; i < keys.length; i++) {
+       var pieces = regions[keys[i]].pieces;
+       var bonus = regions[keys[i]].value;
+       for (var j = 1; j < pieces.length; j++) {
+         if (state[pieces[j]].team !== team_index) {
+           bonus = 0;
+           break;
+         }
+       }
+       if (bonus !== 0) {
+         reinforcements[keys[i]] = bonus;
+       }
+     }
+
+     // contribution from contiguous
+
+     // contribution from other
+     var total = 0;
+     var keys = Object.keys(reinforcements);
+     for (var i = 0; i < keys.length; i++) {
+       total += reinforcements[keys[i]];
+     }
+
+     // always have at least 1 reinforcement
+     if (total === 0) {
+       reinforcements.other = 1;
+       total++;
+     }
+
+      callback({status: 200, id: game_id, team: team_index, reinforcements : reinforcements});
     }
   },
   /**

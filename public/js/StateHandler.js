@@ -381,8 +381,8 @@ StateHandler.prototype = {
       }
     }).done( function(res) {
       console.log('reinforcements', res);
-      this.moves_allowed = res.reinforcements;
-      $('#reinforcements-remaining').text(res.reinforcements);
+      this.moves_allowed = res.reinforcements.total;
+      $('#reinforcements-remaining').text(res.reinforcements.total);
     }.bind(this));
   },
   initOrdersStage : function() {
