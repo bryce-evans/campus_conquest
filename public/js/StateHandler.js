@@ -681,21 +681,19 @@ StateHandler.prototype = {
    * @param {string} stage_name : text to be displayed
    */
   showStageIntro : function(stage_name) {
-    $('#new-stage-text').text(stage_name);
-    $('#new-stage-intro').show();
-    window.setTimeout(function() {
-      $('#new-stage-intro').hide();
-    }, 2000);
+    world.notifier.fadeInOut(stage_name, " Stage");
   },
 
   showDefeatPanel : function() {
-    world.notifier.note("DEFEATED"); 
+    world.notifier.fadeInOut("Defeated");
   },
 
   showDefeated : function(eliminated) {
-    for (var i = 0; i < eliminated.length; i++) {
-      world.notifier.note(this.team_order[eliminated[i]] + " eliminated");
+    var teams_str = this.team_order[eliminated[0]];
+    for (var i = 1; i < eliminated.length; i++) {
+      teams_str += ", " + this.team_order[eliminated[i]];
     }
+    world.notifier.fadeInOut(teams_str, " Eliminated");
   },
   /**
    * Shows list of players yet to move

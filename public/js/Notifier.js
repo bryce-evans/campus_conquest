@@ -21,5 +21,15 @@ Notifier.prototype = {
         note.remove();
       }.bind(this), this.display_time + this.fade_time);
     }.bind(this), this.display_time);
-  }
+  },
+  fadeInOut : function(primary, secondary) {
+    primary = primary || "";
+    secondary = secondary || "";
+    $('#fade-in-out-window').show();
+    $('#fade-in-out-window .primary').text(primary);
+    $('#fade-in-out-window .secondary').text(secondary);
+    window.setTimeout(function() {
+      $('#fade-in-out-window').hide();
+    }, 2000);
+  },
 }

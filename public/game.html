@@ -125,7 +125,7 @@
 							<input type="text" id="input-player-id" name="player-id" class = "field" placeholder="NetID" style="float: none">
 						</div>
 						<div>
-							Team <span id="myteam"> </span>
+							Team <span id="myteam" class="orange-text"> </span>
 							</script>
 							<ul id='team-list'></ul>
 						</div>
@@ -215,9 +215,12 @@
 					</table>
 				</div>
 			</div>
-			<div id='new-stage-intro' class='centered-window-container fade-in-out' style="display: none;">
+			<div id='fade-in-out-window' class='centered-window-container fade-in-out' style="display: none;">
 				<div class='window'>
-					<h1><span id="new-stage-text"></span> Stage</h1>
+					<h1>
+            <span class="primary orange-text"></span>
+            <span class="secondary"></span>
+          </h1>
 				</div>
 			</div>
       <div id='confirm-panel' class='centered-window-container' style="display: none;">
@@ -236,7 +239,7 @@
 			</div>
 			<div id='attack-panel' class='centered-window-container' style="display: none;">
 				<div class='window'>
-					<h1><span class='from'> </span> >> <span class="to"> </span></h1>
+					<h1><span class='from'> </span> <span class="orange-text">>></span> <span class="to"> </span></h1>
           <div class= "microtext">
 					  <div title="Attack closer for better advantage">
               Range Multiplier: 
@@ -269,7 +272,7 @@
 				<div id="panel-wheel"></div>
 				<div id='panel-reinforcement-info' class='show-on-reinforcement' style='display: none;'>
 					<span>Reinforcements Remaining: </span>
-					<span id='reinforcements-remaining'> </span>
+					<span id='reinforcements-remaining' class="orange-text"> </span>
 				</div>
 				<div id="current-selection">
 

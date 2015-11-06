@@ -7,7 +7,7 @@
   overflow: hidden;
 }
 
-span {
+span.orange-text {
   color: #ffaa55;
 }
 nav {
@@ -179,11 +179,11 @@ nav a ul li:hover {
 #waiting-on-list {
   width: 100%;
 }
-#new-stage-intro > div {
+#fade-in-out-window > div {
   position: relative;
   text-align: center;
 }
-#new-stage-intro > .window {
+#fade-in-out-window > .window {
   height: 20px;
   padding: 30px;
   letter-spacing: .4em;

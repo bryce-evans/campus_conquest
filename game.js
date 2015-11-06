@@ -114,7 +114,6 @@ Game.prototype = {
   initReinforcementStage : function(socket) {
 
     console.log('initReinforcementStage() called');
-    this.printDebugInfo(socket);
     socket.on('reinforcement move', function(move_data) {
       console.log('received reinforcement move', move_data);
       this.handleReinforcementMove(socket, move_data);
@@ -125,8 +124,6 @@ Game.prototype = {
    */
   initOrdersStage : function(socket) {
     console.log('initOrdersStage() called');
-
-    this.printDebugInfo(socket);
 
     socket.on('orders move', function(move_data) {
       console.log('received orders move', move_data);
