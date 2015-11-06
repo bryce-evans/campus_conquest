@@ -372,7 +372,6 @@ StateHandler.prototype = {
     this.moves_made = 0;
     this.move = this.moveReinforcement;
 
-    this.renderUIForCurrentStage();
     $.ajax({
       url : CONSTANTS.URL.REINFORCEMENTS,
       data : {
@@ -382,7 +381,25 @@ StateHandler.prototype = {
     }).done( function(res) {
       console.log('reinforcements', res);
       this.moves_allowed = res.reinforcements.total;
-      $('#reinforcements-remaining').text(res.reinforcements.total);
+      $.each(res.reinforcements, function(k, v) {
+        var tr = $("<tr>");
+        $('#reinforcements-table table').append(tr);
+        var td1 = $("<td>");
+        var td2 = $("<td>");
+        td1.text(k);
+        td2.text(v);
+        tr.append(td1);
+        tr.append(td2);
+      });
+      window.setTimeout(function() {
+        $('#reinforcements-table').removeClass('hidden');
+        $('#reinforcements-remaining').text(res.reinforcements.total);
+        this.renderUIForCurrentStage();
+      }.bind(this), 2200);
+      $('#reinforcements-table .button.cancel').click(function() {
+        $('#reinforcements-table table').empty();
+        $('#reinforcements-table').addClass("hidden");
+      });
     }.bind(this));
   },
   initOrdersStage : function() {

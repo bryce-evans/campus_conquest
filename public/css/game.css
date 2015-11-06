@@ -188,6 +188,16 @@ nav a ul li:hover {
   padding: 30px;
   letter-spacing: .4em;
 }
+#reinforcements-table table{
+  width: 80%;
+  margin: 0 auto;
+}
+#reinforcements-table tr {
+  height: 1.5em;
+}
+#reinforcements-table table tr:last-child{
+  border-top:1px solid rgba(255,255,255, 0.15);
+}
 #attack-panel {
 
 }
