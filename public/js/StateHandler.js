@@ -395,6 +395,7 @@ StateHandler.prototype = {
         $('#reinforcements-table').removeClass('hidden');
         $('#reinforcements-remaining').text(res.reinforcements.total);
         this.renderUIForCurrentStage();
+        world.sound_handler.play("reinforcements-brassy");
       }.bind(this), 2200);
       $('#reinforcements-table .button.cancel').click(function() {
         $('#reinforcements-table table').empty();
@@ -405,6 +406,8 @@ StateHandler.prototype = {
   initOrdersStage : function() {
     this.current.stage = 'orders';
     this.showStageIntro('Attack Orders');
+     
+    world.sound_handler.play("attack");
 
     this.renderUIForCurrentStage();
 
@@ -698,11 +701,12 @@ StateHandler.prototype = {
    * @param {string} stage_name : text to be displayed
    */
   showStageIntro : function(stage_name) {
+    world.sound_handler.play("whoosh-in-out");
     world.notifier.fadeInOut(stage_name, " Stage");
   },
 
   showDefeatPanel : function() {
-    world.sound_handler.playDefeat();
+    world.sound_handler.play("defeat-chimes");
     world.notifier.fadeInOut("Defeated");
   },
 

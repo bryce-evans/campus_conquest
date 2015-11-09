@@ -158,7 +158,7 @@
 
 				var ambient = 0x888, diffuse = 0xbbbbbb, specular = 0x000000, shininess = .5;
 
-				var shader = THREE.ShaderLib.normalmap;
+				var shader = THREE.ShaderLib.normal;
 				var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
 				uniforms["tNormal"].value = THREE.ImageUtils.loadTexture("rsc/models/detailed/mcgraw/mcgraw_nrm_inverted.png");
