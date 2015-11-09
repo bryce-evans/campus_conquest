@@ -3,6 +3,7 @@
  */
 
 var ConflictHandler = require('./conflictHandler.js');
+var AI = require('./ai.js');
 var utils = require('./utils.js');
 
 function Game(state, game_manager) {
@@ -594,6 +595,14 @@ Game.prototype = {
       console.error('ERROR. could not remove player' + socket.id);
     }
 
+  },
+  /**
+   * replaces a team with an AI
+   */
+  addAI : function(team) {
+    if (!this.ai) {
+      this.ai = new AI(this.campus, this.state);
+    }
   },
   /**
    * Prints data related to this game for debugging

@@ -47,10 +47,11 @@ Graphics.prototype = {
     this.ctx2d = $('#canvas2D')[0].getContext('2d');
 
     this.camera = new THREE.PerspectiveCamera(30, world.window_handler.aspect_ratio, 1, 2000);
-    this.camera.position.set(0, 600, 0);
+    this.camera.position.set(0, 600, 150);
     this.camera.target = new THREE.Vector3(0, 0, 0);
-    this.camera.position.x = 0;
-    this.camera.position.z = 150;
+   // this.camera.lookAt(this.camera.target);
+    //this.camera.position.x = 0;
+    //this.camera.position.z = 150;
     this.scene.add(this.camera);
 
     var light = new THREE.DirectionalLight(0xffffff, 1.3);
@@ -91,6 +92,20 @@ Graphics.prototype = {
     this.stats.domElement.children[ 0 ].children[1].style.display = "none";
     this.container.appendChild(this.stats.domElement);
 
+  },
+
+  lookAtPiece : function(piece_mesh) {
+    var target = piece_mesh.center;
+    
+    var diff = new THREE.Vector3();
+    diff.subVectors(target, this.camera.target);
+
+    this.camera.target.x = target.x;
+    this.camera.target.z = target.z;
+    
+    this.camera.position.x += diff.x;
+    this.camera.position.z += diff.z;
+    
   },
 
   render : function() {
