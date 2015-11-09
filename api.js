@@ -283,6 +283,15 @@ getOpenGames : function(callback){
       callback({status: 200, id: game_id, team: team_index, reinforcements : reinforcements});
     }
   },
+  moveAI : function(data, callback) {
+    console.log(data);
+    var game_id = data.id;
+    var team_index = data.team;
+    console.log(game_id);
+    var g = this.gm.getGame(game_id);
+    var move = g.moveAI(team_index); 
+    callback(move);
+  },
   /**
    * A set of overrides for debugging
    */

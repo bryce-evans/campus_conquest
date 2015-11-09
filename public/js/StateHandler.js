@@ -494,7 +494,6 @@ StateHandler.prototype = {
     // nat cho move yet son
     if (me.team != this.getCurrent().team) {
       console.log("Not your turn! Wait for " + world.state_handler.getCurrent().team);
-
       return;
     }
     var move_data = {
@@ -655,6 +654,19 @@ StateHandler.prototype = {
    */
   move : function(piece) {
     console.error('StateHandler.move not set');
+  },
+
+  // allow the server AI to controll your move
+  moveAI : function() {
+    $.ajax({
+      url : "/ai",
+      data : {
+        id : world.id,
+        team : me.team_index,
+      },
+    }).done(function(response) {
+      console.log(response);
+    }.bind(this));
   },
 
   updatePartialState : function(updates) {

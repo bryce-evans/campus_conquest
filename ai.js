@@ -2,11 +2,10 @@
  * A class for suggested moves and computer opponents
  */
 
-module.exports = AI;
 
 AI = function(campus, state) {
-  this.campus = {};
-  this.state = {}; 
+  this.campus = campus;
+  this.state = state; 
 }
 AI.prototype = {
   /**
@@ -15,14 +14,14 @@ AI.prototype = {
   getGrabMoveNaive : function(team) {
     var keys = Object.keys(this.state);
     var open = [];
-    for (var i = 0;  i < this.state; i++) {
-      var peice = keys[i];
+    for (var i = 0;  i < keys.length; i++) {
+      var piece = keys[i];
       if (this.state[piece].team === -1) {
         open.push(piece);
       }
     }
     var r = Math.floor(Math.random() * open.length);
-    return open[r];
+    return {team_index: team, piece: open[r]};
   },
   /**
    * Distribute reinforcements along border
@@ -44,3 +43,5 @@ AI.prototype = {
 
   }
 }
+
+module.exports = AI;

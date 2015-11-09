@@ -135,6 +135,12 @@ app.get('/game', function(req, res) {
   res.sendFile(__dirname + '/public/game.html');
 });
 
+app.get('/ai', function(req, res) {
+  api.moveAI(req.query, function(success) {
+    utils.writeData(res, success); 
+  });
+});
+
 app.post('/master-controller', function(req, res) {
   console.log(req.body);
   api.handleMasterRequest(req.body, function(success) {

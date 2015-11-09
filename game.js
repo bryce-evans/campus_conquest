@@ -15,8 +15,17 @@ function Game(state, game_manager) {
   this.db = game_manager.db;
  
   this.campus = this.gm.cm.getCampusData(state.map);
+  this.ai = new AI(this.campus, state.state);
 
   this.stage = state.stage;
+  
+  this.stages = {
+    START : "start",
+    GRAB : "grab",
+    REINFORCEMENTS : "reinforcements",
+    ORDERS : "orders",
+    END : "end",
+  };
 
   // ordering of teams, e.g. ["eng","ilr", ...]
   this.team_order = state.team_order;
@@ -29,6 +38,9 @@ function Game(state, game_manager) {
   // teams[team_id <string>] contains team data
   // players: player list returns player socket list
   this.teams = {};
+  
+  // team indices of AI
+  this.ai_controlled = [0];
   this.turn = state.turn;
   this.state = state.state;
 
@@ -48,12 +60,16 @@ function Game(state, game_manager) {
 }
 
 Game.prototype = {
-
   /**
    * @param id <string> : id of team, e.g. 'cals' or 'eng'
    */
   addTeam : function(id) {
     this.teams[id] = new Team(id);
+  },
+
+  addAITeam : function(id) {
+    this.teams[id] = new AITeam(id);
+    this.addPlayer(null, id);
   },
 
   /**
@@ -63,14 +79,14 @@ Game.prototype = {
    */
   addPlayer : function(socket, team_id) {
 
+    if (!(team_id in this.teams)) {
+      this.addTeam(team_id);
+    }
+
     // subscribe the player to updates to the room
     socket.join(this.id);
     this.clients.push(socket);
     console.log('player joined game ' + this.id);
-
-    if (!( team_id in this.teams)) {
-      this.addTeam(team_id);
-    }
 
     var player = new Player(socket, {
       team_index : this.getTeamIndexFromId(team_id)
@@ -80,15 +96,21 @@ Game.prototype = {
     console.log('player entering stage ' + this.stage);
 
     // puts this client into being served by different stage handlers
-    switch(this.stage) {
-      case 'grab':
+    switch (this.stage) {
+      case this.stages.START:
+        this.initStartStage(socket);
+        break;
+      case this.stages.GRAB:
         this.initGrabStage(socket);
         break;
-      case 'reinforcement':
+      case this.stages.REINFORCEMENT:
         this.initReinforcementStage(socket);
         break;
-      case 'orders':
+      case this.stages.ORDERS:
         this.initOrdersStage(socket);
+        break;
+      case this.stages.END:
+        this.initEndStage(socket);
         break;
     }
   },
@@ -96,14 +118,89 @@ Game.prototype = {
   getTeamIndexFromId : function(team_id) {
     return this.team_order.indexOf(team_id);
   },
+ 
+  /**
+   *  Sets the stage for all clients
+   */
+  initStage : function(new_stage) {
 
+    var old_listener;
+    switch (this.stage) {
+      case this.stages.START:
+        old_listener = "";
+        break;
+      case this.stages.GRAB:
+        old_listener = "grab move";
+        break;
+      case this.stages.REINFORCEMENT:
+        old_listener = "reinforcement move";
+        break;
+      case this.stages.ORDERS:
+        old_listener = "orders move";
+        break;
+      case this.stages.END:
+        old_listener = "";
+        break;
+    }
+
+    var init_fn;
+    var move_fn;
+    switch (new_stage) {
+      case this.stages.START:
+        init_fn = this.initStartStage;
+        break;
+      case this.stages.GRAB:
+        init_fn = this.initGrabStage;
+        move_fn = this.handleGrabMove;
+        ai_fn = this.ai.getGrabMoveNaive;
+        break;
+      case this.stages.REINFORCEMENT:
+        init_fn = this.initReinforcementStage;
+        move_fn = this.handleReinforcementMove;
+        ai_fn = this.ai.getReinforcementMoveNaive;
+        break;
+      case this.stages.ORDERS:
+        init_fn = this.initOrdersStage;
+        move_fn = this.handleOrdersMove;
+        ai_fn = this.ai.getOrdersMoveNaive;
+        break;
+      case this.stages.END:
+        init_fn = this.initEndStage;
+        break;
+    }
+
+    this.stage = new_stage;
+
+    //  update all client sockets
+    for (var i = 0; i < this.clients.length; i++) {
+      var socket = this.clients[i];
+      socket.removeAllListeners(old_listener);
+      init_fn(socket);
+    }
+
+    for (var i = 0; i < this.ai_controlled.length; i++) {
+      var team = this.ai_controlled[i];
+      if (ai_fn) {
+        var socket = undefined;
+        var move = ai_fn(team);
+        move_fn(socket, move);        
+      }
+    }
+  },
+  /**
+   * Before the game has started- players still joining
+   */
+  initStartStage : function (socket) {
+  
+  },
+  
   /**
    * sets up functions for grab stage
    */
-  initGrabStage : function(socket) {
+  initGrabStage : function (socket) {
 
     // handle selecting buildings
-    socket.on('grab move', function(move_data) {
+    socket.on('grab move', function (move_data) {
       console.log('received grab move', move_data);
       this.handleGrabMove(socket, move_data);
     }.bind(this));
@@ -112,7 +209,7 @@ Game.prototype = {
   /**
    * sets up functions for reinforcement stage
    */
-  initReinforcementStage : function(socket) {
+  initReinforcementStage : function (socket) {
 
     console.log('initReinforcementStage() called');
     socket.on('reinforcement move', function(move_data) {
@@ -123,18 +220,31 @@ Game.prototype = {
   /**
    *  sets up functions for orders stage
    */
-  initOrdersStage : function(socket) {
+  initOrdersStage : function (socket) {
     console.log('initOrdersStage() called');
 
-    socket.on('orders move', function(move_data) {
+    socket.on('orders move', function (move_data) {
       console.log('received orders move', move_data);
       this.handleOrdersMove(socket, move_data);
     }.bind(this));
   },
   /**
+   * Case where came has concluded already
+   */
+  initEndStage : function(socket) {
+ 
+  },
+  /**
+   * The current move function
+   */
+  move : function() {
+
+  },
+  /**
    * Takes a client and their move and handles the grab turn
    */
-  handleGrabMove : function(socket, move_data) {
+  handleGrabMove : function (socket, move_data) {
+    console.log(move_data);
     if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
       console.log('invalid move data');
       console.log("this.current_team_index: " , this.current_team_index);
@@ -142,7 +252,7 @@ Game.prototype = {
       return false;
     }
 
-    console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team_id);
+    console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team_index);
 
     this.nextTeamIndex();
     this.turn++;
@@ -194,7 +304,7 @@ Game.prototype = {
   /**
    * Takes a client and their move and adds the reinforcements to the move list
    */
-  handleReinforcementMove : function(socket, move_data) {
+  handleReinforcementMove : function (socket, move_data) {
     
     var team = move_data.meta.team;
     var team_index = move_data.meta.team_index;
@@ -247,7 +357,7 @@ Game.prototype = {
 
   },
 
-  applyReinforcementMoves : function(){
+  applyReinforcementMoves : function() {
      
       for (var i = 0; i < this.all_move_data.length; i++) {
         var com = this.all_move_data[i];
@@ -353,7 +463,7 @@ Game.prototype = {
   /**
    * takes full data and updates everything
    */
-  updateGameData : function(data){
+  updateGameData : function(data) {
    
     if ("map" in data && this.map != data.map) {
       console.error("must update game with same map");
@@ -547,6 +657,9 @@ Game.prototype = {
    */
   nextTeamIndex : function() {
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
+    if (this.current_team_index in this.ai_controlled) {
+      this.moveAI(this.current_team_index);
+    }
     return this.current_team_index;
   },
 
@@ -600,9 +713,20 @@ Game.prototype = {
    * replaces a team with an AI
    */
   addAI : function(team) {
-    if (!this.ai) {
-      this.ai = new AI(this.campus, this.state);
+    this.ai_controlled.push(team);
+  },
+  moveAI : function(team) {
+    var move;
+    switch (this.stage) {
+      case this.stages.GRAB:
+        move = this.ai.getGrabMoveNaive(team);
+        debugger;
+        this.handleGrabMove(undefined, move);
+        break;
+      default:
+        return {status: "500", error: "todo"};
     }
+    return move;
   },
   /**
    * Prints data related to this game for debugging
@@ -635,11 +759,17 @@ function Team(id, name) {
   this.players = [];
 }
 
+function AITeam(id, name) {
+  Team.call(this);
+  this.ai = true;
+}
+
 function Player(socket, options) {
   this.socket = socket;
   this.name = options.name || '';
   this.id = options.id || '';
   this.team_index = options.team_index || -1;
 }
+
 
 module.exports = Game;
