@@ -381,6 +381,8 @@ StateHandler.prototype = {
     }).done( function(res) {
       console.log('reinforcements', res);
       this.moves_allowed = res.reinforcements.total;
+
+      $('#reinforcements-table table').empty();
       $.each(res.reinforcements, function(k, v) {
         var tr = $("<tr>");
         $('#reinforcements-table table').append(tr);
