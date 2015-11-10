@@ -243,7 +243,7 @@ getOpenGames : function(callback){
         }
       }
      
-     reinforcements.piece_count = Math.ceil(piece_count / 3);
+     reinforcements.piece_count = {name : "Territory Count Bonus", count: Math.ceil(piece_count / 3)};
 
      // contribution from regions
      var regions = game.campus.map.regions;
@@ -259,26 +259,27 @@ getOpenGames : function(callback){
          }
        }
        if (bonus !== 0) {
-         reinforcements[keys[i]] = bonus;
+         var region_id = keys[i];
+         reinforcements[keys[i]] = {name : regions[region_id].name, count: bonus};
        }
      }
-
+debugger;
      // contribution from contiguous
 
      // contribution from other
      var total = 0;
      var keys = Object.keys(reinforcements);
      for (var i = 0; i < keys.length; i++) {
-       total += reinforcements[keys[i]];
+       total += reinforcements[keys[i]].count;
      }
 
      // always have at least 1 reinforcement
      if (total === 0) {
-       reinforcements.other = 1;
+       reinforcements.other = {name : "Other", count : 1};
        total++;
      }
      
-     reinforcements.total = total;
+     reinforcements.total = {name : "Total", count : total};
 
       callback({status: 200, id: game_id, team: team_index, reinforcements : reinforcements});
     }

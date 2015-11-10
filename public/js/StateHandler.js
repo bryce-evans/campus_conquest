@@ -388,14 +388,14 @@ StateHandler.prototype = {
         $('#reinforcements-table table').append(tr);
         var td1 = $("<td>");
         var td2 = $("<td>");
-        td1.text(k);
-        td2.text(v);
+        td1.text(v.name);
+        td2.text(v.count);
         tr.append(td1);
         tr.append(td2);
       });
       window.setTimeout(function() {
         $('#reinforcements-table').removeClass('hidden');
-        $('#reinforcements-remaining').text(res.reinforcements.total);
+        $('#reinforcements-remaining').text(res.reinforcements.total.count);
         this.renderUIForCurrentStage();
         world.sound_handler.play("reinforcements-brassy");
       }.bind(this), 2200);
