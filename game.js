@@ -22,7 +22,7 @@ function Game(state, game_manager) {
   this.stages = {
     START : "start",
     GRAB : "grab",
-    REINFORCEMENTS : "reinforcements",
+    REINFORCEMENT : "reinforcement",
     ORDERS : "orders",
     END : "end",
   };
@@ -57,6 +57,8 @@ function Game(state, game_manager) {
   // all move data for this turn
   // gets appended to as players contribute their moves
   this.all_move_data = [];
+  
+  this.initStage(this.stage);
 }
 
 Game.prototype = {
@@ -145,6 +147,7 @@ Game.prototype = {
 
     var init_fn;
     var move_fn;
+    var ai_fn;
     switch (new_stage) {
       case this.stages.START:
         init_fn = this.initStartStage;
@@ -177,7 +180,8 @@ Game.prototype = {
       socket.removeAllListeners(old_listener);
       init_fn(socket);
     }
-
+    
+    // move all ai players
     for (var i = 0; i < this.ai_controlled.length; i++) {
       var team = this.ai_controlled[i];
       if (ai_fn) {

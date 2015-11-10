@@ -247,7 +247,6 @@ getOpenGames : function(callback){
 
      // contribution from regions
      var regions = game.campus.map.regions;
-     debugger;
      var keys =  Object.keys(regions);
      for (var i = 0; i < keys.length; i++) {
        var pieces = regions[keys[i]].pieces;
@@ -263,7 +262,6 @@ getOpenGames : function(callback){
          reinforcements[keys[i]] = {name : regions[region_id].name, count: bonus};
        }
      }
-debugger;
      // contribution from contiguous
 
      // contribution from other
