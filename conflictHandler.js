@@ -251,7 +251,10 @@ ConflictHandler.prototype = {
         attackers.push(new Attacker(attacker.team, attacker.units, attacker_id, defender_id));
 
       }
+      if(!this.state[defender_id]){
 
+      debugger;
+      }
       var defender = new Defender(this.state[defender_id].team, this.state[defender_id].units, defender_id);
 
       // multi attack
@@ -627,7 +630,6 @@ ConflictHandler.prototype = {
    * involving a team if they no pieces at the end of the turn
    */
   addEliminatedToResults : function(live_teams_orig, result_list) {
-    debugger;
     var live_teams_now = this.getLivingTeams();
     // add final victor 
     if (live_teams_now.length === 1) {
@@ -642,6 +644,7 @@ ConflictHandler.prototype = {
     }
 
     for (var i = 0; i < eliminated.length; i++) {
+      debugger;
       var team = eliminated[i];
       for (var j = result_list.length - 1; j >= 0; j--) {
         var result = result_list[j];

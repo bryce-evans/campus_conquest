@@ -216,7 +216,6 @@ getOpenGames : function(callback){
   },
 
 
-// TODO  make reinforcment count dynamic
   getReinforcements : function(game_id, team_id, callback){
   	if(!this.gm.gameExists(game_id)){
   		console.log('GAME DOES NOT EXIST');

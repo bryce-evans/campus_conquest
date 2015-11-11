@@ -20,7 +20,6 @@ AI.prototype = {
    * Distribute reinforcements along border
    */
   getReinforcementMoveNaive : function(team, count) {
-    debugger;
     var border_pieces = this.getPiecesOnBorder(team);
     var ret = {};
     for (var i = 0; i < count; i++) {

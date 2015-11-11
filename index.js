@@ -167,7 +167,7 @@ io.on('connection', function(socket) {
    */
   socket.on('join game', function(data) {
     if (gm.gameExists(data.game_id)) {
-      gm.getGame(data.game_id).addPlayer(socket, data.player.team);
+      gm.getGame(data.game_id).addPlayerUser(socket, data.player.team);
 
       // game this socket is currently in
       socket.game_id = data.game_id;

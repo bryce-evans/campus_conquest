@@ -4,7 +4,11 @@
 
 var ConflictHandler = require('./conflictHandler.js');
 var AI = require('./ai.js');
-var utils = require('./utils.js');
+var Utils = require('./utils.js');
+
+var Player = require('./player.js');
+var PlayerUser = require('./playerUser.js');
+var PlayerAINaive = require('./playerAINaive.js');
 
 function Game(state, game_manager) {
 
@@ -16,6 +20,9 @@ function Game(state, game_manager) {
  
   this.campus = this.gm.cm.getCampusData(state.map);
   this.ai = new AI(this.campus, state.state);
+  
+  this.state = state.state;
+  this.turn = state.turn;
 
   this.stage = state.stage;
   
@@ -38,11 +45,12 @@ function Game(state, game_manager) {
   // teams[team_id <string>] contains team data
   // players: player list returns player socket list
   this.teams = {};
-  
-  // team indices of AI
-  this.ai_controlled = [0];
-  this.turn = state.turn;
-  this.state = state.state;
+  for (var i = 0; i < this.team_order.length; i++) {
+    var team_id = this.team_order[i];
+    var team = new Team(team_id);
+    team.setIndex(i);
+    this.addTeam(team);
+  }
 
   // who is left to move this turn
   // boolean array: index = team index
@@ -51,27 +59,29 @@ function Game(state, game_manager) {
     this.waiting_on[i] = true;
   }
 
-  // list of all socket clients in the game
-  this.clients = [];
+  // {<string> socketID : Player}
+  this.socket_player_map = {};
 
   // all move data for this turn
   // gets appended to as players contribute their moves
   this.all_move_data = [];
   
   this.initStage(this.stage);
+  
+  // humec always ai for now
+  // players must be added after initializing stage
+  if("humec" in this.teams) {
+    this.addPlayerAI("humec");
+  }
+
 }
 
 Game.prototype = {
   /**
    * @param id <string> : id of team, e.g. 'cals' or 'eng'
    */
-  addTeam : function(id) {
-    this.teams[id] = new Team(id);
-  },
-
-  addAITeam : function(id) {
-    this.teams[id] = new AITeam(id);
-    this.addPlayer(null, id);
+  addTeam : function(team) {
+    this.teams[team.id] = team;
   },
 
   /**
@@ -79,40 +89,55 @@ Game.prototype = {
    * @param socket : client that is connecting
    * @param team_id : team that they are joining
    */
-  addPlayer : function(socket, team_id) {
-
+  addPlayerUser : function(socket, team_id) {
     if (!(team_id in this.teams)) {
-      this.addTeam(team_id);
+      throw new Error('Player joining invalid team');
     }
-
+ 
     // subscribe the player to updates to the room
     socket.join(this.id);
-    this.clients.push(socket);
+ 
+    var team = this.teams[team_id];
+
+    var player = new PlayerUser({
+      team : team
+    }, socket);
+    this.socket_player_map[socket.id] = player;
+  
+    this.initPlayer(player);
+  },
+  addPlayerAI : function(team_id) {
+
+    if (!(team_id in this.teams)) {
+      throw new Error('Player joining invalid team');
+    }
+    
+    var team = this.teams[team_id];
+    var player = new PlayerAINaive({
+      team : team,
+    }, this.campus, this.state);
+    this.initPlayer(player);
+  },
+  initPlayer : function(player) {
+
     console.log('player joined game ' + this.id);
-
-    var player = new Player(socket, {
-      team_index : this.getTeamIndexFromId(team_id)
-    });
-    this.teams[team_id].players.push(socket);
-
-    console.log('player entering stage ' + this.stage);
+    
+    this.teams[player.team.id].players.push(player);
 
     // puts this client into being served by different stage handlers
     switch (this.stage) {
       case this.stages.START:
-        this.initStartStage(socket);
         break;
       case this.stages.GRAB:
-        this.initGrabStage(socket);
+        player.getGrabMove(this.handleGrabMove.bind(this));
         break;
       case this.stages.REINFORCEMENT:
-        this.initReinforcementStage(socket);
+        player.getReinforcementMove(this.getReinforcementCount(player.team.index), this.handleReinforcementMove.bind(this));
         break;
       case this.stages.ORDERS:
-        this.initOrdersStage(socket);
+        player.getOrdersMove(this.handleOrdersMove.bind(this));
         break;
       case this.stages.END:
-        this.initEndStage(socket);
         break;
     }
   },
@@ -125,7 +150,6 @@ Game.prototype = {
    *  Sets the stage for all clients
    */
   initStage : function(new_stage) {
-
     var old_listener;
     switch (this.stage) {
       case this.stages.START:
@@ -145,142 +169,102 @@ Game.prototype = {
         break;
     }
 
-    var init_fn;
-    var move_fn;
-    var ai_fn;
+    var socket_ids = Object.keys(this.socket_player_map);
+    for (var i = 0; i < socket_ids.length; i++) {
+      var socket_id = socket_ids[i];
+      var socket = this.io.sockets.connected[socket_id];
+      socket.removeAllListeners(old_listener);
+    }
+
     switch (new_stage) {
       case this.stages.START:
-        init_fn = this.initStartStage;
         break;
       case this.stages.GRAB:
-        init_fn = this.initGrabStage;
-        move_fn = this.handleGrabMove;
-        ai_fn = this.ai.getGrabMoveNaive;
+        var team_ids = Object.keys(this.teams);
+        for (var i = 0; i < team_ids.length; i++) {
+          var team_id = team_ids[i];
+          var players = this.teams[team_id].players;
+          for (var j = 0; j < players.length; j++) {
+            var player = players[j];
+            player.getGrabMove(this.handleGrabMove.bind(this));
+          }
+        }
         break;
       case this.stages.REINFORCEMENT:
-        init_fn = this.initReinforcementStage;
-        move_fn = this.handleReinforcementMove;
-        ai_fn = this.ai.getReinforcementMoveNaive;
+        var team_ids = Object.keys(this.teams);
+        for (var i = 0; i < team_ids.length; i++) {
+          var team_id = team_ids[i];
+          var players = this.teams[team_id].players;
+          for (var j = 0; j < players.length; j++) {
+            var player = players[j];
+            player.getReinforcementMove(
+              this.getReinforcementCount(this.teams[team_id].index), 
+              this.handleReinforcementMove.bind(this)
+            );
+          }
+        }
         break;
       case this.stages.ORDERS:
-        init_fn = this.initOrdersStage;
-        move_fn = this.handleOrdersMove;
-        ai_fn = this.ai.getOrdersMoveNaive;
+        var team_ids = Object.keys(this.teams);
+        for (var i = 0; i < team_ids.length; i++) {
+          var team_id = team_ids[i];
+          var players = this.teams[team_id].players;
+          for (var j = 0; j < players.length; j++) {
+            var player = players[j];
+            player.getOrdersMove(this.handleOrdersMove.bind(this));
+          }
+        }
         break;
       case this.stages.END:
-        init_fn = this.initEndStage;
         break;
     }
 
     this.stage = new_stage;
-
-    //  update all client sockets
-    for (var i = 0; i < this.clients.length; i++) {
-      var socket = this.clients[i];
-      socket.removeAllListeners(old_listener);
-      init_fn(socket);
-    }
-    
-    // move all ai players
-    for (var i = 0; i < this.ai_controlled.length; i++) {
-      var team = this.ai_controlled[i];
-      if (ai_fn) {
-        var socket = undefined;
-        var move = ai_fn(team);
-        move_fn(socket, move);        
-      }
-    }
-  },
-  /**
-   * Before the game has started- players still joining
-   */
-  initStartStage : function (socket) {
-  
-  },
-  
-  /**
-   * sets up functions for grab stage
-   */
-  initGrabStage : function (socket) {
-
-    // handle selecting buildings
-    socket.on('grab move', function (move_data) {
-      console.log('received grab move', move_data);
-      this.handleGrabMove(socket, move_data);
-    }.bind(this));
-  },
-
-  /**
-   * sets up functions for reinforcement stage
-   */
-  initReinforcementStage : function (socket) {
-
-    console.log('initReinforcementStage() called');
-    socket.on('reinforcement move', function(move_data) {
-      console.log('received reinforcement move', move_data);
-      this.handleReinforcementMove(socket, move_data);
-    }.bind(this));
-  },
-  /**
-   *  sets up functions for orders stage
-   */
-  initOrdersStage : function (socket) {
-    console.log('initOrdersStage() called');
-
-    socket.on('orders move', function (move_data) {
-      console.log('received orders move', move_data);
-      this.handleOrdersMove(socket, move_data);
-    }.bind(this));
-  },
-  /**
-   * Case where came has concluded already
-   */
-  initEndStage : function(socket) {
- 
-  },
-  /**
-   * The current move function
-   */
-  move : function() {
-
   },
   /**
    * Takes a client and their move and handles the grab turn
    */
-  handleGrabMove : function (socket, move_data) {
+  handleGrabMove : function (player, move_data) {
     console.log(move_data);
-    if (this.current_team_index != move_data.team_index || this.state[move_data.piece].team != -1) {
+    var team_index = move_data.team_index || this.team_order.indexOf(move_data.team_id);
+    if (this.current_team_index != team_index|| this.state[move_data.piece].team != -1) {
       console.log('invalid move data');
       console.log("this.current_team_index: " , this.current_team_index);
       console.log("this.state[move_data.piece]: ", this.state[move_data.piece].team);
       return false;
     }
-
-    console.log("game " + this.id + " update " + move_data.piece + " to team " + move_data.team_index);
+    console.log("game " + this.id + " update " + move_data.piece + " to team " + team_index);
 
     this.nextTeamIndex();
     this.turn++;
 
-    var query_string = 'UPDATE "state"."' + this.id + '" SET team =\'' + move_data.team_index + '\', units=1, player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
+    var query_string = 'UPDATE "state"."' + this.id + '" SET team =\'' + team_index + '\', units=1, player =\'Bryce\' WHERE  piece_name = \'' + move_data.piece + '\'';
 
     // update server  state
-    this.state[move_data.piece].team = move_data.team_index;
+    this.state[move_data.piece].team = team_index;
     this.state[move_data.piece].units = 1;
 
     this.db.query(query_string);
     var query_string = 'UPDATE global.games SET turn = ' + this.turn + ', cur_team = ' + this.current_team_index + ' WHERE id = \'' + this.id + '\'';
-
+    
     this.db.query(query_string, function(err, results) {
       move_data.current_team = this.current_team_index;
       move_data.turn = this.turn;
       move_data.stage = this.stage;
+      move_data.team_index = team_index;
 
       this.io.to(this.id).emit('grab update', move_data);
       this.db.query('SELECT EXISTS(SELECT 1 FROM state."' + this.id + '" WHERE -1=team)', function(err, result) {
 
+        // STAGE CONTINUES
+        if (result.rows[0]['?column?']) {
+          var players = this.teams[this.team_order[this.current_team_index]].players;
+          for (var i = 0; i < players.length; i++) {
+            players[i].getGrabMove(this.handleGrabMove.bind(this));
+          }
+
         // END OF STAGE
-        // this accesses the "FALSE" var in results if no rows found
-        if (!result.rows[0]['?column?']) {
+        } else {
           console.log(result);
           var query_string = 'UPDATE global.games SET stage = \'reinforcement\'WHERE id = \'' + this.id + '\'';
 
@@ -291,15 +275,10 @@ Game.prototype = {
 
           // tell clients to pull the new data
           this.io.to(this.id).emit('server sync');
-
-          //  update all client sockets
-          for (var i = 0; i < this.clients.length; i++) {
-            var socket = this.clients[i];
-            socket.removeAllListeners('grab move');
-            this.initReinforcementStage(socket);
-
-          }
-
+          
+          this.initStage(this.stages.REINFORCEMENT);
+      
+          
         }
       }.bind(this));
     }.bind(this));
@@ -308,7 +287,7 @@ Game.prototype = {
   /**
    * Takes a client and their move and adds the reinforcements to the move list
    */
-  handleReinforcementMove : function (socket, move_data) {
+  handleReinforcementMove : function (player, move_data) {
     
     var team = move_data.meta.team;
     var team_index = move_data.meta.team_index;
@@ -365,16 +344,18 @@ Game.prototype = {
      
       for (var i = 0; i < this.all_move_data.length; i++) {
         var com = this.all_move_data[i];
-        var piece_id = com.id;
-        var units = this.state[com.id].units + com.units;
-        this.state[com.id].units = units;
-
-        this.db.query('UPDATE state."' + this.id + '" SET units=' + units + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
-          if (err) {
-            console.error('ERROR cannot update state in initReinforcementStage()');
-          }
-        });
-
+        var pieces = Object.keys(com);
+        for (var j = 0; j < pieces.length; j++) {
+          var piece_id = pieces[j];
+          var units = this.state[piece_id].units + com[piece_id];
+          this.state[piece_id].units = units;
+          
+          this.db.query('UPDATE state."' + this.id + '" SET units=' + units + ' WHERE piece_name=\'' + piece_id + '\'', function(err, result) {
+            if (err) {
+              console.error('ERROR cannot update state in initReinforcementStage()');
+            }
+          });
+        }
       }
 
       this.io.to(this.id).emit('reinforcement update', this.all_move_data);
@@ -390,20 +371,14 @@ Game.prototype = {
 
       this.resetWaitingOn();
 
-      // update all clients to same state
-      for (var i = 0; i < this.clients.length; i++) {
-        var socket = this.clients[i];
-        socket.removeAllListeners('reinforcement move');
-        this.initOrdersStage(socket);
-      }
-
+      this.initStage(this.stages.ORDERS);
 
   },
 
   /**
    * Takes a client and their move and handles the backend for the move
    */
-  handleOrdersMove : function(socket, move_data) {
+  handleOrdersMove : function(player, move_data) {
     var team_index = move_data.team_index;
 
     // check move is valid
@@ -412,7 +387,6 @@ Game.prototype = {
       for (var end in move_data.commands[start]) {
         total += move_data.commands[start][end];
       }
-
       // invalid move
       if (total >= this.state[start]) {
         console.log('INVALID MOVE, (total sent, total possible)', total, this.state[start]);
@@ -440,6 +414,7 @@ Game.prototype = {
   },
 
   applyOrdersMoves : function() {
+      debugger;
       var results = ConflictHandler.resolveAttacks(this.campus, this.state, this.all_move_data);
       this.updatePartialState(results.new_state, false);
             
@@ -457,13 +432,62 @@ Game.prototype = {
       this.io.to(this.id).emit('orders update', results);
       this.all_move_data = [];
 
-      //  update all client sockets
-      for (var i = 0; i < this.clients.length; i++) {
-        var socket = this.clients[i];
-        socket.removeAllListeners('orders move');
-        this.initReinforcementStage(socket);
-      }
+      this.initStage(this.stages.REINFORCEMENT);
+
   },
+  getReinforcementCount : function(team_index) {
+    var state = this.state; 
+      var reinforcements = {};
+
+      // contribution from number of pieces owned
+      var piece_count = 0;
+      for (var id in state) {
+        if (state.hasOwnProperty(id)) {
+          s = state[id]; 
+          if (s.team === team_index) {
+            piece_count++;
+          }
+        }
+      }
+     
+     reinforcements.piece_count = {name : "Territory Count Bonus", count: Math.ceil(piece_count / 3)};
+
+     // contribution from regions
+     var regions = this.campus.map.regions;
+     var keys =  Object.keys(regions);
+     for (var i = 0; i < keys.length; i++) {
+       var pieces = regions[keys[i]].pieces;
+       var bonus = regions[keys[i]].value;
+       for (var j = 1; j < pieces.length; j++) {
+         if (state[pieces[j]].team !== team_index) {
+           bonus = 0;
+           break;
+         }
+       }
+       if (bonus !== 0) {
+         var region_id = keys[i];
+         reinforcements[keys[i]] = {name : regions[region_id].name, count: bonus};
+       }
+     }
+     // contribution from contiguous
+
+     // contribution from other
+     var total = 0;
+     var keys = Object.keys(reinforcements);
+     for (var i = 0; i < keys.length; i++) {
+       total += reinforcements[keys[i]].count;
+     }
+
+     // always have at least 1 reinforcement
+     if (total === 0) {
+       reinforcements.other = {name : "Other", count : 1};
+       total++;
+     }
+     
+     reinforcements.total = {name : "Total", count : total};
+    return total; 
+  },
+
   /**
    * takes full data and updates everything
    */
@@ -502,7 +526,7 @@ Game.prototype = {
 
       for (var i = 0; i < this.team_order.length; i++) {
         var query = "INSERT INTO teams.\"" + this.id + "\" VALUES (" + i + ",'"+ this.team_order[i] + "',1,TRUE,'')";
-        this.db.query(query, utils.logIfError);
+        this.db.query(query, Utils.logIfError);
       }
     }
     if ("state" in data) {
@@ -661,9 +685,10 @@ Game.prototype = {
    */
   nextTeamIndex : function() {
     this.current_team_index = (this.current_team_index + 1) % this.team_order.length;
-    if (this.current_team_index in this.ai_controlled) {
-      this.moveAI(this.current_team_index);
-    }
+    // TODO fixme
+    //if (this.current_team_index in this.ai_controlled) {
+     // this.moveAI(this.current_team_index);
+    //}
     return this.current_team_index;
   },
 
@@ -686,7 +711,7 @@ Game.prototype = {
       case "grab":
         this.current_team_index = this.nextTeamIndex();
         var query_string = 'UPDATE global.games SET cur_team = ' + this.current_team_index + ' WHERE id = \'' + this.id + '\'';
-        this.db.query(query_string, utils.logIfError);
+        this.db.query(query_string, Utils.logIfError);
         break;
       case "reinforcement":
         this.applyReinforcementMoves();
@@ -704,33 +729,7 @@ Game.prototype = {
    * @param {Object} socket
    */
   removeClientFromActive : function(socket) {
-    var index = this.clients.indexOf(socket);
-
-    if (index > -1) {
-      this.clients.splice(index, 1);
-    } else {
-      console.error('ERROR. could not remove player' + socket.id);
-    }
-
-  },
-  /**
-   * replaces a team with an AI
-   */
-  addAI : function(team) {
-    this.ai_controlled.push(team);
-  },
-  moveAI : function(team) {
-    var move;
-    switch (this.stage) {
-      case this.stages.GRAB:
-        move = this.ai.getGrabMoveNaive(team);
-        debugger;
-        this.handleGrabMove(undefined, move);
-        break;
-      default:
-        return {status: "500", error: "todo"};
-    }
-    return move;
+    delete this.socket_player_map[socket.id];
   },
   /**
    * Prints data related to this game for debugging
@@ -762,18 +761,8 @@ function Team(id, name) {
   this.name = name || '';
   this.players = [];
 }
-
-function AITeam(id, name) {
-  Team.call(this);
-  this.ai = true;
-}
-
-function Player(socket, options) {
-  this.socket = socket;
-  this.name = options.name || '';
-  this.id = options.id || '';
-  this.team_index = options.team_index || -1;
-}
-
+Team.prototype.setIndex = function(idx) {
+  this.index = idx;
+};
 
 module.exports = Game;

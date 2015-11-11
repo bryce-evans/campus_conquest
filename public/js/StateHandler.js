@@ -80,9 +80,15 @@ StateHandler.prototype = {
     this.socket.on(CONSTANTS.IO.REINFORCEMENT_UPDATE, function(data) {
       console.log('received reinforcement update', data);
       this.hideWaitingOnWindow();
+      
       for (var i = 0; i < data.length; i++) {
-        world.map.game_pieces[data[i].id].mesh.units_added = data[i].units;
-        this.move_data[data[i].id] = data[i].units;
+        var pieces = Object.keys(data[i]);
+        for (var j = 0; j < pieces.length; j++) {
+          var piece = pieces[j];
+          var unit_count = data[i][piece];
+          world.map.game_pieces[piece].mesh.units_added = unit_count;
+          this.move_data[piece] = unit_count;
+        }
       }
       $('.instructions').addClass('hidden');
 
@@ -380,7 +386,7 @@ StateHandler.prototype = {
       }
     }).done( function(res) {
       console.log('reinforcements', res);
-      this.moves_allowed = res.reinforcements.total;
+      this.moves_allowed = res.reinforcements.total.count;
 
       $('#reinforcements-table table').empty();
       $.each(res.reinforcements, function(k, v) {
@@ -521,16 +527,8 @@ StateHandler.prototype = {
 
       if (this.moves_made == this.moves_allowed) {
         var move_data_final = {};
-        move_data_final.commands = [];
-        for (var key in this.move_data) {
-          if (this.move_data.hasOwnProperty(key)) {
-            move_data_final.commands.push({
-              id : key,
-              units : this.move_data[key]
-            });
-          }
-
-        }
+        move_data_final.commands = this.move_data;
+        
         move_data_final.meta = {
           team : me.team,
           team_index : me.team_index,
