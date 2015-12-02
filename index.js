@@ -79,6 +79,14 @@ app.get('/rooms', function(req, res) {
   res.end('wrote data to console');
 });
 
+app.get('/home', function(req, res) {
+  res.sendFile(__dirname + '/public/about.html');
+});
+
+app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/public/home.html');
+});
+
 app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/public/about.html');
 });
