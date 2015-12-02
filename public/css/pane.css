@@ -16,7 +16,7 @@
     font-size: 16pt;
     line-height: 2em;
 }
-input[type=text], select {
+input[type=text], input[type=password], select {
     font-family: Roboto;
     font-weight: 500;
     float: right;
@@ -48,7 +48,7 @@ form > div {
   margin-top: 20px;
 }
 
-input[type=text], input[type=select], select, input[type=search] {
+input[type=text], input[type=select], select, input[type=search], input[type=password] {
   -webkit-appearance: none;
   -webkit-transition: all .2s linear;
   transition: all .2s linear;

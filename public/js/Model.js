@@ -20,37 +20,10 @@ Model.prototype = {
         shininess: 20,
         map: this.textures.dif,
         normalMap: this.textures.nrm,
-        normalScale: new THREE.Vector2(0.6,0.6);
+        normalScale: new THREE.Vector2(0.6,0.6),
       });
       this.mesh = THREE.Mesh(geometry, material);
       callback(this.mesh);
     }.bind(this));
-  },
-};
-
-TextureSet = function(dir, textures) {
-  this.dir = dir || "";
-  this.loaded = false; 
-  
-  this.textures = {};
-  this.paths = {};
-  this.paths.dif = dir + textures.dif;
-  this.paths.nrm = dir + textures.nrm;
- }
-TextureSet.prototype = {
-  load: function(callback) {
-    var tex_loader = new THREE.TextureLoader();
-    var paths = Object.keys(this.paths);
-    var remaining = paths.length;
-    for (var i = 0; i < paths.length; i++) {
-      tex_loader.load(paths[i], function(tex) {
-        this.textures[texs[i]] = tex;
-        remaining--;
-        if (remaining === 0) {
-          this.loaded = true;
-          callback(this.textures);
-        }
-      }.bind(this));
-    }
   },
 };

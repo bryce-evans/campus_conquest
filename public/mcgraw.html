@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Campus Conquest Login</title>
+		<title>McGraw Tower | Campus Conquest</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		
@@ -13,6 +13,8 @@
 		</div>
 
 		<script src="js/lib/Three.js"></script>
+		<script src="js/TextureSet.js"></script>
+		<script src="js/Model.js"></script>
 
 		<script src="js/lib/shaders/ConvolutionShader.js"></script>
 		<script src="js/lib/shaders/CopyShader.js"></script>
@@ -26,34 +28,7 @@
 		<script src="js/lib/Detector.js"></script>
 		<script src="js/lib/jQuery.js"></script>
 
-		<script>
-			function validate() {
-
-				var un = document.getElementById("form").elements["netId"].value;
-				var pw = document.getElementById("form").elements["pw"].value;
-
-				if (un == pw) {
-					alert("thank you for loggin in " + un);
-				} else {
-					alert("sorry, try again");
-				}
-
-				// var data = $("form").serialize();
-				//
-				// $.get("1.html", function(response) {
-				// //do you operations
-				// });
-
-				window.location.href = "http://www.google.com";
-				window.location = "http://www.google.com";
-				document.location.href = "http://www.google.com";
-				document.location = "http://www.google.com";
-				location = "http://www.google.com";
-				location.reload(true);
-			}
-		</script>
-
-		<script>
+			<script>
 			$("#main").center();
 
 			if (!Detector.webgl)
@@ -99,15 +74,24 @@
 
 				scene = new THREE.Scene();
 
-				var textureSun = THREE.ImageUtils.loadTexture("rsc/images/textures/lensflare/lensflare0.png");
-				var textureFlare1 = THREE.ImageUtils.loadTexture("rsc/images/textures/lensflare/flare1.png");
-				var textureFlare2 = THREE.ImageUtils.loadTexture("rsc/images/textures/lensflare/flare2.png");
-				var textureFlare3 = THREE.ImageUtils.loadTexture("rsc/images/textures/lensflare/flare3.png");
-				var textureFlare4 = THREE.ImageUtils.loadTexture("rsc/images/textures/lensflare/light_circle.png");
+				var flare_tex_set = new TextureSet(
+          "rsc/images/textures/lensflare/",
+          {
+            0 : "lensflare0.png",
+            1 : "flare1.png",
+            2 : "flare2.png",
+            3 : "flare3.png",
+            4 : "light_circle.png",
+          }
+        ); 
+        flare_tex_set.load(
+          function(textures) {
+				    addLight(textures, 0, 0, .5, -500, 250, -1000);
+          }
+        );
 
-				addLight(0, 0, .5, -500, 250, -1000);
 
-				function addLight(h, s, v, x, y, z) {
+				function addLight(textures, h, s, v, x, y, z) {
 
 					var light = new THREE.PointLight(0xffffff, 5, 4500);
 					light.position.set(x, y, z);
@@ -119,7 +103,7 @@
 
 					flareColor.offsetHSL(0, -0.5, 0.5);
 
-					var lensFlare = new THREE.LensFlare(textureSun, 700, 0.0, THREE.AdditiveBlending, flareColor);
+					var lensFlare = new THREE.LensFlare(textures[0], 700, 0.0, THREE.AdditiveBlending, flareColor);
 					var color_rand = new THREE.Color(0x00ff00);
 					var blending = THREE.AdditiveBlending;
 
@@ -128,24 +112,24 @@
 					}
 
 
-					lensFlare.add(textureFlare4, 2000, 0.0, blending, color_rand, .8);
+					lensFlare.add(textures[4], 2000, 0.0, blending, color_rand, .8);
 					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
 					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
 					// lensFlare.add(textureSun, 512, 0.0, THREE.AdditiveBlending);
 					newcolor();
-					lensFlare.add(textureFlare2, 60, 0.22, blending, color_rand);
-					lensFlare.add(textureFlare2, 40, 0.24, blending, color_rand);
-					lensFlare.add(textureFlare2, 30, 0.36, blending, color_rand);
-					lensFlare.add(textureFlare2, 20, 0.42, blending, color_rand);
-					lensFlare.add(textureFlare2, 40, 0.43, blending, color_rand);
+					lensFlare.add(textures[2], 60, 0.22, blending, color_rand);
+					lensFlare.add(textures[2], 40, 0.24, blending, color_rand);
+					lensFlare.add(textures[2], 30, 0.36, blending, color_rand);
+					lensFlare.add(textures[2], 20, 0.42, blending, color_rand);
+					lensFlare.add(textures[2], 40, 0.43, blending, color_rand);
 
-					lensFlare.add(textureFlare2, 70, 0.5, blending, color_rand);
-					lensFlare.add(textureFlare2, 120, 0.7, blending, color_rand);
-					lensFlare.add(textureFlare1, 250, 1.08, blending, color_rand);
+					lensFlare.add(textures[2], 70, 0.5, blending, color_rand);
+					lensFlare.add(textures[2], 120, 0.7, blending, color_rand);
+					lensFlare.add(textures[1], 250, 1.08, blending, color_rand);
 
-					lensFlare.add(textureFlare2, 100, 1.12, blending, color_rand);
-					lensFlare.add(textureFlare2, 60, 1.2, blending, color_rand);
-					lensFlare.add(textureFlare2, 20, 1.22, blending, color_rand);
+					lensFlare.add(textures[2], 100, 1.12, blending, color_rand);
+					lensFlare.add(textures[2], 60, 1.2, blending, color_rand);
+					lensFlare.add(textures[2], 20, 1.22, blending, color_rand);
 
 					lensFlare.customUpdateCallback = lensFlareUpdateCallback;
 					lensFlare.position = light.position;
@@ -161,39 +145,30 @@
 				var shader = THREE.ShaderLib.normal;
 				var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
-				uniforms["tNormal"].value = THREE.ImageUtils.loadTexture("rsc/models/detailed/mcgraw/mcgraw_nrm_inverted.png");
-				uniforms["uNormalScale"].value.set(-1.5, -1.5);
+        var tex_set = new TextureSet(
+          "rsc/models/detailed/mcgraw/",
+          { 
+            "nrm" : "mcgraw_nrm_inverted.png",
+            "dif" : "mcgraw_inverted.png",
+          }
+        );
+        tex_set.load(
+          function(textures) {
+          	var material = new THREE.MeshPhongMaterial({
+              map : textures.dif,
+              normalMap : textures.nrm,
+            });
 
-				uniforms["tDiffuse"].value = THREE.ImageUtils.loadTexture("rsc/models/detailed/mcgraw/mcgraw_inverted.png");
+            material.wrapAround = true;
 
-				uniforms["enableAO"].value = false;
-				uniforms["enableDiffuse"].value = true;
-				uniforms["enableSpecular"].value = true;
+            loader = new THREE.JSONLoader(true);
+            document.body.appendChild(loader.statusDomElement);
 
-				uniforms["diffuse"].value.setHex(diffuse);
-				uniforms["specular"].value.setHex(specular);
-				uniforms["ambient"].value.setHex(ambient);
-
-				uniforms["shininess"].value = shininess;
-
-				uniforms["wrapRGB"].value.set(0.575, 0.5, 0.5);
-
-				var parameters = {
-					fragmentShader : shader.fragmentShader,
-					vertexShader : shader.vertexShader,
-					uniforms : uniforms,
-					lights : true
-				};
-				var material = new THREE.ShaderMaterial(parameters);
-
-				material.wrapAround = true;
-
-				loader = new THREE.JSONLoader(true);
-				document.body.appendChild(loader.statusDomElement);
-
-				loader.load(" rsc/models/detailed/mcgraw/mcgrawHiRes.js", function(geometry) {
-					createScene(geometry, 100, material)
-				});
+            loader.load(" rsc/models/detailed/mcgraw/mcgrawHiRes.js", function(geometry) {
+              createScene(geometry, 100, material)
+            });
+          }
+        );
 
 				renderer = new THREE.WebGLRenderer({
 					antialias : true,
