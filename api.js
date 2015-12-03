@@ -30,13 +30,16 @@ Api.prototype = {
   addUser : function(data, callback) {
     var id = data.id;
     var name = data.name;
-    var school = data.school;
+    var school = data.campus;
+    var pw = data.pw;
     var img_url = data.img_url || "";
-    if (id === undefined || name === undefined || school === undefined) {
+    if (id === undefined || name === undefined 
+        || school === undefined
+        || pw === undefined) {
       callback(false);
       return;
     }
-    var query =  "INSERT INTO \"global\".\"users\" (id, \"name\", school, img_url) VALUES (\'"+id+"\', \'"+name+"\',\'"+school+"\',\'"+img_url+"\');";
+    var query =  "INSERT INTO \"global\".\"users\" (id, \"name\", school, img_url, password, last_signin) VALUES (\'"+id+"\', \'"+name+"\',\'"+school+"\',\'"+img_url+"\',\'"+pw+"\', CURRENT_TIMESTAMP);";
 		
 		this.db.query(query, function(err, result) {
       callback(err === null);
@@ -44,7 +47,6 @@ Api.prototype = {
   },
 	
   createGame : function(data, callback){
-		debugger;
     console.log(data);
 		if (data.game_id == undefined) {
 		  return false;

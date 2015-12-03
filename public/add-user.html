@@ -45,7 +45,7 @@
 							<div class='warning' style="display: none;">
 								*Required*
 							</div>
-							<input type="text" name="game_id" >
+							<input type="text" name="name" >
 						</div>
 						<div class="input-field required">
 							<div class="label">
@@ -64,6 +64,13 @@
                 <option value="cornell">Cornell</option>
               </select>
 						</div>
+            <div class="input-field">
+							<div class="label">
+							  Password:
+              </div>
+							<input type="password" name="pw" >
+						</div>
+
 						<div class='button-set right'>
 							<a href="#" class="submit button" id="create-game-button" >Continue</a>
 						</div>
@@ -95,7 +102,12 @@
             return;
           }
 
-          $.post("/add-user-controller", {id : "bae43", name: "Bryce", school: "cornell"}, function(data) {
+          var form = $('#new-user-form');
+          var data = {};
+          $.each($('input, select'), function (k, v) {
+            data[$(v).attr('name')] = $(v).val();
+          });
+          $.post("/add-user-controller", data, function(data) {
             console.log('data', data);
             
           }, "json" // The format the response should be in
