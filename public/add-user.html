@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+
+	<head>
+
+		<title>Create Account | Campus Conquest</title>
+
+		<meta charset="utf-8">
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/fonts.css" />
+		<link rel="stylesheet" href="css/global.css" />
+		<link rel="stylesheet" href="css/pane.css" />
+		<style>
+      html{
+        font-family: Roboto;
+      }
+      .warning {
+        padding: 10px 0 0;
+        color: red;
+        font-size: 12px;
+      }
+      #teams-label {
+        float: none;
+      }
+		</style>
+		<script src="js/Constants.js"></script>
+
+	</head>
+
+	<body>
+
+		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+
+		<div id='create-pane' class="pane">
+			<div class='card'>
+				<div class='card-contents'>
+
+					<h1> Create  Account </h1>
+					<form id="new-user-form" style='margin-top: 5em;'>
+						<div class="input-field required">
+							<div class="label">
+                 Name:
+              </div>
+							<div class='warning' style="display: none;">
+								*Required*
+							</div>
+							<input type="text" name="game_id" >
+						</div>
+						<div class="input-field required">
+							<div class="label">
+							  NetID:
+              </div>
+							<div class='warning' style="display: none;">
+								*Required*
+							</div>
+							<input type="text" name="id" >
+						</div>
+            <div class="input-field">
+							<div class="label">
+							  School:
+              </div>
+							<select name="campus" >
+                <option value="cornell">Cornell</option>
+              </select>
+						</div>
+						<div class='button-set right'>
+							<a href="#" class="submit button" id="create-game-button" >Continue</a>
+						</div>
+					</form>
+				</div>
+
+			</div>
+		</div>
+
+		<script>
+      $(document).ready(function() {
+
+        $('#new-user-form .submit.button').click(function(e) {
+          e.preventDefault();
+
+          var error = false;
+          $('.warning').hide();
+
+          $.each($('input'), function(i, elem) {
+            if(elem.value !== "") return;
+            $(elem.parentElement).find('.warning').show();
+            error = true;
+          });
+          
+          // Prevents the page from refreshing
+          var $this = $(this);
+
+          if (error) {
+            return;
+          }
+
+          $.post("/add-user-controller", {id : "bae43", name: "Bryce", school: "cornell"}, function(data) {
+            console.log('data', data);
+            
+          }, "json" // The format the response should be in
+          );
+          // window.location.href = "/game";// + $('#game_id').val();
+        });
+
+        $("#create-game-button").click(function(e) {
+          $('#create-game-form').submit();
+
+        });
+
+      });
+
+		</script>
+	</body>
+
+</html>
+

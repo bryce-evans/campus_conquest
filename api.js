@@ -22,6 +22,26 @@ Api.prototype = {
   setCampusManager : function (cm) {
     this.cm = cm;
   },
+
+  /**
+   *  add a user
+   *  call on completion callback(<boolean> success)
+   */
+  addUser : function(data, callback) {
+    var id = data.id;
+    var name = data.name;
+    var school = data.school;
+    var img_url = data.img_url || "";
+    if (id === undefined || name === undefined || school === undefined) {
+      callback(false);
+      return;
+    }
+    var query =  "INSERT INTO \"global\".\"users\" (id, \"name\", school, img_url) VALUES (\'"+id+"\', \'"+name+"\',\'"+school+"\',\'"+img_url+"\');";
+		
+		this.db.query(query, function(err, result) {
+      callback(err === null);
+    });
+  },
 	
   createGame : function(data, callback){
 		debugger;

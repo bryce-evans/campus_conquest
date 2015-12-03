@@ -139,6 +139,16 @@ app.post('/delete-game', function(req, res) {
   api.deleteGame(req.body.id);
 });
 
+app.get('/add-user', function(req, res) {
+  res.sendFile(__dirname + '/public/add-user.html');
+});
+
+app.post('/add-user-controller', function(req, res) {
+  api.addUser(req.body, function(success) {
+    console.log(success);
+  });
+});
+
 app.get('/game', function(req, res) {
   res.sendFile(__dirname + '/public/game.html');
 });
