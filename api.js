@@ -45,6 +45,15 @@ Api.prototype = {
       callback(err === null);
     });
   },
+
+  confirmCredentials : function(id, pw, callback) {
+    var query = "SELECT (password) FROM global.users WHERE id='"+id+"'";
+    this.db(query, function(err, result) {
+      utils.logIfErr(err);
+      var valid = result.rows[0] === pw;
+      callback(valid);
+    }
+  },
 	
   createGame : function(data, callback){
     console.log(data);
@@ -113,6 +122,15 @@ Api.prototype = {
 				    this.db.query(query, function(err) {
 				      if (err) {
 				        console.log('ERROR CREATING GAME');
+                console.log(query);
+                console.log(err);
+				      }
+				    });
+				  }
+        // XXX TODO FIXME game manage requires game be in db
+        // db requires it be in game manager...
+        // CIRCULAR DEPENDENCY!! :'(
+        this.getDbState(GAME_ID, function(state) {
                 console.log(query);
                 console.log(err);
 				      }
@@ -235,15 +253,6 @@ getOpenGames : function(callback){
 	      }.bind(this));
       }.bind(this));
     }.bind(this));
-  },
-
-
-  getReinforcements : function(game_id, team_id, callback){
-  	if(!this.gm.gameExists(game_id)){
-  		console.log('GAME DOES NOT EXIST');
-      callback({status: 500, error: "game not found"});
-  	}
-    var game = this.gm.getGame(game_id);
     var team_index = game.getTeamIndexFromId(team_id);
 
     if(team_index < 0) {
