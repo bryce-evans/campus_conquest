@@ -46,7 +46,8 @@ GameManager.prototype = {
           data.state = state.state;
           data.turn = state.turn;
 
-          this.gm.games[data.id] = new Game(state, this.gm);
+          // TODO save options in DB 
+          this.gm.games[data.id] = new Game(this.gm, state, {});
         }.bind({
           data : data,
           gm : this
@@ -55,8 +56,10 @@ GameManager.prototype = {
 
     }.bind(this));
   },
-  createGame : function(game_data) {
-    var game = new Game(game_data, this);
+
+  createGame : function(game_data, game_options) {
+    debugger;
+    var game = new Game(this, game_data, game_options);
     var id = game_data.id;
     this.games[id] = game;
     return game;

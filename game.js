@@ -10,19 +10,22 @@ var Player = require('./player.js');
 var PlayerUser = require('./playerUser.js');
 var PlayerAINaive = require('./playerAINaive.js');
 
-function Game(state, game_manager) {
-
+function Game(game_manager, state, options) {
   this.id = state.id;
   this.map = state.map;
   this.gm = game_manager;
   this.io = game_manager.io;
   this.db = game_manager.db;
- 
+
   this.campus = this.gm.cm.getCampusData(state.map);
   this.ai = new AI(this.campus, state.state);
   
   this.state = state.state;
   this.turn = state.turn;
+
+  this.options = {
+    quick_start : options && options.quick_start, 
+  };
 
   this.stage = state.stage;
   
@@ -180,6 +183,22 @@ Game.prototype = {
       case this.stages.START:
         break;
       case this.stages.GRAB:
+        if (this.options.quick_start) {
+          this.randomizeRemaining();
+          var query_string = 'UPDATE global.games SET stage = \'reinforcement\'WHERE id = \'' + this.id + '\'';
+
+          this.db.query(query_string);
+          this.io.to(this.id).emit('stage update', {
+            stage : 'reinforcement',
+          });
+
+          // tell clients to pull the new data
+          this.io.to(this.id).emit('server sync');
+          
+          this.initStage(this.stages.REINFORCEMENT);
+      
+          return;
+        }
         var team_ids = Object.keys(this.teams);
         for (var i = 0; i < team_ids.length; i++) {
           var team_id = team_ids[i];
@@ -437,18 +456,18 @@ Game.prototype = {
   },
   getReinforcementCount : function(team_index) {
     var state = this.state; 
-      var reinforcements = {};
+    var reinforcements = {};
 
-      // contribution from number of pieces owned
-      var piece_count = 0;
-      for (var id in state) {
-        if (state.hasOwnProperty(id)) {
-          s = state[id]; 
-          if (s.team === team_index) {
-            piece_count++;
-          }
+    // contribution from number of pieces owned
+    var piece_count = 0;
+    for (var id in state) {
+      if (state.hasOwnProperty(id)) {
+        s = state[id]; 
+        if (s.team === team_index) {
+          piece_count++;
         }
       }
+    }
      
      reinforcements.piece_count = {name : "Territory Count Bonus", count: Math.ceil(piece_count / 3)};
 
@@ -540,6 +559,25 @@ Game.prototype = {
     }
 
   },
+  
+  randomizeRemaining : function() {
+    var pieces = Object.keys(this.state);
+    var new_state = {}
+    for (var i = 0; i < pieces.length; i++) {
+      var piece_id = pieces[i];
+      if (this.state[piece_id].team === -1) {
+        new_state[piece_id] = this.state[piece_id];
+      }
+    }
+    pieces = Utils.shuffle(Object.keys(new_state));
+    for (var i = 0; i < pieces.length; i++) {
+      var piece = new_state[pieces[i]];
+      piece.team = this.current_team_index;
+      this.nextTeamIndex();
+    }
+    this.updatePartialState(new_state, true);
+  },
+
   /**
    * Takes a set of changes and applies them to the state
    * {<piece_id> : { team: <int>, units: <int>}}

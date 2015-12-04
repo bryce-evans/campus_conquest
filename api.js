@@ -47,15 +47,15 @@ Api.prototype = {
   },
 
   confirmCredentials : function(id, pw, callback) {
-    var query = "SELECT (password) FROM global.users WHERE id='"+id+"'";
+    var query = "SELECT (id, password) FROM global.users WHERE id='"+id+"'";
     this.db(query, function(err, result) {
-      utils.logIfErr(err);
-      var valid = result.rows[0] === pw;
-      callback(valid);
-    }
+      if(err) {
+        utils.logErr(err)
+      }
+    });
   },
 	
-  createGame : function(data, callback){
+  createGame : function(data, callback) {
     console.log(data);
 		if (data.game_id == undefined) {
 		  return false;
@@ -66,6 +66,9 @@ Api.prototype = {
 		var GAME_PRIVACY = 2; //data.privacy
     var GAME_CAMPUS = data.campus || "cornell";
     var GAME_MAP = data.map || "cornell";
+
+    var options = {};
+    options.quick_start = data.quick_start === "on";
 
     var campus = this.cm.getCampusData(GAME_CAMPUS);
 
@@ -131,16 +134,7 @@ Api.prototype = {
         // db requires it be in game manager...
         // CIRCULAR DEPENDENCY!! :'(
         this.getDbState(GAME_ID, function(state) {
-                console.log(query);
-                console.log(err);
-				      }
-				    });
-				  }
-        // XXX TODO FIXME game manage requires game be in db
-        // db requires it be in game manager...
-        // CIRCULAR DEPENDENCY!! :'(
-        this.getDbState(GAME_ID, function(state) {
-          var new_game = this.gm.createGame(state);
+          var new_game = this.gm.createGame(state, options);
           callback(new_game);
         }.bind(this));
       }
@@ -195,7 +189,7 @@ getOpenGames : function(callback){
   
   // gets the state from the DB, 
   // does not include temp info like whose turn it is
-  getDbState : function(id, callback){
+  getDbState : function(id, callback) {
   
     var ret = {
       status : 200
@@ -244,15 +238,25 @@ getOpenGames : function(callback){
 	          return;
 	        }
 	        ret.team_order = [];
-	        var order = ret.team_order;
+               var order = ret.team_order;
 	        for (var i = 0; i < result.rows.length; i++) {
-            var r = result.rows[i];
-            order[r.index] = r.id;
+                 var r = result.rows[i];
+                 order[r.index] = r.id;
 	        }
 	        callback(ret);
 	      }.bind(this));
       }.bind(this));
     }.bind(this));
+  },
+
+
+  getReinforcements : function(game_id, team_id, callback){
+  	if(!this.gm.gameExists(game_id)){
+  		console.log('GAME DOES NOT EXIST');
+      callback({status: 500, error: "game not found"});
+  	}
+    var game = this.gm.getGame(game_id);
+
     var team_index = game.getTeamIndexFromId(team_id);
 
     if(team_index < 0) {
@@ -312,6 +316,7 @@ getOpenGames : function(callback){
       callback({status: 200, id: game_id, team: team_index, reinforcements : reinforcements});
     }
   },
+
   moveAI : function(data, callback) {
     console.log(data);
     var game_id = data.id;
