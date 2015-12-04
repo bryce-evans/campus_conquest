@@ -1,0 +1,42 @@
+.team.icon.red {
+  background-image: url(/rsc/images/flags/128/hotel.jpg);
+}
+.team.icon.blue {
+  background-image: url(/rsc/images/flags/128/ilr.jpg);
+}
+.team.icon.yellow {
+  background-image: url(/rsc/images/flags/128/aap.jpg);
+}
+
+.team.name.red:after {
+  content: "Red";
+}
+.team.name.blue:after {
+  content: "Blue";
+}
+.team.name.yellow:after {
+  content: "Yellow";
+}
+
+/* 'primary' colors */
+.team.colored.red {
+  background-color: #ff0000;
+}
+.team.colored.blue {
+  background-color: #f1592a;
+}
+.team.colored.yellow {
+  background-color: #ffc010;
+}
+
+/* 'secondary' colors */
+.team.text-colored.red {
+  background-color: #7e0a0b;
+}
+.team.text-colored.blue {
+  background-color: #d73520;
+}
+.team.text-colored.yellow {
+  background-color: #f5a11a;
+}
+

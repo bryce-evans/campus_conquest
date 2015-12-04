@@ -1,0 +1,8 @@
+{
+  "example": {
+    "id" : "example",
+    "name" : "Example U",
+    "name_full" : "Example University",
+    "released" : false
+  }
+}

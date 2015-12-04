@@ -1,0 +1,40 @@
+{
+	"map": "Example",
+	"regions": {
+		"red": {
+			"name": "Red Base",
+			"pieces": ["red1", "red2", "red3", "red4"],
+			"value": 5
+		},
+		"blue": {
+			"name": "Blue Base",
+			"pieces": ["blue1", "blue2", "blue3", "blue4"],
+			"value": 5
+		},
+		"yellow": {
+			"name": "Yellow Base",
+			"pieces": ["yellow1", "yellow2", "yellow3", "yellow4"],
+			"value": 5
+		}
+	},
+	"pieces": {
+		"red1": {
+			"red2": 1,
+			"red3": 1,
+			"red4": 1,
+			"blue1": 0.7
+		},
+		"red2": {
+			"red1": 1
+		},
+		"red3": {
+			"red1": 1
+		},
+		"red4": {
+			"red1": 1
+		},
+		"blue1": {
+			"red1": 1
+		}
+	}
+}
