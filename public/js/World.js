@@ -33,7 +33,7 @@ World.prototype = {
 
     this.state_handler.freshPull(function(state){
       this.state_handler.setState(state);
-      this.map.loadMapFile("cornell_2.json", function(piece_ids) {
+      this.map.loadMapFile("map.json", function(piece_ids) {
         $.each(piece_ids, function(k, v) {
           $('select.pieces').append('<option value='+v+'>'+v+'</option>');
         });

@@ -67,8 +67,10 @@ function initGame(data) {
   }
 
   world = new World(data.game_id);
-
-  var map = new Map();
+  
+  // XXX FIXME
+  data.campus = "example";
+  var map = new Map(data.campus);
   var state = new StateHandler();
   var client_listeners = new ClientListeners();
   var graphics = new Graphics();

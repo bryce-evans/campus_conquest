@@ -8,9 +8,9 @@
  *
  */
 
-Map = function() {
+Map = function(campus) {
 
-  this.map_dir = "rsc/campuses/cornell/maps/";
+  this.map_dir = "rsc/campuses/" + campus + "/";
   this.loader = new THREE.JSONLoader();
   
   // id and name for current map loaded
@@ -89,7 +89,7 @@ Map.prototype = {
       return;
     }
     // TODO migrate models to campus directory
-    this.loader.load("rsc/models/map/" + "buildings/" + piece_id + "/" + piece_id + ".js", function(geometry) {
+    this.loader.load(this.map_dir + "models/" + piece_id + "/" + piece_id + ".js", function(geometry) {
 
       geometry.computeMorphNormals();
 

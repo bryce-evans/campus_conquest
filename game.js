@@ -18,6 +18,7 @@ function Game(game_manager, state, options) {
   this.db = game_manager.db;
 
   this.campus = this.gm.cm.getCampusData(state.map);
+  debugger;
   this.ai = new AI(this.campus, state.state);
   
   this.state = state.state;
