@@ -10,10 +10,10 @@ MapBuilder = function() {
   this.scene = new THREE.Scene();
   this.loader = new THREE.JSONLoader();
 
-  this.dir = "rsc/models/map/buildings/";
+  this.campus = "example";
 
-  this.models = ["rpcc","olin","olin_lib","taylor","sage", "mcgraw_uris", "uris", "ad_white_house", "alumni", "appel", "bailey", "baker_olin", "balch", "barnes", "barton", "bio_tech", "bradfield", "caldwell", "carpenter", "ccc", "ckb", "comstock", "day", "dickson", "donlon", "duffield_phillips", "friedmen", "goldwin", "h_newman", "hollister", "hoy", "hr5", "ives", "jameson", "johnson", "kane", "ktb", "low_rises", "lr_conference", "malott", "mann", "morill", "morris", "mudd_corson", "newman", "observatory", "olive_taiden", "plant_sci", "psb_clarke", "rand", "roberts_kennedy", "rockefeller", "sage_chapel", "schoellkopf", "snee", "statler", "stimson", "teagle", "townhouses", "upson", "van_ren", "warren", "white", "willard_straight"];
-  
+  this.dir = "rsc/campuses/" + this.campus + "/models/";
+
   // <string> id : <THREE.Mesh>
   this.mesh_lookup = {};
  
@@ -23,8 +23,9 @@ MapBuilder = function() {
   // <string> id1+id2 (sorted) : <THREE.Line>
   this.edges = {};
 
-  this.map = {
-    map : 'Cornell',
+  this.export_data = {
+    campus : this.campus,
+    map : "my_map_name",
     regions : {},
     pieces : {},
   };
@@ -169,15 +170,15 @@ MapBuilder.prototype = {
         this.cur_building = hitobj.game_piece;
 
         // new addition to map
-        if (!(this.cur_building.id in this.map.pieces)) {
-          this.map.pieces[this.cur_building.id] = {};
+        if (!(this.cur_building.id in this.export_data.pieces)) {
+          this.export_data.pieces[this.cur_building.id] = {};
           this.cur_building.included = true;
 
           // already exists in map
         } else {
 
           //change color of all connected
-          var keys = Object.keys(this.map.pieces[this.cur_building.id]);
+          var keys = Object.keys(this.export_data.pieces[this.cur_building.id]);
           for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             this.mesh_lookup[key].material = new THREE.MeshLambertMaterial({
@@ -198,7 +199,7 @@ MapBuilder.prototype = {
         if (hitobj == this.cur_building.mesh) {
 
           //change back color of all connected
-          var keys = Object.keys(this.map.pieces[this.cur_building.id]);
+          var keys = Object.keys(this.export_data.pieces[this.cur_building.id]);
           for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             this.mesh_lookup[key].material = new THREE.MeshLambertMaterial({
@@ -207,9 +208,9 @@ MapBuilder.prototype = {
           }
 
           // remove from map entirely if not connected to anything
-          if (Object.keys(this.map.pieces[hitobj.game_piece.id]).length == 0) {
+          if (Object.keys(this.export_data.pieces[hitobj.game_piece.id]).length == 0) {
             var new_color = this.colors.excluded;
-            delete this.map.pieces[hitobj.game_piece.id];
+            delete this.export_data.pieces[hitobj.game_piece.id];
           } else {
             var new_color = this.colors.included;
           }
@@ -223,7 +224,7 @@ MapBuilder.prototype = {
           this.cur_building = null;
 
           //add connected to current building
-        } else if (!(hitobj.game_piece.id in this.map.pieces[this.cur_building.id])) {
+        } else if (!(hitobj.game_piece.id in this.export_data.pieces[this.cur_building.id])) {
 
           // TODO RESUME remove connected building to current
           hitobj.material = new THREE.MeshLambertMaterial({
@@ -247,18 +248,18 @@ MapBuilder.prototype = {
   },
   deselectConnected : function(id_fst, id_snd) {
     var hitobj = this.mesh_lookup[id_snd];
-    delete this.map.pieces[id_fst][id_snd];
-    delete this.map.pieces[id_snd][id_fst];
+    delete this.export_data.pieces[id_fst][id_snd];
+    delete this.export_data.pieces[id_snd][id_fst];
 
     this.removeEdge(id_fst, id_snd);
 
     // remove from map entirely
-    if (Object.keys(this.map.pieces[id_snd]).length == 0) {
+    if (Object.keys(this.export_data.pieces[id_snd]).length == 0) {
       hitobj.material = new THREE.MeshLambertMaterial({
         color : this.colors.excluded
       });
       this.prev_mat = new THREE.Color(this.colors.excluded);
-      delete this.map.pieces[id_snd];
+      delete this.export_data.pieces[id_snd];
 
     } else {
       hitobj.material = new THREE.MeshLambertMaterial({
@@ -268,7 +269,7 @@ MapBuilder.prototype = {
     }
   },
   setWeight : function(id1, id2, weight) {
-    var prev_weight = this.map.pieces[id1] && this.map.pieces[id1][id2];
+    var prev_weight = this.export_data.pieces[id1] && this.export_data.pieces[id1][id2];
     this.setOneWeight(id1, id2, weight);
     this.setOneWeight(id2, id1, weight);
     if (!prev_weight && weight > 0) {
@@ -279,10 +280,10 @@ MapBuilder.prototype = {
       });
     } else if (prev_weight && weight === 0) {
       this.removeEdge(id1, id2);
-      delete this.map.pieces[id1][id2];
-      delete this.map.pieces[id2][id1];
+      delete this.export_data.pieces[id1][id2];
+      delete this.export_data.pieces[id2][id1];
       // not connected at all
-      if (Object.keys(this.map.pieces[id2]).length === 0) {
+      if (Object.keys(this.export_data.pieces[id2]).length === 0) {
         this.mesh_lookup[id2].material = new THREE.MeshLambertMaterial({
           color : this.colors.excluded,
         });
@@ -291,10 +292,10 @@ MapBuilder.prototype = {
       }
     },
     setOneWeight : function(id_fst, id_snd, weight) {
-     if (!(id_fst in this.map.pieces)) {
-        this.map.pieces[id_fst] = {};
+     if (!(id_fst in this.export_data.pieces)) {
+        this.export_data.pieces[id_fst] = {};
       }
-      this.map.pieces[id_fst][id_snd] = weight;
+      this.export_data.pieces[id_fst][id_snd] = weight;
     },
     onMouseMove : function(event) {
 
@@ -360,7 +361,7 @@ MapBuilder.prototype = {
 
   openWeightEditor : function(start_id, end_id) {
      
-      var prev_weight = this.map.pieces[start_id][end_id] || 1;
+      var prev_weight = this.export_data.pieces[start_id][end_id] || 1;
 
       this.setWeight(start_id, end_id, prev_weight);
       
@@ -408,7 +409,7 @@ MapBuilder.prototype = {
         $("#attack-slider").slider("destroy");
       }.bind({
         this_var : this,
-        pieces : this.map.pieces,
+        pieces : this.export_data.pieces,
         start_id : start_id,
         end_id : end_id,
       }));
@@ -469,7 +470,7 @@ MapBuilder.prototype = {
         color : this.colors.included
       });
 
-      for (connected in this.map.pieces[this.cur_building.id]) {
+      for (connected in this.export_data.pieces[this.cur_building.id]) {
         console.log(map.Territories[this.cur_building.id][connected]);
         this.objLookup(map.Territories[this.cur_building.id][connected]).material = new THREE.MeshLambertMaterial({
           color : this.colors.included
@@ -485,7 +486,7 @@ MapBuilder.prototype = {
     }
   },
   getExportedMap : function() {
-    return JSON.stringify(this.map);
+    return JSON.stringify(this.export_data);
   },
   load : function(model) {
 
@@ -526,7 +527,7 @@ MapBuilder.prototype = {
       });
 
       var mesh = new THREE.Mesh(geometry, material);
-      mesh.connected = this.map.pieces[model];
+      mesh.connected = this.export_data.pieces[model];
 
       mesh.scale.x = this.scale;
       mesh.scale.y = this.scale;
@@ -568,7 +569,7 @@ MapBuilder.prototype = {
      * creates a string array of buildings
      */
 
-    var terr = this.map.pieces;
+    var terr = this.export_data.pieces;
     var buildingList = new Array(terr.length);
     var i = 0;
 
@@ -583,7 +584,7 @@ MapBuilder.prototype = {
    */
 
   getConnected : function(obj) {
-    return this.map.pieces[obj.name];
+    return this.export_data.pieces[obj.name];
   },
 
   /**
@@ -591,14 +592,14 @@ MapBuilder.prototype = {
    * returns undefined if str not in scene
    */
   getBuilding : function(building) {
-    return this.map.pieces[building];
+    return this.export_data.pieces[building];
   },
   loadBoard : function() {
-
-    var material;
-    for (var i = 0; i < this.models.length; i++) {
-      this.loadBasic(this.models[i]);
-    }
+    $.get('/model-list', {campus: this.campus}, function(model_list) {
+      for (var i = 0; i < model_list.length; i++) {
+        this.loadBasic(model_list[i]);
+      }
+    }.bind(this));
   },
 
   initRender : function() {
@@ -660,7 +661,7 @@ GamePiece = function(map, id, mesh) {
 
   mesh.game_piece = this;
 
-  this.connected = map_builder.map.pieces[id];
+  this.connected = map_builder.export_data.pieces[id];
 
 }
 GamePiece.prototype = {

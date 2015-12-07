@@ -17,8 +17,7 @@ function Game(game_manager, state, options) {
   this.io = game_manager.io;
   this.db = game_manager.db;
 
-  this.campus = this.gm.cm.getCampusData(state.map);
-  debugger;
+  this.campus = this.gm.cm.getCampusData(state.campus);
   this.ai = new AI(this.campus, state.state);
   
   this.state = state.state;
@@ -434,7 +433,6 @@ Game.prototype = {
   },
 
   applyOrdersMoves : function() {
-      debugger;
       var results = ConflictHandler.resolveAttacks(this.campus, this.state, this.all_move_data);
       this.updatePartialState(results.new_state, false);
             
@@ -479,6 +477,7 @@ Game.prototype = {
        var pieces = regions[keys[i]].pieces;
        var bonus = regions[keys[i]].value;
        for (var j = 1; j < pieces.length; j++) {
+         debugger;
          if (state[pieces[j]].team !== team_index) {
            bonus = 0;
            break;

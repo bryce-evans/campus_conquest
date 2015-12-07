@@ -60,12 +60,11 @@ Api.prototype = {
 		if (data.game_id == undefined) {
 		  return false;
 		}
-
 		var GAME_ID = data.game_id;
 		var GAME_DESC = data.game_desc || "";
 		var GAME_PRIVACY = 2; //data.privacy
-    var GAME_CAMPUS = data.campus || "cornell";
-    var GAME_MAP = data.map || "cornell";
+    var GAME_CAMPUS = data.campus;
+    var GAME_MAP = data.map || "default";
 
     var options = {};
     options.quick_start = data.quick_start === "on";
@@ -73,13 +72,13 @@ Api.prototype = {
     var campus = this.cm.getCampusData(GAME_CAMPUS);
 
     var query = "\
-			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy,stage,map) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+",'grab',\'"+GAME_MAP+"\');\
+			INSERT INTO \"global\".\"games\" (id, \"desc\", privacy,stage,campus,map) VALUES (\'"+GAME_ID+"\', \'"+GAME_DESC+"\', "+GAME_PRIVACY+",'grab',\'"+GAME_CAMPUS+"',\'"+GAME_MAP+"\');\
 			\
 			SET search_path = teams, pg_catalog;\
 			\
 			CREATE TABLE \""+GAME_ID+"\"(\
 			index smallint NOT NULL,\
-			id public.cc_team DEFAULT 'none'::public.cc_team,\
+			id text,\
       player_count smallint DEFAULT 1,\
       waiting_on boolean DEFAULT true,\
       password text DEFAULT ''\
@@ -110,18 +109,18 @@ Api.prototype = {
 				  console.log(query);
 				  console.log(err);
 				} else {
-				
-				  var all_teams = campus.getTeamList();
-				  var game_teams = [];
-				  for (var i = 0; i < all_teams.length; i++) {
-				    if (data[all_teams[i]]) {
-				      game_teams.push(all_teams[i]);
-				    }
-				
-				  }
-				  utils.shuffle(game_teams);
-				  for (var i = 0; i < game_teams.length; i++) {
-          var query = "INSERT INTO teams.\"" + GAME_ID + "\" VALUES (" + i + ",'"+ game_teams[i] + "',1,TRUE,'')";
+          var all_teams = campus.getTeamList();
+          var GAME_TEAMS = [];
+          for (var i = 0; i < all_teams.length; i++) {
+            if (data[all_teams[i]]) {
+              GAME_TEAMS.push(all_teams[i]);
+            }
+        
+          }
+				  utils.shuffle(GAME_TEAMS);
+
+				  for (var i = 0; i < GAME_TEAMS.length; i++) {
+          var query = "INSERT INTO teams.\"" + GAME_ID + "\" VALUES (" + i + ",'"+ GAME_TEAMS[i] + "',1,TRUE,'')";
 				    this.db.query(query, function(err) {
 				      if (err) {
 				        console.log('ERROR CREATING GAME');
@@ -205,6 +204,7 @@ getOpenGames : function(callback){
         return;
       }
       ret.id = data.id;
+      ret.campus = data.campus;
       ret.map = data.map;
       ret.stage = data.stage;
       ret.turn = data.turn;

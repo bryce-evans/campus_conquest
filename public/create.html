@@ -57,7 +57,7 @@
 							<div class="label">
 							  Campus:
               </div>
-							<select name="campus" >
+							<select id = "campus" name="campus" >
                 <option value="cornell">Cornell</option>
                 <option value="example">Example</option>
               </select>
@@ -103,10 +103,19 @@
 
 		<script>
       $(document).ready(function() {
-
-        for (var id in TEAM_DATA) {
-          $('#team-list').append('<li><label><input type="checkbox" name="' + id + '" value="true"/><img src="rsc/images/flags/128/' + id + '.jpg"> </label></li>');
+        function populateTeams(campus) {
+        $.get('/rsc/campuses/' + campus + '/team_data.json', function(team_data) {
+        $('#team-list').empty();
+        for (var id in team_data) {
+         $('#team-list').append('<li><label><input type="checkbox" name="' + id + '" value="true"/><img src="rsc/campuses/' + campus +'/flags/128/' + id + '.jpg"> </label></li>');
         }
+        });
+        }
+
+        populateTeams('cornell');
+        $('#campus').change(function(e) {
+          populateTeams($('#campus').val());
+        });
 
         $('#create-game-form').submit(function(e) {
           e.preventDefault();
@@ -123,7 +132,7 @@
 
           var selected = [];
           $('#team-list input:checked').each(function() {
-            selected.push($(this).attr('value'));
+            selected.push($(this).attr('name'));
           });
           if (selected.length < 2) {
             $('#team-min-warning').show();
@@ -134,11 +143,18 @@
             return;
           }
 
+// serialize is not json or object, cannot easily modify
 /*        for (var id in TEAM_DATA) {
             data[id] = undefined;
           }
           data.teams = selected;
-  */        
+        
+          var data = $(this).serialize();
+          for (var i = 0; i < selected.length; i++) {
+            data[selected[i]] = undefined;
+          }
+          data.teams = selected;
+*/
           $.post("/create-game", $(this).serialize(), function(data) {
             console.log('data', data);
             

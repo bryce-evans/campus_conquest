@@ -19,22 +19,70 @@
 	},
 	"pieces": {
 		"red1": {
-			"red2": 1,
 			"red3": 1,
-			"red4": 1,
-			"blue1": 0.7
-		},
-		"red2": {
-			"red1": 1
+			"red2": 0.8,
+			"red4": 0.9,
+			"blue1": 1,
+			"yellow2": 1
 		},
 		"red3": {
-			"red1": 1
+			"red1": 1,
+			"red4": 1,
+			"red2": 1
+		},
+		"red2": {
+			"red1": 0.8,
+			"red3": 1,
+			"red4": 0.5
 		},
 		"red4": {
-			"red1": 1
+			"red1": 0.9,
+			"red3": 1,
+			"red2": 0.5
 		},
 		"blue1": {
-			"red1": 1
+			"blue3": 1,
+			"blue4": 1,
+			"blue2": 1,
+			"red1": 1,
+			"yellow2": 1
+		},
+		"blue3": {
+			"blue1": 1,
+			"blue4": 0.5,
+			"blue2": 1
+		},
+		"blue4": {
+			"blue1": 1,
+			"blue3": 0.5,
+			"blue2": 0.7
+		},
+		"blue2": {
+			"blue1": 1,
+			"blue3": 1,
+			"blue4": 0.7
+		},
+		"yellow1": {
+			"yellow2": 1,
+			"yellow3": 1,
+			"yellow4": 1
+		},
+		"yellow2": {
+			"yellow1": 1,
+			"yellow3": 1,
+			"yellow4": 1,
+			"red1": 1,
+			"blue1": 1
+		},
+		"yellow3": {
+			"yellow1": 1,
+			"yellow2": 1,
+			"yellow4": 0.5
+		},
+		"yellow4": {
+			"yellow1": 1,
+			"yellow2": 1,
+			"yellow3": 0.5
 		}
 	}
 }

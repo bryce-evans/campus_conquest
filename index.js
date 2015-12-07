@@ -6,6 +6,8 @@ var express = require('express');
 var http = require('http');
 var pg = require('pg');
 var bodyParser = require('body-parser');
+var fs = require('fs');
+var path = require('path');
 
 var app = express();
 var server = http.createServer(app);
@@ -111,6 +113,17 @@ app.get('/map-editor', function(req, res) {
   res.sendFile(__dirname + '/public/map_builder.html');
 });
 
+app.get('/model-list', function(req, res) {
+  var campus = req.query.campus;
+  var srcpath = __dirname + '/public/rsc/campuses/' + campus + "/models";
+  debugger;
+  var files = fs.readdirSync(srcpath).filter(function(file) {
+    return fs.statSync(path.join(srcpath, file)).isDirectory();
+  });
+
+  utils.writeData(res, files); 
+});
+
 app.get('/new-game', function(req, res) {
   res.sendFile(__dirname + '/public/create.html');
 });
@@ -124,6 +137,7 @@ app.get('/fork', function(req, res) {
 });
 
 app.post('/create-game', function(req, res) {
+  debugger;
   console.log(req.body);
   api.createGame(req.body, function(new_game) {
     console.log("Created game " + new_game.id);

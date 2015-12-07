@@ -22,7 +22,6 @@ CampusManager.prototype = {
     }.bind(this));
   },
   getCampusData : function(id) {
-    debugger;
     if(!(id in this.campuses)) {
       console.error('attempted to retrieve campus from invalid id');
     }
