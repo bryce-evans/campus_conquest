@@ -321,7 +321,7 @@ GamePiece.prototype = {
 
     var outline_amount = 0.1;
 
-    var color = TEAM_DATA[world.state_handler.team_order[this.team]].colors.secondary;
+    var color = world.team_data[world.state_handler.team_order[this.team]].colors.secondary;
 
     var outlineMaterial = new THREE.MeshBasicMaterial({
       color : color ^ 0xffffff,
@@ -345,7 +345,7 @@ GamePiece.prototype = {
     world.graphics.scene.remove(this.highlighted_mesh);
     return;
 
-    // this.mesh.material.color.copy(TEAM_DATA[world.state_handler.team_order[this.team]].colors.primary);
+    // this.mesh.material.color.copy(world.team_data[world.state_handler.team_order[this.team]].colors.primary);
     // return;
     // this.mesh.material.color.r = (this.mesh.material.color.r * 2) - 1;
     // this.mesh.material.color.g = (this.mesh.material.color.g * 2) - 1;

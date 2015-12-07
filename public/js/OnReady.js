@@ -53,7 +53,7 @@ OnReady.init = function() {
           }
         });
 
-        var teams_in_games = {};
+        var all_game_data = {};
 
         $.ajax({
           url : "/open-games",
@@ -79,9 +79,9 @@ OnReady.init = function() {
               var row = this.row;
               var rows = this.rows;
               var i = this.i;
-              row.append('<td>' + data.team_order.length + '</td>');
+              row.append('<td>' + data.campus + '</td>');
               row.append('<td>' + data.stage + '</td>');
-              teams_in_games[data.id] = data.team_order;
+              all_game_data[data.id] = data;
               rows[i] = row;
               
               waiting_on--;
@@ -104,11 +104,12 @@ OnReady.init = function() {
             // populate list of possible teams
             $('#team-list').empty();
 
-            var selected = teams_in_games[game_id][0];
+            var selected = all_game_data[game_id].team_order[0];
             $('#myteam').text(selected);
-            for (var index in teams_in_games[game_id]) {
-              var team_id = teams_in_games[game_id][index];
-              $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + team_id + '" ' + (team_id == selected ? 'checked' : '') + '/><img src="rsc/images/flags/128/' + team_id + '.jpg"> </label></li>');
+            var campus = all_game_data[game_id].campus;
+            for (var index in all_game_data[game_id].team_order) {
+              var team_id = all_game_data[game_id].team_order[index];
+              $('#team-list').append('<li><label>	<input type="radio" name="team-choice" value="' + team_id + '" ' + (team_id == selected ? 'checked' : '') + '/><img src="rsc/campuses/'+campus+'/flags/128/' + team_id + '.jpg"> </label></li>');
             }
 
             $('input:radio[name=team-choice]').click(function(e) {

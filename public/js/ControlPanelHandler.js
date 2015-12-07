@@ -14,7 +14,7 @@ ControlPanelHandler.prototype = {
     this.socket = socket;
     if (world.id != '') {
       $('#msgs-global').keypress( function(e) {
-        if (e.keyCode == KEYS.ENTER) {
+        if (e.keyCode == 13) {
           this.socket.emit('message', {
             scope : world.id,
             message : $('#msgs-global').val()
@@ -28,7 +28,7 @@ ControlPanelHandler.prototype = {
 
     } else {
       $('#msgs-global').keypress(function(e) {
-        if (e.keyCode == KEYS.ENTER) {
+        if (e.keyCode == 13) {
           $('#messages').append($('<li>').text($('#msgs-global').val()));
           $('#msgs-global').val('');
         }
@@ -50,7 +50,7 @@ ControlPanelHandler.prototype = {
   initWheel : function(teams, start) {
     $('#panel-wheel').empty();
     for (var i = start; i < start + teams.length; i++) {
-      jQuery('<div/>').css("background-color", '#' + ("000000" + TEAM_DATA[teams[i % teams.length]].colors.primary.toString(16)).slice(-6)).appendTo('#panel-wheel');
+      jQuery('<div/>').css("background-color", '#' + ("000000" + world.team_data[teams[i % teams.length]].colors.primary.toString(16)).slice(-6)).appendTo('#panel-wheel');
     }
     $('#panel-wheel div').css("width", (100 / teams.length) + "%");
   },

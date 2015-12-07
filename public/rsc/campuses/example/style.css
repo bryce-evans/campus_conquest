@@ -1,11 +1,11 @@
 .team.icon.red {
-  background-image: url(/rsc/images/flags/128/hotel.jpg);
+  background-image: url(/rsc/images/flags/128/red.jpg);
 }
 .team.icon.blue {
-  background-image: url(/rsc/images/flags/128/ilr.jpg);
+  background-image: url(/rsc/images/flags/128/blue.jpg);
 }
 .team.icon.yellow {
-  background-image: url(/rsc/images/flags/128/aap.jpg);
+  background-image: url(/rsc/images/flags/128/yellow.jpg);
 }
 
 .team.name.red:after {

@@ -116,7 +116,6 @@ app.get('/map-editor', function(req, res) {
 app.get('/model-list', function(req, res) {
   var campus = req.query.campus;
   var srcpath = __dirname + '/public/rsc/campuses/' + campus + "/models";
-  debugger;
   var files = fs.readdirSync(srcpath).filter(function(file) {
     return fs.statSync(path.join(srcpath, file)).isDirectory();
   });

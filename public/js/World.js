@@ -5,8 +5,11 @@
  * used to tie all other components together
  * @param {string} id
  */
-World = function(id) {
-  this.id = id;
+World = function(campus, id) {
+  this.campus = campus;
+  this.loadTeamData();
+ 
+ this.id = id;
   this.map = undefined;
   this.state_handler = undefined;
   this.control_panel_handler = undefined;
@@ -44,6 +47,18 @@ World.prototype = {
       this.map.loadGeometries();
       //this.control_panel_handler.updateTextFields(init_data);
     }.bind(this));
+  },
+  loadTeamData : function () {
+   $.get('rsc/campuses/' + this.campus + '/team_data.json', function(data) {
+     this.team_data = data;
+     // parse all hex colors from strings
+     for (var team in data) {
+       var colors = data[team].colors;
+       for (var key in colors) {
+         colors[key] = parseInt(colors[key]);
+       }
+     }
+   }.bind(this));
   },
   setMe : function(data) {
     this.me = data;

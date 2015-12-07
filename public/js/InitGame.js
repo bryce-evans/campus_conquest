@@ -66,10 +66,10 @@ function initGame(data) {
     return;
   }
 
-  world = new World(data.game_id);
+  data.campus = "example";
+  world = new World(data.campus, data.game_id);
   
   // XXX FIXME
-  data.campus = "example";
   var map = new Map(data.campus);
   var state = new StateHandler();
   var client_listeners = new ClientListeners();

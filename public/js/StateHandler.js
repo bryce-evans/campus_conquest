@@ -766,17 +766,17 @@ StateHandler.prototype = {
     if (index < 0) {
       return 0xffffff;
     }
-    return TEAM_DATA[this.team_order[index]].colors.primary;
+    return world.team_data[this.team_order[index]].colors.primary;
   },
   getSecondaryTeamColorFromIndex : function(index) {
     if (index < 0) {
       return 0xffffff;
     }
-    return TEAM_DATA[this.team_order[index]].colors.secondary;
+    return world.team_data[this.team_order[index]].colors.secondary;
   },
 
   getTeamColorFromId : function(id) {
-    return TEAM_DATA[id].colors.primary;
+    return world.team_data[id].colors.primary;
   },
 }
 
