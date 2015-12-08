@@ -89,7 +89,7 @@ ClientListeners = function() {
   }.bind(this)
 
   this.onMouseMove = function(event) {
-  	if(world.state_handler.waiting){
+  	if(world.state_handler.waiting) {
   		return;
   	}
 
@@ -116,6 +116,11 @@ ClientListeners = function() {
         //this.prev_obj.material.color = new THREE.Color(world.state_handler.getTeamColorFromIndex(this.prev_obj.game_piece.team));
         this.prev_obj.material.color.copy(this.prev_obj_color);
         //$('#canvas3D').css('cursor', 'url(rsc/images/cursors/pointer-green.png)');
+      }
+
+      // only highlight valid pieces to click
+      if (!world.state_handler.isMoveValid(this.cur_obj.game_piece)) {
+        return;
       }
 
       //set new obj to highlight

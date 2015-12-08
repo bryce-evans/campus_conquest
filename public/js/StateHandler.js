@@ -367,6 +367,7 @@ StateHandler.prototype = {
 
   initGrabStage : function() {
     this.move = this.moveGrab;
+    this.isMoveValid = this.moveIsValidGrab;
     this.current.stage = CONSTANTS.STAGES.GRAB;
     this.showStageIntro(this.current.stage);
     $('.instructions').removeClass('hidden');
@@ -381,6 +382,7 @@ StateHandler.prototype = {
 
     this.moves_made = 0;
     this.move = this.moveReinforcement;
+    this.isMoveValid = this.isMoveValidReinforcement;
 
     $.ajax({
       url : CONSTANTS.URL.REINFORCEMENTS,
@@ -425,6 +427,7 @@ StateHandler.prototype = {
     this.renderUIForCurrentStage();
 
     this.move = this.moveOrders;
+    this.isMoveValid = this.isMoveValidOrders;
 
     // manages the attack panel slider
     $("#attack-slider").slider({
@@ -498,6 +501,34 @@ StateHandler.prototype = {
 
          }.bind(this));
   },
+
+  /*
+   * returns true if the piece clicked is valid
+   */
+  isMoveValid : function (piece) {
+    console.error('isMoveValid not set');
+    return true;
+  }, 
+
+  isMoveValidGrab : function (piece) {
+    return piece.team === -1;
+  },
+  
+  isMoveValidReinforcement : function (piece) {
+    return piece.team === me.team_index;
+  }, 
+
+  isMoveValidOrders : function (piece) {
+    if (!this.current_selected) {
+      return piece.team === me.team_index
+        && this.current.state[piece.id].units > 1;
+    } else {
+      return (piece.id in this.current_selected.connected 
+        && piece.team !== me.team_index) 
+        || piece.id === this.current_selected.id;
+    }
+  }, 
+
   // takes a clicked piece and handles the change in state on the client only until turn is over
   // does not always take a full turn if multiple pieces are needed to handle the turn
   moveStart : function(piece) {
@@ -661,7 +692,7 @@ StateHandler.prototype = {
     console.error('StateHandler.move not set');
   },
 
-  // allow the server AI to controll your move
+  // allow the server AI to control your move
   moveAI : function() {
     $.ajax({
       url : "/ai",
