@@ -29,7 +29,7 @@
 },
 "dining" : {
   "name" : "Dining Halls",
-  "pieces" : ["williard_straight", "rpcc", "appel"],
+  "pieces" : ["willard_straight", "rpcc", "appel"],
   "value" : 2
 }
 },
