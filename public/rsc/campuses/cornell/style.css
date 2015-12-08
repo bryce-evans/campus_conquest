@@ -1,23 +1,23 @@
 .team.icon.hotel {
-  background-image: url(/rsc/images/flags/128/hotel.jpg);
+  background-image: url(flags/128/hotel.jpg);
 }
 .team.icon.as {
-  background-image: url(/rsc/images/flags/128/as.jpg);
+  background-image: url(flags/128/as.jpg);
 }
 .team.icon.aap {
-  background-image: url(/rsc/images/flags/128/aap.jpg);
+  background-image: url(flags/128/aap.jpg);
 }
 .team.icon.cals {
-  background-image: url(/rsc/images/flags/128/cals.jpg);
+  background-image: url(flags/128/cals.jpg);
 }
 .team.icon.ilr {
-  background-image: url(/rsc/images/flags/128/ilr.jpg);
+  background-image: url(flags/128/ilr.jpg);
 }
 .team.icon.eng {
-  background-image: url(/rsc/images/flags/128/eng.jpg);
+  background-image: url(flags/128/eng.jpg);
 }
 .team.icon.humec {
-  background-image: url(/rsc/images/flags/128/humec.jpg);
+  background-image: url(flags/128/humec.jpg);
 }
 
 .team.name.hotel:after {
