@@ -94,11 +94,13 @@ StateHandler.prototype = {
 
       // proceed to orders state
       $('#button-continue').text('Next Stage');
+      $('#button-continue').addClass('glow');
       $('#button-continue').show();
       this.waiting_on = true;
       $('#button-continue').unbind('click');
       $('#button-continue').click( function() {
         $('#button-continue').hide();
+        $('#button-continue').removeClass('glow');
         this.waiting_on = false;
         this.combineUnits();
         this.move_data = {};
@@ -207,9 +209,11 @@ StateHandler.prototype = {
           // end of orders stage
           if (data.attacks.length == 0) {
             $('#button-continue').text("End Stage");
+            $('#button-continue').addClass("glow");
             $('#button-continue').unbind("click");
             $('#button-continue').click(function(event) {
               this.updatePartialState(data.new_state);
+              $('#button-continue').removeClass("glow");
               world.map.removeAllArrows();
               this.initReinforcementStage(); 
             }.bind(this));
