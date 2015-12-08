@@ -420,6 +420,7 @@ StateHandler.prototype = {
     this.showStageIntro('Attack Orders');
      
     world.sound_handler.play("attack");
+    $('#reinforcements-table table').hide();
 
     this.renderUIForCurrentStage();
 
