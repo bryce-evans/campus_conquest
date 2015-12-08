@@ -249,7 +249,7 @@ getOpenGames : function(callback){
     }.bind(this));
   },
 
-
+// XXX TODO duplicated code in game.js
   getReinforcements : function(game_id, team_id, callback){
   	if(!this.gm.gameExists(game_id)){
   		console.log('GAME DOES NOT EXIST');
@@ -285,7 +285,7 @@ getOpenGames : function(callback){
      for (var i = 0; i < keys.length; i++) {
        var pieces = regions[keys[i]].pieces;
        var bonus = regions[keys[i]].value;
-       for (var j = 1; j < pieces.length; j++) {
+       for (var j = 0; j < pieces.length; j++) {
          if (state[pieces[j]].team !== team_index) {
            bonus = 0;
            break;

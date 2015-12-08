@@ -1,11 +1,11 @@
 .team.icon.red {
-  background-image: url(/rsc/images/flags/128/red.jpg);
+  background-image: url(flags/128/red.jpg);
 }
 .team.icon.blue {
-  background-image: url(/rsc/images/flags/128/blue.jpg);
+  background-image: url(flags/128/blue.jpg);
 }
 .team.icon.yellow {
-  background-image: url(/rsc/images/flags/128/yellow.jpg);
+  background-image: url(flags/128/yellow.jpg);
 }
 
 .team.name.red:after {
@@ -23,7 +23,7 @@
   background-color: #ff0000;
 }
 .team.colored.blue {
-  background-color: #f1592a;
+  background-color: #3550AF;
 }
 .team.colored.yellow {
   background-color: #ffc010;
@@ -34,7 +34,7 @@
   background-color: #7e0a0b;
 }
 .team.text-colored.blue {
-  background-color: #d73520;
+  background-color: #4B63B7;
 }
 .team.text-colored.yellow {
   background-color: #f5a11a;

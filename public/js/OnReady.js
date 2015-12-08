@@ -97,10 +97,10 @@ OnReady.init = function() {
           $('#open-games').on('click', 'tr', function() {
             $('.pane').hide();
             $('#signin-pane').show();
-            var game_id = this.children[0].innerText
+            var game_id = this.children[0].innerText;
             $('#join-game-header').text(game_id);
             init_data.game_id = game_id;
-
+            init_data.campus = this.children[2].innerText;
             // populate list of possible teams
             $('#team-list').empty();
 

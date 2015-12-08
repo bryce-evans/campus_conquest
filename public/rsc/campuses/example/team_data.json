@@ -9,8 +9,8 @@
   "blue" : {
     "name" : "Blue",
     "colors" : {
-      "primary" : "0x0000ff",
-      "secondary" : "0x0044cc"
+      "primary" : "0x3550AF",
+      "secondary" : "0x4B63B7"
     }
   },
   "yellow" : {

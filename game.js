@@ -476,7 +476,7 @@ Game.prototype = {
      for (var i = 0; i < keys.length; i++) {
        var pieces = regions[keys[i]].pieces;
        var bonus = regions[keys[i]].value;
-       for (var j = 1; j < pieces.length; j++) {
+       for (var j = 0; j < pieces.length; j++) {
          debugger;
          if (state[pieces[j]].team !== team_index) {
            bonus = 0;
@@ -573,6 +573,7 @@ Game.prototype = {
     for (var i = 0; i < pieces.length; i++) {
       var piece = new_state[pieces[i]];
       piece.team = this.current_team_index;
+      piece.units = 1;
       this.nextTeamIndex();
     }
     this.updatePartialState(new_state, true);

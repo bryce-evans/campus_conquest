@@ -65,8 +65,15 @@ function initGame(data) {
     Detector.addGetWebGLMessage();
     return;
   }
+  
+  // load css file for campus
+  $("<link/>", {
+     rel: "stylesheet",
+     type: "text/css",
+     href: "/rsc/campuses/" + data.campus + "/style.css"
+  }).appendTo("head");
+    
 
-  data.campus = "example";
   world = new World(data.campus, data.game_id);
   
   // XXX FIXME
