@@ -1,0 +1,23 @@
+{
+  "red" : {
+    "name" : "Red",
+    "colors" : {
+      "primary" : "0xff0000",
+      "secondary" : "0xcc3300"
+    }
+  },
+  "blue" : {
+    "name" : "Blue",
+    "colors" : {
+      "primary" : "0x3550AF",
+      "secondary" : "0x4B63B7"
+    }
+  },
+  "yellow" : {
+    "name" : "Yellow",
+    "colors" : {
+      "primary" : "0xffff00",
+      "secondary" : "0xffff66"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "tutorial": {
+    "id" : "tutorial",
+    "name" : "Tutorial",
+    "name_full" : "Intro Tutorial",
+    "released" : false
+  }
+}
