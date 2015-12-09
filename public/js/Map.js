@@ -89,7 +89,7 @@ Map.prototype = {
       return;
     }
     // TODO migrate models to campus directory
-    this.loader.load(this.map_dir + "models/" + piece_id + "/" + piece_id + ".js", function(geometry) {
+    this.loader.load(this.map_dir + "models/" + piece_id + "/" + piece_id + ".json", function(geometry) {
 
       geometry.computeMorphNormals();
 

@@ -58,8 +58,6 @@
 							  Campus:
               </div>
 							<select id = "campus" name="campus" >
-                <option value="cornell">Cornell</option>
-                <option value="example">Example</option>
               </select>
 						</div>
 
@@ -111,10 +109,20 @@
         }
         });
         }
+        
+        $.get('/campus-list', function(data) {
+          for (var i = 0; i < data.length; i++) {
+            var campus = data[i];
+            $('#campus').append(
+              '<option value="'+campus+'">'+campus.toUpperCase()+'</option>'
+            );
+          }
+          
+          populateTeams(data[0]);
+          $('#campus').change(function(e) {
+            populateTeams($('#campus').val());
+          });
 
-        populateTeams('cornell');
-        $('#campus').change(function(e) {
-          populateTeams($('#campus').val());
         });
 
         $('#create-game-form').submit(function(e) {
