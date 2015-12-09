@@ -380,6 +380,7 @@ StateHandler.prototype = {
 
     $('.instructions').text('Place new reinforcements');
 
+    $('#orders-stage-intro').hide();
     this.moves_made = 0;
     this.move = this.moveReinforcement;
     this.isMoveValid = this.isMoveValidReinforcement;
@@ -394,10 +395,10 @@ StateHandler.prototype = {
       console.log('reinforcements', res);
       this.moves_allowed = res.reinforcements.total.count;
 
-      $('#reinforcements-table table').empty();
+      $('#reinforcements-stage-intro table').empty();
       $.each(res.reinforcements, function(k, v) {
         var tr = $("<tr>");
-        $('#reinforcements-table table').append(tr);
+        $('#reinforcements-stage-intro table').append(tr);
         var td1 = $("<td>");
         var td2 = $("<td>");
         td1.text(v.name);
@@ -406,14 +407,14 @@ StateHandler.prototype = {
         tr.append(td2);
       });
       window.setTimeout(function() {
-        $('#reinforcements-table').removeClass('hidden');
+        $('#reinforcements-stage-intro').removeClass('hidden');
         $('#reinforcements-remaining').text(res.reinforcements.total.count);
         this.renderUIForCurrentStage();
         world.sound_handler.play("reinforcements-brassy");
       }.bind(this), 2200);
-      $('#reinforcements-table .button.cancel').click(function() {
-        $('#reinforcements-table table').empty();
-        $('#reinforcements-table').addClass("hidden");
+      $('#reinforcements-stage-intro .button.cancel').click(function() {
+        $('#reinforcements-stage-intro table').empty();
+        $('#reinforcements-stage-intro').addClass("hidden");
       });
     }.bind(this));
   },
@@ -422,7 +423,8 @@ StateHandler.prototype = {
     this.showStageIntro('Attack Orders');
      
     world.sound_handler.play("attack");
-    $('#reinforcements-table table').hide();
+    $('#reinforcements-stage-intro').hide();
+    $('#orders-stage-intro').show();
 
     this.renderUIForCurrentStage();
 
