@@ -112,6 +112,15 @@ app.get('/barton', function(req, res) {
 app.get('/map-editor', function(req, res) {
   res.sendFile(__dirname + '/public/map_builder.html');
 });
+app.get('/campus-list', function(req, res) {
+  var srcpath = __dirname + '/public/rsc/campuses/';
+  var files = fs.readdirSync(srcpath).filter(function(file) {
+    return fs.statSync(path.join(srcpath, file)).isDirectory();
+  });
+
+  utils.writeData(res, files); 
+
+});
 
 app.get('/model-list', function(req, res) {
   var campus = req.query.campus;
