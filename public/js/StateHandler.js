@@ -90,7 +90,7 @@ StateHandler.prototype = {
           this.move_data[piece] = unit_count;
         }
       }
-      $('.instructions').addClass('hidden');
+      $('.instructions').text('');
 
       // proceed to orders state
       $('#button-continue').text('Next Stage');
@@ -352,13 +352,11 @@ StateHandler.prototype = {
     if (this.current.stage === CONSTANTS.STAGES.REINFORCEMENT){
       $('.show-on-reinforcement').show();
       $('#button-continue').hide();
-      $('.instructions').removeClass('hidden');
-      $('.instructions').text('Click to place reinforcements');         
+      $('.instructions').text('Click a building to add reinforcements');         
     } else {
       $('.show-on-reinforcement').hide();
-      $('.instructions').addClass('hidden');
+      $('.instructions').text('');
     }
-
   },
 
   initStartStage : function() {
@@ -377,8 +375,6 @@ StateHandler.prototype = {
       
     this.current.stage = CONSTANTS.STAGES.REINFORCEMENT;
     this.showStageIntro(this.current.stage);
-
-    $('.instructions').text('Place new reinforcements');
 
     $('#orders-stage-intro').hide();
     this.moves_made = 0;
@@ -421,10 +417,18 @@ StateHandler.prototype = {
   initOrdersStage : function() {
     this.current.stage = 'orders';
     this.showStageIntro('Attack Orders');
-     
-    world.sound_handler.play("attack");
     $('#reinforcements-stage-intro').hide();
-    $('#orders-stage-intro').show();
+    
+    window.setTimeout(function() {
+      world.sound_handler.play("attack");
+      $('#orders-stage-intro').show();
+      $('.instructions').text('Click a piece to attack from');
+      world.sound_handler.play("attack");
+    }.bind(this), 2200);
+
+    $('#orders-stage-intro .button.cancel').click(function() {
+      $('#orders-stage-intro').hide();
+    });
 
     this.renderUIForCurrentStage();
 
@@ -596,6 +600,7 @@ StateHandler.prototype = {
         }
       }
 
+      $('.instructions').text('Click a nearby enemy building to attack');
       this.current_selected = piece;
       this.current_selected.highlight();
       world.map.newAttackRadius(piece.id);
@@ -608,6 +613,7 @@ StateHandler.prototype = {
 
       // only allow attack to connected
       if (!start_piece.connected[end_id]) {
+        world.notifier.note('That piece is too far away');
         return;
       }
       var arrow = world.map.getArrow(start_id, end_id);
@@ -669,6 +675,7 @@ StateHandler.prototype = {
         this.move_data[this.start_id][this.end_id] = $("#attack-slider").slider('option', 'value');
 
         // undo selection
+        $('.instructions').text('Click a piece to attack from');
         world.map.unsetAttackRadius();
         this.start_piece.unhighlight();
         this.start_piece = undefined;

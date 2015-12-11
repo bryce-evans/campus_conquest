@@ -233,20 +233,17 @@
 				<div class='window'>
 					<h1> Ready to Attack! </h1>
 						<div>
-              <ul>
+              <ul style="list-style: initial">
                 <li>
-                  Select one of your pieces then a neighboring enemy piece to attack.
-                </li>
-                <li>
-                  Attack the same enemy piece from multiple fronts for a bonus
+                  Select one of your buildings then a nearby enemy building to attack.
                 </li>
                 <li>
-                  Order that attacks are entered does not matter
+                  Attack the same building from multiple fronts for a bonus
                 </li>
-                <li> 
-                  Attacks are carried out with countered attacks first, multi attacks second, and all others third
+                <li>
+                  Order in which  attacks are entered does not matter
                 </li>
-              <ul>
+              </ul>
             </div>
             <div class='right button cancel'>
 							Close
@@ -309,7 +306,11 @@
 					<div class='team icon'></div><h2 class="team name"></h2>
 				</header>
 				<div id="panel-wheel"></div>
-				<div id='panel-reinforcement-info' class='show-on-reinforcement' style='display: none;'>
+				<div class="instruction-info">
+          <div class="instructions"> 
+          </div>
+        </div>
+	<div id='panel-reinforcement-info' class='show-on-reinforcement' style='display: none;'>
 					<span>Reinforcements Remaining: </span>
 					<span id='reinforcements-remaining' class="orange-text"> </span>
 				</div>
@@ -317,12 +318,8 @@
 
 				</div>
 				<ul id="messages"></ul>
-
 				<input id="msgs-global" autocomplete="off" placeholder="hit enter to send a message"/>
 				<div class="instruction-info">
-          <div class="instructions hidden"> 
-             [current instructions]
-          </div>
           <div id="button-continue" class='hidden button' style="display: none;">
 				  	Continue
 				  </div>

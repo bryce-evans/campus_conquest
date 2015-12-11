@@ -89,7 +89,7 @@ header > .team.name.as:after, header > .team.name.humec:after, header > .team.na
   font-family: verdana;
   font-size: 11px;
 }
-.button {
+button, .button {
     font-size: 12pt;
     background-color: #DC1B1B;
     -moz-border-radius: 3px;
@@ -104,11 +104,11 @@ header > .team.name.as:after, header > .team.name.humec:after, header > .team.na
     text-shadow: 0px 1px 0px #6b2d2b;
     padding: 0.6em 1.5em;
 }
-.button:hover, .button.glow:hover {
+button:hover, button.glow:hover, .button:hover, .button.glow:hover {
   background-color: #F50C3B;
   -webkit-animation: 0;
 }
-.button:active {
+button:active, .button:active {
   position: relative;
   top: 1px;
 }
