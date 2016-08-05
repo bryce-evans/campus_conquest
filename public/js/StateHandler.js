@@ -596,6 +596,7 @@ StateHandler.prototype = {
         if (this.current_selected === piece) {
           this.current_selected = undefined;
           world.map.unsetAttackRadius();
+          $('.instructions').text('Click a piece to attack from');
           return;
         }
       }
@@ -676,6 +677,7 @@ StateHandler.prototype = {
 
         // undo selection
         $('.instructions').text('Click a piece to attack from');
+        $('#button-continue').addClass('glow');
         world.map.unsetAttackRadius();
         this.start_piece.unhighlight();
         this.start_piece = undefined;

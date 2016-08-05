@@ -477,7 +477,6 @@ Game.prototype = {
        var pieces = regions[keys[i]].pieces;
        var bonus = regions[keys[i]].value;
        for (var j = 0; j < pieces.length; j++) {
-         debugger;
          if (state[pieces[j]].team !== team_index) {
            bonus = 0;
            break;

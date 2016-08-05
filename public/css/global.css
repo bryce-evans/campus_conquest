@@ -114,7 +114,7 @@ button:active, .button:active {
 }
 @-webkit-keyframes redPulse {
   from { background-color:  #DC1B1B; }
-  50% { background-color: #FF2255;  }
+  50% { background-color: #FF7722;  }
   to { background-color:  #DC1B1B; }
 }
 .button.glow {

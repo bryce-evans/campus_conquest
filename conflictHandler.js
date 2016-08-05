@@ -253,7 +253,6 @@ ConflictHandler.prototype = {
       }
       if(!this.state[defender_id]){
 
-      debugger;
       }
       var defender = new Defender(this.state[defender_id].team, this.state[defender_id].units, defender_id);
 
@@ -261,7 +260,6 @@ ConflictHandler.prototype = {
       if (attackers.length > 1 && defender.units > 0) {
 
         // XXX case where many different teams attack a building
-        debugger;
 
         var multi_attack = new MultiAttack(attackers, defender);
         var results = this.getMultiAttackResult(multi_attack);

@@ -5,6 +5,7 @@ function PlayerAI (options, campus, state) {
   if (this.constructor === PlayerAI) {
     throw new Error('AbstractClassException');
   }
+  debugger;
   this.is_ai = true;
   this.level = 1;
   this.name = "AI";
