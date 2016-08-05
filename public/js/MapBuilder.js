@@ -490,7 +490,7 @@ MapBuilder.prototype = {
   },
   load : function(model) {
 
-    this.loader.load(this.dir + model + "/" + model + ".js", function(geometry) {
+    this.loader.load(this.dir + model + "/" + model + ".json", function(geometry) {
 
       geometry.computeMorphNormals();
 
@@ -517,7 +517,7 @@ MapBuilder.prototype = {
   },
   loadBasic : function(model) {
 
-    this.loader.load(this.dir + model + "/" + model + ".js", function(geometry) {
+    this.loader.load(this.dir + model + "/" + model + ".json", function(geometry) {
 
       geometry.computeMorphNormals();
 
